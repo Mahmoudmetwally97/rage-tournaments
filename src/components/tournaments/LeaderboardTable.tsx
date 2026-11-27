@@ -1,0 +1,67 @@
+import type { Dictionary } from '@/lib/i18n/dictionaries';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+
+export interface LeaderboardRow {
+  code: string;
+  ign: string;
+  status: string;
+  points: number;
+  kills: number;
+}
+
+interface LeaderboardTableProps {
+  rows: readonly LeaderboardRow[];
+  dict: Dictionary;
+}
+
+export function LeaderboardTable({ rows, dict }: LeaderboardTableProps) {
+  const rankBadgeClass = (idx: number) => {
+    if (idx === 0) return 'border-[#FFB938]/50 bg-[#FFB938]/15 text-[#FFB938]';
+    if (idx === 1) return 'border-[#D6D9E0]/40 bg-[#D6D9E0]/10 text-[#F2EFE9]';
+    if (idx === 2) return 'border-[#CD7F32]/45 bg-[#CD7F32]/15 text-[#E5A970]';
+    return 'border-[#27272C] bg-[#202024] text-[#B5B2AC]';
+  };
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#27272C] bg-[#171719]">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-[#27272C] bg-[#202024] text-xs font-bold text-[#B5B2AC]">
+              <th className="py-3 px-4 text-start">{dict.leaderboard.rank}</th>
+              <th className="py-3 px-4 text-start">{dict.leaderboard.code}</th>
+              <th className="py-3 px-4 text-start">{dict.leaderboard.player}</th>
+              <th className="py-3 px-4 text-start">{dict.leaderboard.points}</th>
+              <th className="py-3 px-4 text-start">{dict.leaderboard.kills}</th>
+              <th className="py-3 px-4 text-start">{dict.leaderboard.status}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#27272C]">
+            {rows.map((row, idx) => (
+              <tr key={row.code} className="transition-colors hover:bg-[#202024]/60">
+                <td className="py-3.5 px-4">
+                  <span
+                    className={`inline-flex h-7 w-7 items-center justify-center rounded-md border text-xs font-extrabold ltr-isolate ${rankBadgeClass(idx)}`}
+                  >
+                    #{idx + 1}
+                  </span>
+                </td>
+                <td className="py-3.5 px-4 font-mono text-xs font-bold text-[#FFB938] ltr-isolate">
+                  {row.code}
+                </td>
+                <td className="py-3.5 px-4 font-extrabold text-[#F2EFE9] ltr-isolate">{row.ign}</td>
+                <td className="py-3.5 px-4 font-extrabold text-[#FF6A1A] ltr-isolate">{row.points}</td>
+                <td className="py-3.5 px-4 font-semibold text-[#B5B2AC] ltr-isolate">{row.kills}</td>
+                <td className="py-3.5 px-4">
+                  <StatusBadge variant={row.status === 'checked_in' ? 'open' : 'neutral'}>
+                    {row.status}
+                  </StatusBadge>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

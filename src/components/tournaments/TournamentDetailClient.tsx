@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { LeaderboardTable } from '@/components/tournaments/LeaderboardTable';
 
 interface Props {
   tournament: DemoTournament;
@@ -26,6 +27,11 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   const game = locale === 'ar' ? tournament.gameAr : tournament.gameEn;
   const rules = locale === 'ar' ? tournament.rulesAr : tournament.rulesEn;
 
+  const formattedDate = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(new Date(tournament.startsAtIso));
+
   function handleRegister(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -42,22 +48,46 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      {/* Header */}
-      <section className="mb-6 rounded-2xl border border-[#27272C] bg-[#171719] p-6">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <Badge variant="open">{dict.tournament.open}</Badge>
-          <Badge>{tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}</Badge>
-          <Badge>{dict.tournament.free}</Badge>
-          <span className="text-xs font-bold text-[#FF6A1A]">{game}</span>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      {/* Tournament Cover / Hero */}
+      <section className="relative mb-8 overflow-hidden rounded-2xl border border-[#27272C] bg-[#171719] p-6 sm:p-8 tactical-grid-bg">
+        <div className="absolute inset-x-0 top-0 h-1 bg-[#FF6A1A]" />
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <StatusBadge variant="open">{dict.tournament.open}</StatusBadge>
+          <StatusBadge>
+            {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
+          </StatusBadge>
+          <StatusBadge>{dict.tournament.free}</StatusBadge>
+          <span className="text-xs font-extrabold text-[#FF6A1A]">{game}</span>
         </div>
 
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
-            <h1 className="text-2xl font-extrabold text-[#F2EFE9] sm:text-3xl">{title}</h1>
-            <p className="mt-1 text-sm text-[#B5B2AC] ltr-isolate">{tournament.formatLabel}</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#F2EFE9] sm:text-4xl">
+              {title}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-[#B5B2AC]">
+              <span className="ltr-isolate">{tournament.formatLabel}</span>
+              <span>•</span>
+              <span>{formattedDate}</span>
+              <span>•</span>
+              <span className="ltr-isolate">
+                {tournament.maxParticipants > 0
+                  ? `${tournament.registeredCount} / ${tournament.maxParticipants}`
+                  : `${tournament.registeredCount} / ${dict.tournament.unlimited}`}
+              </span>
+            </div>
           </div>
-          <Button onClick={() => { setModalOpen(true); setRegCode(null); setError(''); }} size="lg">
+
+          <Button
+            onClick={() => {
+              setModalOpen(true);
+              setRegCode(null);
+              setError('');
+            }}
+            size="lg"
+            className="w-full sm:w-auto"
+          >
             {dict.tournament.registerNow}
           </Button>
         </div>
@@ -74,7 +104,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer ${
               activeTab === key
                 ? 'bg-[#FF6A1A] text-[#0B0B0C]'
-                : 'bg-[#171719] text-[#B5B2AC] hover:text-[#F2EFE9]'
+                : 'bg-[#171719] text-[#B5B2AC] hover:bg-[#202024] hover:text-[#F2EFE9]'
             }`}
           >
             {dict.tournament.tabs[key]}
@@ -85,28 +115,32 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
       {/* Tab Content */}
       <section className="rounded-xl border border-[#27272C] bg-[#171719] p-6">
         {activeTab === 'overview' && (
-          <div className="grid gap-4 sm:grid-cols-3 text-sm">
-            <div className="rounded-lg border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-[#7A7874]">{dict.tournament.slots}</div>
-              <div className="mt-1 text-lg font-extrabold ltr-isolate">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
+              <div className="text-xs text-[#7A7874]">{dict.tournament.game}</div>
+              <div className="mt-1 font-extrabold text-[#F2EFE9]">{game}</div>
+            </div>
+            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
+              <div className="text-xs text-[#7A7874]">{dict.tournament.format}</div>
+              <div className="mt-1 font-extrabold text-[#F2EFE9] ltr-isolate">{tournament.formatLabel}</div>
+            </div>
+            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
+              <div className="text-xs text-[#7A7874]">{dict.tournament.slots}</div>
+              <div className="mt-1 font-extrabold text-[#F2EFE9] ltr-isolate">
                 {tournament.maxParticipants > 0
                   ? `${tournament.registeredCount} / ${tournament.maxParticipants}`
                   : `${tournament.registeredCount} / ${dict.tournament.unlimited}`}
               </div>
             </div>
-            <div className="rounded-lg border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-[#7A7874]">{dict.tournament.startsAt}</div>
-              <div className="mt-1 text-base font-bold ltr-isolate">{tournament.startsAtIso}</div>
-            </div>
-            <div className="rounded-lg border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-[#7A7874]">{dict.tournament.free}</div>
-              <div className="mt-1 text-base font-bold text-[#10B981]">Free Entry</div>
+            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
+              <div className="text-xs text-[#7A7874]">{dict.tournament.startsAt}</div>
+              <div className="mt-1 font-bold text-[#F2EFE9]">{formattedDate}</div>
             </div>
           </div>
         )}
 
         {activeTab === 'rules' && (
-          <ul className="list-disc space-y-2 ps-5 text-sm text-[#B5B2AC]">
+          <ul className="list-disc space-y-2.5 ps-5 text-sm leading-relaxed text-[#B5B2AC]">
             {rules.map((r, i) => (
               <li key={i}>{r}</li>
             ))}
@@ -116,12 +150,15 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         {activeTab === 'schedule' && (
           <div className="space-y-3">
             {tournament.stages.map((st) => (
-              <div key={st.order} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#27272C] bg-[#0B0B0C] p-4 text-sm">
+              <div
+                key={st.order}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4 text-sm"
+              >
                 <div>
                   <span className="font-extrabold text-[#FF6A1A] ltr-isolate">Stage {st.order}: </span>
-                  <span className="font-bold">{locale === 'ar' ? st.nameAr : st.nameEn}</span>
+                  <span className="font-bold text-[#F2EFE9]">{locale === 'ar' ? st.nameAr : st.nameEn}</span>
                 </div>
-                <div className="text-xs text-[#B5B2AC] ltr-isolate">
+                <div className="text-xs font-semibold text-[#B5B2AC] ltr-isolate">
                   {st.format} → {st.qualifies}
                 </div>
               </div>
@@ -130,53 +167,30 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         )}
 
         {(activeTab === 'participants' || activeTab === 'leaderboard') && (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-[#27272C] text-start text-xs text-[#7A7874]">
-                  <th className="py-2.5 px-3 text-start">#</th>
-                  <th className="py-2.5 px-3 text-start">Code</th>
-                  <th className="py-2.5 px-3 text-start">IGN</th>
-                  <th className="py-2.5 px-3 text-start">Points</th>
-                  <th className="py-2.5 px-3 text-start">Kills</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tournament.sampleParticipants.map((p, idx) => (
-                  <tr key={p.code} className="border-b border-[#27272C]/60">
-                    <td className="py-2.5 px-3 ltr-isolate">{idx + 1}</td>
-                    <td className="py-2.5 px-3 font-bold text-[#FFB938] ltr-isolate">{p.code}</td>
-                    <td className="py-2.5 px-3 font-bold ltr-isolate">{p.ign}</td>
-                    <td className="py-2.5 px-3 ltr-isolate">{p.points}</td>
-                    <td className="py-2.5 px-3 ltr-isolate">{p.kills}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <LeaderboardTable rows={tournament.sampleParticipants} dict={dict} />
         )}
       </section>
 
       {/* Progressive Profiling Registration Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-md rounded-2xl border border-[#27272C] bg-[#171719] p-6">
             <h2 className="mb-2 text-xl font-extrabold text-[#F2EFE9]">
               {regCode ? dict.tournament.successTitle : dict.tournament.registerModalTitle}
             </h2>
 
             {regCode ? (
-              <div className="space-y-4 text-center py-4">
+              <div className="space-y-4 py-4 text-center">
                 <p className="text-sm text-[#B5B2AC]">{dict.tournament.successCode}</p>
                 <div className="rounded-xl border border-dashed border-[#FFB938] bg-[#FFB938]/10 p-4 text-2xl font-extrabold text-[#FFB938] ltr-isolate">
                   {regCode}
                 </div>
                 <Button onClick={() => setModalOpen(false)} className="w-full">
-                  {dict.tournament.cancel}
+                  {dict.tournament.close}
                 </Button>
               </div>
             ) : (
-              <form onSubmit={handleRegister} className="space-y-4 mt-4">
+              <form onSubmit={handleRegister} className="mt-4 space-y-4">
                 {error && (
                   <div className="rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/15 p-3 text-xs font-bold text-[#FCA5A5]">
                     {error}
@@ -197,7 +211,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
                   <p className="mt-1 text-xs text-[#7A7874]">{dict.tournament.ignHelper}</p>
                 </div>
 
-                <label className="flex items-start gap-2.5 text-xs text-[#B5B2AC] cursor-pointer">
+                <label className="flex cursor-pointer items-start gap-2.5 text-xs text-[#B5B2AC]">
                   <input
                     type="checkbox"
                     checked={agreed}
@@ -208,7 +222,9 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
                 </label>
 
                 <div className="flex gap-2.5">
-                  <Button type="submit" className="flex-1">{dict.tournament.confirmSubmit}</Button>
+                  <Button type="submit" className="flex-1">
+                    {dict.tournament.confirmSubmit}
+                  </Button>
                   <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
                     {dict.tournament.cancel}
                   </Button>

@@ -1,8 +1,16 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import { DEMO_TOURNAMENTS } from '@/lib/data/demo-tournaments';
+import {
+  DEMO_RECENT_RESULTS,
+  DEMO_TOURNAMENTS,
+  DEMO_UPCOMING_MATCHES
+} from '@/lib/data/demo-tournaments';
+import { FeaturedTournament } from '@/components/tournaments/FeaturedTournament';
 import { TournamentCard } from '@/components/tournaments/TournamentCard';
+import { MatchCard } from '@/components/tournaments/MatchCard';
+import { LeaderboardTable } from '@/components/tournaments/LeaderboardTable';
+import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export default async function HomePage({
   params
@@ -13,43 +21,55 @@ export default async function HomePage({
   if (!isValidLocale(locale)) notFound();
   const dict = dictionaries[locale];
 
+  const featured = DEMO_TOURNAMENTS.find((t) => t.featured) ?? DEMO_TOURNAMENTS[0];
+  const topPlayers = DEMO_TOURNAMENTS[0]?.sampleParticipants ?? [];
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      {/* Hero Section */}
-      <section className="mb-10 rounded-2xl border border-[#27272C] bg-[#171719] p-6 sm:p-10">
-        <p className="mb-2 text-xs font-bold tracking-wider text-[#FF6A1A] uppercase">
-          {dict.hero.eyebrow}
-        </p>
-        <h1 className="mb-4 max-w-3xl text-3xl font-extrabold leading-tight text-[#F2EFE9] sm:text-5xl">
-          {dict.hero.title}
-        </h1>
-        <p className="mb-7 max-w-2xl text-sm text-[#B5B2AC] sm:text-base leading-relaxed">
-          {dict.hero.subtitle}
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Link
-            href={`/${locale}/tournaments`}
-            className="rounded-lg bg-[#FF6A1A] px-6 py-3 text-sm font-bold text-[#0B0B0C] hover:bg-[#FF7E38]"
-          >
-            {dict.hero.ctaPrimary}
-          </Link>
-          <Link
-            href={`/${locale}/register`}
-            className="rounded-lg border border-[#27272C] bg-[#0B0B0C] px-6 py-3 text-sm font-bold text-[#F2EFE9] hover:border-[#3A3A42]"
-          >
-            {dict.hero.ctaSecondary}
-          </Link>
+    <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
+      {/* Editorial Esports Hero */}
+      <section className="relative overflow-hidden rounded-2xl border border-[#27272C] bg-[#171719] p-6 sm:p-12 tactical-grid-bg">
+        <div className="max-w-3xl">
+          <p className="mb-3 text-xs font-extrabold tracking-widest text-[#FF6A1A] uppercase ltr-isolate">
+            {dict.hero.eyebrow}
+          </p>
+          <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-[#F2EFE9] sm:text-5xl">
+            {dict.hero.title}
+          </h1>
+          <p className="mb-8 max-w-2xl text-sm leading-relaxed text-[#B5B2AC] sm:text-base">
+            {dict.hero.subtitle}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href={`/${locale}/tournaments`}
+              className="rounded-lg bg-[#FF6A1A] px-6 py-3 text-sm font-extrabold text-[#0B0B0C] transition-colors hover:bg-[#FF7E38]"
+            >
+              {dict.hero.ctaPrimary}
+            </Link>
+            <Link
+              href={`/${locale}/register`}
+              className="rounded-lg border border-[#27272C] bg-[#202024] px-6 py-3 text-sm font-bold text-[#F2EFE9] transition-colors hover:border-[#3A3A42]"
+            >
+              {dict.hero.ctaSecondary}
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Open Registration Tournaments */}
-      <section className="mb-12">
-        <div className="mb-5 flex items-center justify-between gap-4">
-          <h2 className="text-xl font-extrabold text-[#F2EFE9]">{dict.home.openTournaments}</h2>
-          <Link href={`/${locale}/tournaments`} className="text-sm font-bold text-[#FF6A1A] hover:underline">
-            {dict.home.viewAll}
-          </Link>
-        </div>
+      {/* Featured Tournament */}
+      {featured && (
+        <section>
+          <FeaturedTournament tournament={featured} locale={locale} dict={dict} />
+        </section>
+      )}
+
+      {/* Open & Upcoming Tournaments */}
+      <section>
+        <SectionHeader
+          title={dict.home.openTournaments}
+          subtitle={dict.home.openTournamentsSub}
+          actionLabel={dict.home.viewAll}
+          actionHref={`/${locale}/tournaments`}
+        />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {DEMO_TOURNAMENTS.map((t) => (
             <TournamentCard key={t.slug} tournament={t} locale={locale} dict={dict} />
@@ -57,41 +77,35 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Upcoming Matches & Leaderboard Preview */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-[#27272C] bg-[#171719] p-5">
-          <h3 className="mb-4 text-base font-extrabold text-[#F2EFE9]">{dict.home.upcomingMatches}</h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between rounded-lg border border-[#27272C] bg-[#0B0B0C] p-3">
-              <span>[DEMO] FFA Qualifiers — Room 1</span>
-              <span className="text-xs font-bold text-[#FF6A1A] ltr-isolate">Fri 21:00 UTC+2</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-[#27272C] bg-[#0B0B0C] p-3">
-              <span>[DEMO] Team_Pharaohs vs Delta_Squad</span>
-              <span className="text-xs font-bold text-[#B5B2AC] ltr-isolate">Sat 22:00 UTC+2</span>
-            </div>
+      {/* Live / Upcoming Matches & Recent Results */}
+      <section className="grid gap-8 lg:grid-cols-2">
+        <div>
+          <SectionHeader title={dict.home.upcomingMatches} />
+          <div className="grid gap-3.5">
+            {DEMO_UPCOMING_MATCHES.map((m) => (
+              <MatchCard key={m.id} match={m} locale={locale} />
+            ))}
           </div>
         </div>
 
-        <div className="rounded-xl border border-[#27272C] bg-[#171719] p-5">
-          <h3 className="mb-4 text-base font-extrabold text-[#F2EFE9]">{dict.home.leaderboardPreview}</h3>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between rounded-lg border border-[#27272C] bg-[#0B0B0C] p-3">
-              <div className="flex items-center gap-3">
-                <span className="font-extrabold text-[#FFB938] ltr-isolate">#1</span>
-                <span className="font-bold ltr-isolate">[EG]ProSniper</span>
-              </div>
-              <span className="font-bold text-[#F2EFE9] ltr-isolate">42 pts</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg border border-[#27272C] bg-[#0B0B0C] p-3">
-              <div className="flex items-center gap-3">
-                <span className="font-extrabold text-[#B5B2AC] ltr-isolate">#2</span>
-                <span className="font-bold ltr-isolate">Viper_CF</span>
-              </div>
-              <span className="font-bold text-[#F2EFE9] ltr-isolate">38 pts</span>
-            </div>
+        <div>
+          <SectionHeader title={dict.home.recentResults} />
+          <div className="grid gap-3.5">
+            {DEMO_RECENT_RESULTS.map((m) => (
+              <MatchCard key={m.id} match={m} locale={locale} />
+            ))}
           </div>
         </div>
+      </section>
+
+      {/* Leaderboard Preview */}
+      <section>
+        <SectionHeader
+          title={dict.home.leaderboardPreview}
+          actionLabel={dict.home.viewLeaderboard}
+          actionHref={`/${locale}/leaderboards`}
+        />
+        <LeaderboardTable rows={topPlayers} dict={dict} />
       </section>
     </div>
   );

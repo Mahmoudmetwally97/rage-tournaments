@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
 
@@ -49,16 +50,43 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-14">
+    <div className="mx-auto max-w-md px-4 py-12">
       <div className="rounded-2xl border border-[#27272C] bg-[#171719] p-7">
-        <div className="mb-3 inline-block rounded-full border border-[#F59E0B]/35 bg-[#F59E0B]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#FCD34D]">
-          {locale === 'ar' ? 'وضع المعاينة التجريبي (Demo Auth)' : 'Demo Preview Auth'}
+        <div className="mb-5 flex items-center justify-between">
+          <Image
+            src="/brand/logo-rage-fire.png"
+            alt="RAGE"
+            width={100}
+            height={28}
+            className="h-6 w-auto"
+          />
+          <span className="rounded-full border border-[#F59E0B]/35 bg-[#F59E0B]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#FCD34D]">
+            {locale === 'ar' ? 'معاينة Demo' : 'Demo Auth'}
+          </span>
         </div>
-        <h1 className="mb-2 text-2xl font-extrabold text-[#F2EFE9]">
+
+        <h1 className="mb-1.5 text-2xl font-extrabold text-[#F2EFE9]">
           {mode === 'login' ? dict.auth.loginTitle : dict.auth.signupTitle}
         </h1>
+        <p className="mb-5 text-xs leading-relaxed text-[#B5B2AC]">
+          {mode === 'login' ? dict.auth.loginSubtitle : dict.auth.signupSubtitle}
+        </p>
+
         {mode === 'register' && (
-          <p className="mb-5 text-xs text-[#B5B2AC] leading-relaxed">{dict.auth.signupSubtitle}</p>
+          <div className="mb-6 grid grid-cols-3 gap-2">
+            {dict.auth.steps.map((step, i) => (
+              <div
+                key={step}
+                className={`rounded-lg border p-2 text-center text-[11px] font-bold ${
+                  i === 0
+                    ? 'border-[#FF6A1A]/50 bg-[#FF6A1A]/15 text-[#FF6A1A]'
+                    : 'border-[#27272C] bg-[#0B0B0C] text-[#7A7874]'
+                }`}
+              >
+                <span className="ltr-isolate">{i + 1}.</span> {step}
+              </div>
+            ))}
+          </div>
         )}
 
         {error && (

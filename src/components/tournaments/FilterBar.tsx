@@ -1,0 +1,99 @@
+'use client';
+
+import type { Dictionary } from '@/lib/i18n/dictionaries';
+import { Button } from '@/components/ui/Button';
+
+interface FilterBarProps {
+  search: string;
+  statusFilter: string;
+  typeFilter: string;
+  formatFilter: string;
+  onSearchChange: (val: string) => void;
+  onStatusChange: (val: string) => void;
+  onTypeChange: (val: string) => void;
+  onFormatChange: (val: string) => void;
+  onReset: () => void;
+  dict: Dictionary;
+}
+
+export function FilterBar({
+  search,
+  statusFilter,
+  typeFilter,
+  formatFilter,
+  onSearchChange,
+  onStatusChange,
+  onTypeChange,
+  onFormatChange,
+  onReset,
+  dict
+}: FilterBarProps) {
+  const hasActiveFilter = search || statusFilter !== 'all' || typeFilter !== 'all' || formatFilter !== 'all';
+
+  return (
+    <div className="mb-6 grid gap-3 rounded-xl border border-[#27272C] bg-[#171719] p-4 sm:grid-cols-2 lg:grid-cols-12">
+      <div className="lg:col-span-4">
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder={dict.filters.searchPlaceholder}
+          aria-label={dict.filters.searchPlaceholder}
+          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] placeholder:text-[#7A7874] focus:border-[#FF6A1A] focus:outline-none"
+        />
+      </div>
+
+      <div className="lg:col-span-3">
+        <select
+          value={statusFilter}
+          onChange={(e) => onStatusChange(e.target.value)}
+          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+        >
+          <option value="all">{dict.filters.allStatuses}</option>
+          <option value="registration_open">{dict.tournament.open}</option>
+          <option value="check_in">{dict.tournament.checkIn}</option>
+          <option value="live">{dict.tournament.live}</option>
+          <option value="completed">{dict.tournament.completed}</option>
+        </select>
+      </div>
+
+      <div className="lg:col-span-2">
+        <select
+          value={typeFilter}
+          onChange={(e) => onTypeChange(e.target.value)}
+          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+        >
+          <option value="all">{dict.filters.allTypes}</option>
+          <option value="solo">{dict.tournament.solo}</option>
+          <option value="team">{dict.tournament.team}</option>
+        </select>
+      </div>
+
+      <div className="lg:col-span-2">
+        <select
+          value={formatFilter}
+          onChange={(e) => onFormatChange(e.target.value)}
+          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+        >
+          <option value="all">{dict.filters.allFormats}</option>
+          <option value="ffa">FFA</option>
+          <option value="groups_knockout">Groups + Knockout</option>
+          <option value="points">Points</option>
+        </select>
+      </div>
+
+      <div className="lg:col-span-1 flex items-stretch">
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={!hasActiveFilter}
+          onClick={onReset}
+          className="w-full"
+        >
+          {dict.filters.reset}
+        </Button>
+      </div>
+    </div>
+  );
+}

@@ -1,11 +1,13 @@
 export interface DemoTournament {
   slug: string;
   isDemo: true;
+  featured?: boolean;
   titleAr: string;
   titleEn: string;
   gameAr: string;
   gameEn: string;
   competitionType: 'solo' | 'team';
+  formatKey: 'ffa' | 'groups_knockout' | 'points';
   formatLabel: string;
   status: 'registration_open' | 'check_in' | 'live' | 'completed';
   registeredCount: number;
@@ -31,21 +33,34 @@ export interface DemoTournament {
   }>;
 }
 
+export interface DemoMatchItem {
+  id: string;
+  isDemo: true;
+  titleAr: string;
+  titleEn: string;
+  stageLabel: string;
+  timeLabel: string;
+  status: 'scheduled' | 'live' | 'completed';
+  scoreLabel?: string;
+}
+
 export const DEMO_TOURNAMENTS: DemoTournament[] = [
   {
     slug: 'demo-rage-ffa-pilot',
     isDemo: true,
+    featured: true,
     titleAr: '[تجريبي] بطولة RAGE FFA التجريبية — 32 لاعب',
     titleEn: '[DEMO] RAGE FFA Pilot Cup — 32 Players',
     gameAr: 'كروس فاير — RAGE',
     gameEn: 'CrossFire — RAGE',
     competitionType: 'solo',
+    formatKey: 'ffa',
     formatLabel: 'FFA • Multi-Stage',
     status: 'registration_open',
     registeredCount: 24,
     maxParticipants: 32,
     startsAtIso: '2026-12-04T19:00:00Z',
-    prizeConfirmedAr: null, // Never invent unconfirmed prizes
+    prizeConfirmedAr: null,
     prizeConfirmedEn: null,
     rulesAr: [
       'التسجيل مجاني بالكامل للاعبين الفرديين.',
@@ -62,9 +77,10 @@ export const DEMO_TOURNAMENTS: DemoTournament[] = [
       { order: 2, nameAr: 'النهائي الكبير', nameEn: 'Grand Final', format: 'FFA', qualifies: '1 Winner' }
     ],
     sampleParticipants: [
-      { code: 'RAGE-1041', ign: '[EG]ProSniper', status: 'confirmed', points: 42, kills: 29 },
+      { code: 'RAGE-1041', ign: '[EG]ProSniper', status: 'checked_in', points: 42, kills: 29 },
       { code: 'RAGE-1042', ign: 'Viper_CF', status: 'confirmed', points: 38, kills: 24 },
-      { code: 'RAGE-1043', ign: 'CairoGhost', status: 'checked_in', points: 35, kills: 21 }
+      { code: 'RAGE-1043', ign: 'CairoGhost', status: 'checked_in', points: 35, kills: 21 },
+      { code: 'RAGE-1044', ign: 'Shadow_EG', status: 'confirmed', points: 29, kills: 18 }
     ]
   },
   {
@@ -75,6 +91,7 @@ export const DEMO_TOURNAMENTS: DemoTournament[] = [
     gameAr: 'كروس فاير — RAGE',
     gameEn: 'CrossFire — RAGE',
     competitionType: 'team',
+    formatKey: 'groups_knockout',
     formatLabel: 'Groups + Knockout',
     status: 'registration_open',
     registeredCount: 11,
@@ -107,6 +124,7 @@ export const DEMO_TOURNAMENTS: DemoTournament[] = [
     gameAr: 'كروس فاير — RAGE',
     gameEn: 'CrossFire — RAGE',
     competitionType: 'solo',
+    formatKey: 'points',
     formatLabel: 'Points Leaderboard',
     status: 'check_in',
     registeredCount: 58,
@@ -125,6 +143,52 @@ export const DEMO_TOURNAMENTS: DemoTournament[] = [
     stages: [
       { order: 1, nameAr: 'سلم النقاط', nameEn: 'Points Stage', format: 'Points', qualifies: 'Top 16' }
     ],
-    sampleParticipants: []
+    sampleParticipants: [
+      { code: 'RAGE-3011', ign: 'NileHawk', status: 'checked_in', points: 54, kills: 40 }
+    ]
+  }
+];
+
+export const DEMO_UPCOMING_MATCHES: DemoMatchItem[] = [
+  {
+    id: 'm-1',
+    isDemo: true,
+    titleAr: '[تجريبي] تصفيات FFA — غرفة 1',
+    titleEn: '[DEMO] FFA Qualifiers — Room 1',
+    stageLabel: 'Stage 1 • FFA',
+    timeLabel: 'Fri 21:00 EET',
+    status: 'scheduled'
+  },
+  {
+    id: 'm-2',
+    isDemo: true,
+    titleAr: '[تجريبي] Team_Pharaohs ضد Delta_Squad',
+    titleEn: '[DEMO] Team_Pharaohs vs Delta_Squad',
+    stageLabel: 'Group A • 5v5',
+    timeLabel: 'Sat 22:00 EET',
+    status: 'live'
+  }
+];
+
+export const DEMO_RECENT_RESULTS: DemoMatchItem[] = [
+  {
+    id: 'r-1',
+    isDemo: true,
+    titleAr: '[تجريبي] جولة FFA التجريبية — غرفة 2',
+    titleEn: '[DEMO] FFA Scrim Round — Room 2',
+    stageLabel: 'Completed',
+    timeLabel: '2h ago',
+    status: 'completed',
+    scoreLabel: '#1 [EG]ProSniper (42 pts)'
+  },
+  {
+    id: 'r-2',
+    isDemo: true,
+    titleAr: '[تجريبي] Team_Pharaohs ضد CairoVipers',
+    titleEn: '[DEMO] Team_Pharaohs vs CairoVipers',
+    stageLabel: 'Completed',
+    timeLabel: 'Yesterday',
+    status: 'completed',
+    scoreLabel: '13 - 9'
   }
 ];
