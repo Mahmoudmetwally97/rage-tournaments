@@ -51,6 +51,8 @@
 
 ## 4. Desktop & Mobile Wireframes (Stage 2 Review)
 
+> **[ILLUSTRATIVE DEMO DATA ONLY]:** All tournament names, player counts, match times, and reward labels in the wireframes below are illustrative placeholders for layout review—not live or confirmed RAGE tournament content.
+
 ### 4.1 Homepage Wireframe (Desktop)
 ```text
 +-------------------------------------------------------------------------+
@@ -59,18 +61,18 @@
 |  HERO: Compete on RAGE. Official CrossFire Tournaments.                 |
 |  [Browse Open Tournaments]  [Create Account]                            |
 +-------------------------------------------------------------------------+
-|  OPEN REGISTRATION & FEATURED TOURNAMENTS                               |
+|  OPEN REGISTRATION & FEATURED TOURNAMENTS (Illustrative Demo Cards)     |
 |  +-----------------------+  +-----------------------+  +--------------+ |
 |  | CrossFire | Solo |FFA |  | CrossFire | Team | 5v5|  | ...          | |
-|  | RAGE FFA Cup          |  | RAGE Clash Cup        |  |              | |
+|  | [Demo] FFA Cup        |  | [Demo] Clash Cup      |  |              | |
 |  | 24 / 32 Slots | Open  |  | 8 / 16 Teams | Open   |  |              | |
 |  | Starts: Fri 21:00     |  | Starts: Sat 22:00     |  |              | |
 |  | [Register] [Details]  |  | [Register] [Details]  |  |              | |
 |  +-----------------------+  +-----------------------+  +--------------+ |
 +-------------------------------------------------------------------------+
-|  UPCOMING MATCHES & RECENT RESULTS   |  LEADERBOARD PREVIEW             |
-|  - Room 1 FFA (In 2h)                |  1. [EG]ProSniper    1,420 pts   |
-|  - Team Alpha vs Team Bravo (2 - 1)  |  2. Viper_CF         1,310 pts   |
+|  UPCOMING MATCHES & RECENT RESULTS   |  LEADERBOARD PREVIEW (Demo)      |
+|  - Room 1 FFA (In 2h)                |  1. [Demo]PlayerA    1,420 pts   |
+|  - Team Alpha vs Team Bravo (2 - 1)  |  2. [Demo]PlayerB    1,310 pts   |
 +-------------------------------------------------------------------------+
 ```
 
@@ -80,9 +82,9 @@
 | [=] [RAGE Logo]         [AR|EN]   |
 +-----------------------------------+
 | [Registration Open] [Solo] [FFA]  |
-| RAGE FFA Cup — Season 1           |
+| [Demo] FFA Cup — Sample Season    |
 | 24 / 32 Players | Fri 21:00 EET   |
-| Prize: Confirmed Reward (Gold)    |
+| Prize: [Confirmed Reward Only]    |
 | [     Register Now (#FF6A1A)    ] |
 +-----------------------------------+
 | [Overview] [Rules] [Participants] |

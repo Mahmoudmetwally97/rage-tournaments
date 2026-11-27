@@ -1,36 +1,48 @@
 # RAGE TOURNAMENTS — RBAC Matrix
 
-## 1. Official Roles (7 Roles)
-| Role | Scope & Description |
-| :--- | :--- |
-| `guest` | Unauthenticated visitor (browse public tournaments, brackets, and leaderboards). |
-| `player` | Authenticated user (register Solo, join teams, check in, submit own match results & disputes). |
-| `team_leader` | Team captain (create/manage team, invite/remove members, register team when roster rules are met). |
-| `referee` | Delegated match official (enter/approve results & manage matches **only** for assigned tournaments in `tournament_admins`). |
-| `tournament_manager` | Organizer for assigned tournaments (edit tournament/stages, open/close registration, generate groups/brackets, manage check-ins). |
-| `moderator` | Platform/tournament moderation (review disputes, violations, evidence, and RAGE link verifications). |
-| `super_admin` | Full platform control (global settings, RBAC role management, all tournaments, audit logs). |
+## 1. Global Roles vs. Tournament-Scoped Roles vs. Derived Ownership
+To eliminate ambiguity between `user_roles` and `tournament_admins`:
+
+1. **Global Roles (`user_roles` table):**
+   - `player`: Default authenticated user.
+   - `moderator`: Platform-wide moderation (disputes, violations, RAGE link verification).
+   - `super_admin`: Full platform control (global settings, RBAC role grants, all tournaments, audit logs).
+2. **Tournament-Scoped Roles (`tournament_admins` table, scoped to `tournament_id`):**
+   - `tournament_manager`: Full management of **only** their assigned tournament(s).
+   - `referee`: Match management & result entry/approval **only** for their assigned tournament(s).
+   - `moderator` (optional scoped assignment): Dispute & evidence review for assigned tournament(s).
+3. **Derived Ownership (NOT a global role):**
+   - `team_leader`: Derived dynamically on the server from `teams.captain_id = auth.uid()` or `team_members.role = 'leader' AND invite_status = 'accepted'`.
+   - `guest`: Unauthenticated visitor.
 
 ---
 
-## 2. Permission Rules (Mandatory)
+## 2. Server-Side Authorization Rules (Mandatory)
+- **Never** rely on hiding UI buttons as a security control. Every Route Handler and Server Action must verify session + role/scope on the server, backed by PostgreSQL RLS.
 - A `player` **cannot** edit match results after approval.
-- A `team_leader` **cannot** register a player into a team without the player accepting the invite.
-- A `tournament_manager` **cannot** edit a tournament they are not assigned to in `tournament_admins` (unless `super_admin`).
-- A `referee` **cannot** approve match results outside their assigned tournament scope.
-- Every sensitive mutation (role change, tournament state change, result approval/override, dispute resolution, DQ) **must** write an immutable record to `audit_logs`.
-- Only `super_admin` can modify global platform settings and grant/revoke staff roles.
+- A `team_leader` **cannot** register a player into a team without `invite_status = 'accepted'`.
+- A `tournament_manager` **cannot** edit a tournament without a matching row in `tournament_admins` (unless `super_admin`).
+- A `referee` **cannot** approve match results outside their assigned `tournament_id`.
+- Every sensitive mutation writes an immutable record to `audit_logs`.
 
 ---
 
-## 3. Matrix Summary
-| Capability | Guest | Player | Team Leader | Referee | Tournament Manager | Moderator | Super Admin |
+## 3. Permission Matrix
+| Capability | Guest | Player | Team Leader (Derived) | Referee (Scoped) | Tournament Manager (Scoped) | Moderator | Super Admin |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Browse tournaments & leaderboards | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
+| Browse public tournaments & leaderboards | Yes | Yes | Yes | Yes | Yes | Yes | Yes |
 | Register Solo & Check-in | No | Yes | Yes | Yes | Yes | Yes | Yes |
-| Create/Manage Team & Register Team | No | No | Yes | No | No | No | Yes |
+| Create/Manage Own Team & Register Team | No | Yes (create) | Yes (own team) | No | No | No | Yes |
 | Submit own match result + evidence | No | Yes | Yes | No | No | No | Yes |
-| Enter/Approve results (assigned scope) | No | No | No | Yes | Yes | No | Yes |
+| Enter/Approve results (assigned tournament) | No | No | No | Yes | Yes | No | Yes |
+| Reopen approved result / Override | No | No | No | No | Yes | No | Yes |
 | Review disputes & violations | No | No | No | No | Yes (scoped) | Yes | Yes |
 | Build/Edit/Seed assigned tournament | No | No | No | No | Yes | No | Yes |
-| Global settings & RBAC management | No | No | No | No | No | No | Yes |
+| Global settings & RBAC role management | No | No | No | No | No | No | Yes |
+
+---
+
+## 4. Architecture Review — Resolved Issues
+- Resolved inconsistency between `RBAC_MATRIX.md` and `DATABASE_SCHEMA.md`: `team_leader` is now explicitly a **derived team-ownership permission**, not a global `user_roles` entry.
+- Clearly separated global `user_roles` (`player`, `moderator`, `super_admin`) from tournament-scoped `tournament_admins` (`tournament_manager`, `referee`, `moderator`).
+- Enforced server-side authorization + RLS as mandatory; UI hiding is strictly cosmetic.

@@ -32,17 +32,25 @@
 ---
 
 ## 4. Flow C: Team Creation & Team Tournament Registration
-1. Player opens **Team Dashboard** → **Create Team** (`Team Name`, `Tag`, `Game`, optional `Logo`). Creator becomes **Team Leader**.
+1. Player opens **Team Dashboard** → **Create Team** (`Team Name`, `Tag`, `Game`, optional `Logo`). Creator becomes **Team Leader** (derived ownership).
 2. Team Leader invites players by `username` or invite link.
 3. Invited players receive an in-app notification and **Accept** or **Reject** (*Team Leader cannot register a player without acceptance*).
-4. On **Tournament Details**, Team Leader clicks **Register Team**, picks the eligible team (meeting `min_team_size` / `max_team_size`), confirms rules, and submits.
+4. On **Tournament Details**, Team Leader clicks **Register Team**, picks the eligible team (meeting `team_size` including captain + optional `substitute_slots`), confirms rules, and submits.
+5. Server locks roster members (`registration_roster_members`) so no member can play for another team in the same tournament.
 
 ---
 
-## 5. Flow D: Check-in, Match Center & Result Submission
+## 5. Flow D: Check-in, Match Center, Results & Disputes
 1. During `Check-in`, confirmed solo players / team leaders click **Check In** on Tournament Details or Dashboard.
 2. When `Live`, participants open **Match Center** → **Match Details** (room/group, opponents, schedule).
-3. **Result Entry:**
+3. **Result Entry & Dispute Window:**
    - **Player Submission:** Participant enters score/kills/placement + uploads screenshot proof → `Pending Review`.
-   - **Admin/Referee Entry:** Official enters or approves result → Leaderboard updates automatically.
-4. **Dispute Workflow:** `Submitted` → `Under Review` → `Resolved` (`Accept`, `Reject`, `Request More Evidence`, `Correct Result`, `Reopen Review`).
+   - **Referee / Tournament Manager Entry:** Official enters or approves result → `Approved` (live on Leaderboard, opens configurable `dispute_window_minutes`, default 30 min).
+   - **Dispute Flow:** Within the dispute window (and before stage advancement lock), a participant can raise a dispute (`Submitted` → `Under Review` → `Resolved`: `Accept`, `Reject`, `Request More Evidence`, `Correct Result`, or `Reopen Review` by `Tournament Manager`/`Super Admin`).
+   - **Correction Effect:** Any approved result correction creates a new `match_results` version, logs to `audit_logs`, and recalculates stage standings/leaderboard.
+
+---
+
+## 6. Architecture Review — Resolved Issues
+- Reduced Sign Up to 3 minimal steps with progressive profiling (`IGN` collected only at first tournament registration per game).
+- Clarified team roster lock (`registration_roster_members`), captain inclusion in `team_size`, and explicit dispute window before stage advancement.
