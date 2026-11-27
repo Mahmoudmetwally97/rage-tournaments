@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --bg-canvas: #0B0B0C;
+  --bg-surface: #171719;
+  --bg-surface-hover: #1F1F23;
+  --border-subtle: #27272C;
+  --border-strong: #3A3A42;
+  --accent-primary: #FF6A1A;
+  --accent-hover: #FF7E38;
+  --text-primary: #F2EFE9;
+  --text-secondary: #B5B2AC;
+  --text-muted: #7A7874;
+  --gold-reward: #FFB938;
+}
+
+body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.ltr-isolate {
+  direction: ltr;
+  unicode-bidi: isolate;
+  display: inline-block;
+}
