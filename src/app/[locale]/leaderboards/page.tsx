@@ -17,7 +17,7 @@ export default async function LeaderboardsPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <SectionHeader title={dict.nav.leaderboards} subtitle={dict.demoBanner} />
-      <LeaderboardTable rows={sample} dict={dict} />
+      <LeaderboardTable rows={sample} dict={dict} locale={locale} />
     </div>
   );
 }

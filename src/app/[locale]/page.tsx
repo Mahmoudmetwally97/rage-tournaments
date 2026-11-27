@@ -105,7 +105,7 @@ export default async function HomePage({
           actionLabel={dict.home.viewLeaderboard}
           actionHref={`/${locale}/leaderboards`}
         />
-        <LeaderboardTable rows={topPlayers} dict={dict} />
+        <LeaderboardTable rows={topPlayers} dict={dict} locale={locale} />
       </section>
     </div>
   );

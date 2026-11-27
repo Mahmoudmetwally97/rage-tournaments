@@ -93,7 +93,9 @@ export default async function PlayerDashboardPage({
           <section className="rounded-xl border border-[#27272C] bg-[#171719] p-5">
             <div className="mb-2 flex items-center justify-between gap-2">
               <h2 className="text-base font-extrabold text-[#F2EFE9]">{dict.dashboard.rageLinkTitle}</h2>
-              <StatusBadge variant="warning">Pending</StatusBadge>
+              <StatusBadge variant="warning">
+                {locale === 'ar' ? 'قيد التحقق' : 'Pending'}
+              </StatusBadge>
             </div>
             <p className="text-xs leading-relaxed text-[#B5B2AC]">{dict.dashboard.rageLinkDesc}</p>
           </section>

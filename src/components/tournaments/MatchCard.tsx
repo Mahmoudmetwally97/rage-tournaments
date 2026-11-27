@@ -9,6 +9,8 @@ interface MatchCardProps {
 
 export function MatchCard({ match, locale }: MatchCardProps) {
   const title = locale === 'ar' ? match.titleAr : match.titleEn;
+  const stageLabel = locale === 'ar' ? match.stageLabelAr : match.stageLabelEn;
+  const timeLabel = locale === 'ar' ? match.timeLabelAr : match.timeLabelEn;
   const variant = match.status === 'live' ? 'live' : match.status === 'completed' ? 'open' : 'neutral';
   const statusText =
     match.status === 'live'
@@ -26,14 +28,14 @@ export function MatchCard({ match, locale }: MatchCardProps) {
   return (
     <div className="flex flex-col justify-between gap-2 rounded-xl border border-[#27272C] bg-[#171719] p-4 transition-colors hover:border-[#3A3A42]">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold text-[#7A7874] ltr-isolate">{match.stageLabel}</span>
+        <span className="text-xs font-semibold text-[#7A7874]">{stageLabel}</span>
         <StatusBadge variant={variant} pulse={match.status === 'live'}>
           {statusText}
         </StatusBadge>
       </div>
       <div className="text-sm font-bold text-[#F2EFE9]">{title}</div>
       <div className="flex items-center justify-between text-xs text-[#B5B2AC]">
-        <span className="ltr-isolate">{match.timeLabel}</span>
+        <span>{timeLabel}</span>
         {match.scoreLabel && (
           <span className="font-bold text-[#FFB938] ltr-isolate">{match.scoreLabel}</span>
         )}

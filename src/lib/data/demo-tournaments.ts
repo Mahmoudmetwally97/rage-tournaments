@@ -38,8 +38,10 @@ export interface DemoMatchItem {
   isDemo: true;
   titleAr: string;
   titleEn: string;
-  stageLabel: string;
-  timeLabel: string;
+  stageLabelAr: string;
+  stageLabelEn: string;
+  timeLabelAr: string;
+  timeLabelEn: string;
   status: 'scheduled' | 'live' | 'completed';
   scoreLabel?: string;
 }
@@ -155,8 +157,10 @@ export const DEMO_UPCOMING_MATCHES: DemoMatchItem[] = [
     isDemo: true,
     titleAr: '[تجريبي] تصفيات FFA — غرفة 1',
     titleEn: '[DEMO] FFA Qualifiers — Room 1',
-    stageLabel: 'Stage 1 • FFA',
-    timeLabel: 'Fri 21:00 EET',
+    stageLabelAr: 'المرحلة 1 • FFA',
+    stageLabelEn: 'Stage 1 • FFA',
+    timeLabelAr: 'الجمعة 21:00 بتوقيت القاهرة',
+    timeLabelEn: 'Fri 21:00 EET',
     status: 'scheduled'
   },
   {
@@ -164,8 +168,10 @@ export const DEMO_UPCOMING_MATCHES: DemoMatchItem[] = [
     isDemo: true,
     titleAr: '[تجريبي] Team_Pharaohs ضد Delta_Squad',
     titleEn: '[DEMO] Team_Pharaohs vs Delta_Squad',
-    stageLabel: 'Group A • 5v5',
-    timeLabel: 'Sat 22:00 EET',
+    stageLabelAr: 'المجموعة A • 5v5',
+    stageLabelEn: 'Group A • 5v5',
+    timeLabelAr: 'السبت 22:00 بتوقيت القاهرة',
+    timeLabelEn: 'Sat 22:00 EET',
     status: 'live'
   }
 ];
@@ -176,8 +182,10 @@ export const DEMO_RECENT_RESULTS: DemoMatchItem[] = [
     isDemo: true,
     titleAr: '[تجريبي] جولة FFA التجريبية — غرفة 2',
     titleEn: '[DEMO] FFA Scrim Round — Room 2',
-    stageLabel: 'Completed',
-    timeLabel: '2h ago',
+    stageLabelAr: 'المرحلة 1 • غرفة 2',
+    stageLabelEn: 'Stage 1 • Room 2',
+    timeLabelAr: 'منذ ساعتين',
+    timeLabelEn: '2h ago',
     status: 'completed',
     scoreLabel: '#1 [EG]ProSniper (42 pts)'
   },
@@ -186,8 +194,10 @@ export const DEMO_RECENT_RESULTS: DemoMatchItem[] = [
     isDemo: true,
     titleAr: '[تجريبي] Team_Pharaohs ضد CairoVipers',
     titleEn: '[DEMO] Team_Pharaohs vs CairoVipers',
-    stageLabel: 'Completed',
-    timeLabel: 'Yesterday',
+    stageLabelAr: 'مباراة ودية • 5v5',
+    stageLabelEn: 'Scrim Match • 5v5',
+    timeLabelAr: 'أمس',
+    timeLabelEn: 'Yesterday',
     status: 'completed',
     scoreLabel: '13 - 9'
   }

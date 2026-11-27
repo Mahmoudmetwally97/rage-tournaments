@@ -113,7 +113,12 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
       </div>
 
       {/* Tab Content */}
-      <section className="rounded-xl border border-[#27272C] bg-[#171719] p-6">
+      <section
+        role="tabpanel"
+        id={`tabpanel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+        className="rounded-xl border border-[#27272C] bg-[#171719] p-6"
+      >
         {activeTab === 'overview' && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
@@ -166,16 +171,46 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
           </div>
         )}
 
-        {(activeTab === 'participants' || activeTab === 'leaderboard') && (
-          <LeaderboardTable rows={tournament.sampleParticipants} dict={dict} />
+        {activeTab === 'participants' && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {tournament.sampleParticipants.map((p) => (
+              <div
+                key={p.code}
+                className="flex items-center justify-between gap-3 rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4"
+              >
+                <div>
+                  <div className="font-extrabold text-[#F2EFE9] ltr-isolate">{p.ign}</div>
+                  <div className="mt-0.5 font-mono text-xs font-bold text-[#FFB938] ltr-isolate">{p.code}</div>
+                </div>
+                <StatusBadge variant={p.status === 'checked_in' ? 'open' : 'neutral'}>
+                  {p.status === 'checked_in'
+                    ? locale === 'ar'
+                      ? 'تم التحضير'
+                      : 'Checked In'
+                    : locale === 'ar'
+                    ? 'مؤكد'
+                    : 'Confirmed'}
+                </StatusBadge>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'leaderboard' && (
+          <LeaderboardTable rows={tournament.sampleParticipants} dict={dict} locale={locale} />
         )}
       </section>
 
       {/* Progressive Profiling Registration Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reg-modal-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        >
           <div className="w-full max-w-md rounded-2xl border border-[#27272C] bg-[#171719] p-6">
-            <h2 className="mb-2 text-xl font-extrabold text-[#F2EFE9]">
+            <h2 id="reg-modal-title" className="mb-2 text-xl font-extrabold text-[#F2EFE9]">
               {regCode ? dict.tournament.successTitle : dict.tournament.registerModalTitle}
             </h2>
 
