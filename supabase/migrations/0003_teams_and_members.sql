@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS team_members (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   team_id uuid NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
   user_id uuid NOT NULL REFERENCES player_profiles(id) ON DELETE CASCADE,
-  role text NOT NULL DEFAULT 'member' CHECK (role IN ('leader', 'member', 'sub')),
+  role text NOT NULL DEFAULT 'member' CHECK (role IN ('member', 'sub')),
   invite_status text NOT NULL DEFAULT 'pending' CHECK (invite_status IN ('pending', 'accepted', 'declined')),
   joined_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (team_id, user_id)

@@ -36,12 +36,14 @@
 ### RBAC & Scoped Administration
 - `user_roles` (Global roles only): `id (uuid PK)`, `user_id (FK)`, `role ('player'|'moderator'|'super_admin')`, `granted_by (FK)`. `UNIQUE (user_id, role)`.
 - `tournament_admins` (Tournament-scoped roles): `id (uuid PK)`, `tournament_id (FK)`, `user_id (FK)`, `role ('tournament_manager'|'referee'|'moderator')`, `assigned_by (FK)`. `UNIQUE (tournament_id, user_id, role)`.
-  - *(Note: `team_leader` is NOT a global role; it is derived from `teams.captain_id` / `team_members.role = 'leader'`.)*
+  - *(Note: `team_leader` is NOT a global role; it is derived exclusively from `teams.captain_id`.)*
 
 ### Teams & Membership Rules
-- `teams`: `id (uuid PK)`, `game_id (FK -> games)`, `name`, `tag`, `captain_id (FK -> player_profiles)`, `logo_url`, `region`, `created_at`.
-- `team_members`: `id (uuid PK)`, `team_id (FK -> teams ON DELETE CASCADE)`, `user_id (FK -> player_profiles ON DELETE CASCADE)`, `role ('leader'|'member'|'sub')`, `invite_status ('pending'|'accepted'|'declined')`, `joined_at`.
+- `teams`: `id (uuid PK)`, `game_id (FK -> games)`, `name`, `tag`, `captain_id (uuid NOT NULL FK -> player_profiles)`, `logo_url`, `region`, `created_at`.
+  - **Single Source of Truth for Leadership:** `teams.captain_id` is the **sole authoritative source** for Team Leader ownership.
+- `team_members`: `id (uuid PK)`, `team_id (FK -> teams ON DELETE CASCADE)`, `user_id (FK -> player_profiles ON DELETE CASCADE)`, `role ('member'|'sub')`, `invite_status ('pending'|'accepted'|'declined')`, `joined_at`.
   - `UNIQUE (team_id, user_id)` — prevents duplicate members in the same team.
+  - Leadership is never duplicated as a conflicting `'leader'` role inside `team_members`; transferring captaincy updates `teams.captain_id` atomically.
   - Players **may** belong to multiple teams for the same game, but **cannot** compete on two teams in the same tournament (enforced by `registration_roster_members`).
 
 ### Tournaments, Lifecycle & Team Size Rules
@@ -55,6 +57,10 @@
     - `CREATE UNIQUE INDEX uq_reg_team ON registrations(tournament_id, team_id) WHERE team_id IS NOT NULL AND status NOT IN ('cancelled','rejected');`
 - `registration_roster_members`: `id (uuid PK)`, `tournament_id (FK)`, `registration_id (FK -> registrations ON DELETE CASCADE)`, `user_id (FK)`, `roster_role ('leader'|'starter'|'sub')`.
   - `UNIQUE (tournament_id, user_id)` — guarantees no player competes on two teams in the same tournament.
+  - **Transactional Roster Validation (`register_team` RPC):**
+    1. Every listed `user_id` must either equal `teams.captain_id` or have `invite_status = 'accepted'` in `team_members` for that exact `team_id`.
+    2. Count of `roster_role IN ('leader', 'starter')` must equal `tournaments.team_size`.
+    3. Count of `roster_role = 'sub'` must be `<= tournaments.substitute_slots`.
 
 ### Reusable Stages, Groups, Matches, Results & Disputes
 - `stages`: `id (uuid PK)`, `tournament_id (FK)`, `stage_order (int)`, `format ('ffa'|'points'|'groups'|'knockout')`, `participant_mode ('solo'|'team')`, `seeding_mode ('seeded_snake'|'random_prng')`, `random_seed (text NULL)`, `qualify_count (int)`, `advance_rule ('top_n_per_group'|'top_n_overall'|'bracket_winners')`, `config (jsonb)`, `status ('pending'|'active'|'completed')`. `UNIQUE (tournament_id, stage_order)`.
@@ -63,7 +69,8 @@
 - `group_participants`: `id (uuid PK)`, `group_id (FK)`, `registration_id (FK)`, `seed_in_group (int)`. `UNIQUE (group_id, registration_id)`. *(Canonical source of truth for group membership & standings.)*
 - `matches`: `id (uuid PK)`, `stage_id (FK)`, `group_id (FK NULL)`, `round_number`, `match_number`, `status ('scheduled'|'live'|'pending_review'|'completed'|'disputed')`, `next_match_id (FK NULL)`, `scheduled_at (timestamptz)`.
 - `match_participants`: `id (uuid PK)`, `match_id (FK)`, `registration_id (FK)`, `slot_number`. `UNIQUE (match_id, registration_id)`.
-- `stage_qualifications`, `match_results` (with `version`, `is_current`, `approval_status`, `approved_by`, `reason`), `result_evidence`, `disputes`, `notifications`, `audit_logs`.
+- `stage_qualifications`, `match_results` (`version`, `is_current`, `approval_status`, `approved_by`, `approved_at (timestamptz NULL)`, `reason`), `result_evidence`, `disputes`, `notifications`, `audit_logs`.
+  - `match_results.approved_at` anchors the configurable `dispute_window_minutes` check in `API_SPEC.md`.
 
 ---
 
