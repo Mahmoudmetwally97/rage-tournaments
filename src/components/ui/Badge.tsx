@@ -8,7 +8,7 @@ interface BadgeProps {
 
 export function Badge({ variant = 'default', children, className = '' }: BadgeProps) {
   const styles: Record<NonNullable<BadgeProps['variant']>, string> = {
-    default: 'bg-[#1F1F23] text-[#B5B2AC] border-[#27272C]',
+    default: 'bg-[#1F1F23] text-[#a4a6aa] border-[#2b2d30]',
     open: 'bg-[#10B981]/15 text-[#6EE7B7] border-[#10B981]/30',
     warning: 'bg-[#F59E0B]/15 text-[#FCD34D] border-[#F59E0B]/30',
     danger: 'bg-[#EF4444]/15 text-[#FCA5A5] border-[#EF4444]/30',

@@ -42,7 +42,7 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
   }).format(new Date(tournament.startsAtIso));
 
   return (
-    <article className="group flex flex-col justify-between rounded-xl border border-[#27272C] bg-[#171719] p-5 transition-all hover:border-[#3A3A42] hover:bg-[#1C1C20]">
+    <article className="group flex flex-col justify-between rounded-none border border-[#2b2d30] bg-[#151619] p-5 transition-all hover:border-[#3a3d40] hover:bg-[#1C1C20]">
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
@@ -53,26 +53,26 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
               {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
             </StatusBadge>
           </div>
-          <span className="text-xs font-semibold text-[#7A7874] ltr-isolate">{tournament.formatLabel}</span>
+          <span className="text-xs font-semibold text-[#6f7276] ltr-isolate">{tournament.formatLabel}</span>
         </div>
 
-        <p className="mb-1 text-xs font-bold text-[#FF6A1A]">{game}</p>
-        <h3 className="mb-4 text-lg font-extrabold text-[#F2EFE9] leading-snug group-hover:text-white">
+        <p className="mb-1 text-xs font-bold text-[#e5ed43]">{game}</p>
+        <h3 className="mb-4 text-lg font-extrabold text-[#f4f4ed] leading-snug group-hover:text-white">
           {title}
         </h3>
 
-        <div className="mb-5 grid grid-cols-2 gap-3 rounded-lg border border-[#27272C] bg-[#0B0B0C] p-3.5 text-xs">
+        <div className="mb-5 grid grid-cols-2 gap-3 rounded-none border border-[#2b2d30] bg-[#0d0e10] p-3.5 text-xs">
           <div>
-            <div className="text-[#7A7874]">{dict.tournament.slots}</div>
-            <div className="mt-0.5 font-bold text-[#F2EFE9] ltr-isolate">{capacityText}</div>
+            <div className="text-[#6f7276]">{dict.tournament.slots}</div>
+            <div className="mt-0.5 font-bold text-[#f4f4ed] ltr-isolate">{capacityText}</div>
           </div>
           <div>
-            <div className="text-[#7A7874]">{dict.tournament.startsAt}</div>
-            <div className="mt-0.5 font-bold text-[#F2EFE9]">{formattedDate}</div>
+            <div className="text-[#6f7276]">{dict.tournament.startsAt}</div>
+            <div className="mt-0.5 font-bold text-[#f4f4ed]">{formattedDate}</div>
           </div>
           {prize && (
-            <div className="col-span-2 border-t border-[#27272C] pt-2">
-              <span className="text-[#7A7874]">{dict.tournament.prize}: </span>
+            <div className="col-span-2 border-t border-[#2b2d30] pt-2">
+              <span className="text-[#6f7276]">{dict.tournament.prize}: </span>
               <span className="font-bold text-[#FFB938]">{prize}</span>
             </div>
           )}
@@ -82,13 +82,13 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
       <div className="flex items-center gap-2.5">
         <Link
           href={`/${locale}/tournaments/${tournament.slug}`}
-          className="flex-1 rounded-lg bg-[#FF6A1A] px-4 py-2.5 text-center text-sm font-extrabold text-[#0B0B0C] transition-colors hover:bg-[#FF7E38]"
+          className="flex-1 rounded-none bg-[#e5ed43] px-4 py-2.5 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
         >
           {dict.tournament.registerNow}
         </Link>
         <Link
           href={`/${locale}/tournaments/${tournament.slug}`}
-          className="rounded-lg border border-[#27272C] bg-[#202024] px-4 py-2.5 text-sm font-bold text-[#F2EFE9] transition-colors hover:border-[#3A3A42]"
+          className="rounded-none border border-[#2b2d30] bg-[#1b1d20] px-4 py-2.5 text-sm font-bold text-[#f4f4ed] transition-colors hover:border-[#3a3d40]"
         >
           {dict.tournament.viewDetails}
         </Link>

@@ -16,12 +16,12 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-lg font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF6A1A] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    'inline-flex items-center justify-center gap-2 rounded-none font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5ed43] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
   const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
-    primary: 'bg-[#FF6A1A] text-[#0B0B0C] hover:bg-[#FF7E38]',
-    secondary: 'bg-[#171719] text-[#F2EFE9] border border-[#27272C] hover:border-[#3A3A42] hover:bg-[#1F1F23]',
-    ghost: 'bg-transparent text-[#B5B2AC] hover:text-[#F2EFE9] hover:bg-[#171719]',
+    primary: 'bg-[#e5ed43] text-[#0d0e10] hover:bg-[#eef46b]',
+    secondary: 'bg-[#151619] text-[#f4f4ed] border border-[#2b2d30] hover:border-[#3a3d40] hover:bg-[#1F1F23]',
+    ghost: 'bg-transparent text-[#a4a6aa] hover:text-[#f4f4ed] hover:bg-[#151619]',
     danger: 'bg-[#EF4444]/15 text-[#FCA5A5] border border-[#EF4444]/35 hover:bg-[#EF4444]/25'
   };
 

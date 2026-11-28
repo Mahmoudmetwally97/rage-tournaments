@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --bg-canvas: #0B0B0C;
-  --bg-surface: #171719;
-  --bg-elevated: #202024;
-  --border-subtle: #27272C;
-  --border-strong: #3A3A42;
-  --accent-primary: #FF6A1A;
-  --accent-hover: #FF7E38;
-  --text-primary: #F2EFE9;
-  --text-secondary: #B5B2AC;
-  --text-muted: #7A7874;
+  --bg-canvas: #0d0e10;
+  --bg-surface: #151619;
+  --bg-elevated: #1b1d20;
+  --border-subtle: #2b2d30;
+  --border-strong: #3a3d40;
+  --accent-primary: #e5ed43;
+  --accent-hover: #eef46b;
+  --text-primary: #f4f4ed;
+  --text-secondary: #a4a6aa;
+  --text-muted: #6f7276;
   --gold-reward: #FFB938;
 }
 
@@ -34,3 +34,72 @@ body {
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 32px 32px;
 }
+
+/* ---- RAGE brand layer (source: ragegames.net design tokens) ---- */
+:root {
+  --font-display: var(--font-barlow-condensed), 'Arial Narrow', Impact, sans-serif;
+  --font-body: var(--font-barlow), Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+[dir='rtl'] {
+  --font-display: var(--font-arabic), Tahoma, Arial, sans-serif;
+  --font-body: var(--font-arabic), Tahoma, Arial, sans-serif;
+}
+
+h1, h2, h3, .display-type {
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+[dir='rtl'] h1, [dir='rtl'] h2, [dir='rtl'] h3, [dir='rtl'] .display-type {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* small uppercase lime eyebrow label with a leading rule */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+.eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--accent-primary);
+}
+[dir='rtl'] .eyebrow {
+  letter-spacing: 0;
+}
+
+/* brand wordmark lockup: RAGE in italic condensed + lime sub-label */
+.brand-lockup { display: inline-flex; flex-direction: column; align-items: flex-start; line-height: 0.8; }
+.brand-wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+.brand-sublabel {
+  padding-top: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+[dir='rtl'] .brand-wordmark { font-style: normal; letter-spacing: 0; }

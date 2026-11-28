@@ -26,15 +26,15 @@ export function MatchCard({ match, locale }: MatchCardProps) {
       : 'Scheduled';
 
   return (
-    <div className="flex flex-col justify-between gap-2 rounded-xl border border-[#27272C] bg-[#171719] p-4 transition-colors hover:border-[#3A3A42]">
+    <div className="flex flex-col justify-between gap-2 rounded-none border border-[#2b2d30] bg-[#151619] p-4 transition-colors hover:border-[#3a3d40]">
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-semibold text-[#7A7874]">{stageLabel}</span>
+        <span className="text-xs font-semibold text-[#6f7276]">{stageLabel}</span>
         <StatusBadge variant={variant} pulse={match.status === 'live'}>
           {statusText}
         </StatusBadge>
       </div>
-      <div className="text-sm font-bold text-[#F2EFE9]">{title}</div>
-      <div className="flex items-center justify-between text-xs text-[#B5B2AC]">
+      <div className="text-sm font-bold text-[#f4f4ed]">{title}</div>
+      <div className="flex items-center justify-between text-xs text-[#a4a6aa]">
         <span>{timeLabel}</span>
         {match.scoreLabel && (
           <span className="font-bold text-[#FFB938] ltr-isolate">{match.scoreLabel}</span>

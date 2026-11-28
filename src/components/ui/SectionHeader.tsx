@@ -10,15 +10,15 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ title, subtitle, actionLabel, actionHref }: SectionHeaderProps) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#27272C] pb-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4 border-b border-[#2b2d30] pb-4">
       <div>
-        <h2 className="text-xl font-extrabold tracking-tight text-[#F2EFE9] sm:text-2xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-[#B5B2AC]">{subtitle}</p>}
+        <h2 className="text-xl font-extrabold tracking-tight text-[#f4f4ed] sm:text-2xl">{title}</h2>
+        {subtitle && <p className="mt-1 text-sm text-[#a4a6aa]">{subtitle}</p>}
       </div>
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#FF6A1A] hover:text-[#FF7E38] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-[#e5ed43] hover:text-[#eef46b] transition-colors"
         >
           <span>{actionLabel}</span>
           <span aria-hidden="true">→</span>

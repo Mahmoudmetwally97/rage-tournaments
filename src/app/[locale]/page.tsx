@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
@@ -26,31 +27,40 @@ export default async function HomePage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
-      {/* Editorial Esports Hero */}
-      <section className="relative overflow-hidden rounded-2xl border border-[#27272C] bg-[#171719] p-6 sm:p-12 tactical-grid-bg">
-        <div className="max-w-3xl">
-          <p className="mb-3 text-xs font-extrabold tracking-widest text-[#FF6A1A] uppercase ltr-isolate">
-            {dict.hero.eyebrow}
-          </p>
-          <h1 className="mb-4 text-3xl font-extrabold leading-tight tracking-tight text-[#F2EFE9] sm:text-5xl">
-            {dict.hero.title}
-          </h1>
-          <p className="mb-8 max-w-2xl text-sm leading-relaxed text-[#B5B2AC] sm:text-base">
-            {dict.hero.subtitle}
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href={`/${locale}/tournaments`}
-              className="rounded-lg bg-[#FF6A1A] px-6 py-3 text-sm font-extrabold text-[#0B0B0C] transition-colors hover:bg-[#FF7E38]"
-            >
-              {dict.hero.ctaPrimary}
-            </Link>
-            <Link
-              href={`/${locale}/register`}
-              className="rounded-lg border border-[#27272C] bg-[#202024] px-6 py-3 text-sm font-bold text-[#F2EFE9] transition-colors hover:border-[#3A3A42]"
-            >
-              {dict.hero.ctaSecondary}
-            </Link>
+      {/* Brand hero: RAGE character art + condensed display type (design source: ragegames.net) */}
+      <section className="relative overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
+        <Image
+          src="/brand/rage-characters.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[62%_18%] opacity-95"
+        />
+        <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
+        <div className="relative p-6 sm:p-12 lg:p-16">
+          <div className="max-w-2xl">
+            <p className="eyebrow mb-5">{dict.hero.eyebrow}</p>
+            <h1 className="mb-5 text-4xl font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] sm:text-6xl lg:text-7xl">
+              {dict.hero.title}
+            </h1>
+            <p className="mb-8 max-w-xl text-sm leading-relaxed text-[#a4a6aa] sm:text-base">
+              {dict.hero.subtitle}
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={`/${locale}/tournaments`}
+                className="rounded-none bg-[#e5ed43] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.08em] text-[#121408] transition-colors hover:bg-[#eef46b]"
+              >
+                {dict.hero.ctaPrimary}
+              </Link>
+              <Link
+                href={`/${locale}/register`}
+                className="rounded-none border border-[#8a8b7b] bg-[#141618]/60 px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.08em] text-[#f4f4ed] transition-colors hover:border-[#a4a6aa]"
+              >
+                {dict.hero.ctaSecondary}
+              </Link>
+            </div>
           </div>
         </div>
       </section>

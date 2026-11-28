@@ -51,7 +51,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
 
   return (
     <div className="mx-auto max-w-md px-4 py-12">
-      <div className="rounded-2xl border border-[#27272C] bg-[#171719] p-7">
+      <div className="rounded-none border border-[#2b2d30] bg-[#151619] p-7">
         <div className="mb-5 flex items-center justify-between">
           <Image
             src="/brand/logo-rage-fire.png"
@@ -65,10 +65,10 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
           </span>
         </div>
 
-        <h1 className="mb-1.5 text-2xl font-extrabold text-[#F2EFE9]">
+        <h1 className="mb-1.5 text-2xl font-extrabold text-[#f4f4ed]">
           {mode === 'login' ? dict.auth.loginTitle : dict.auth.signupTitle}
         </h1>
-        <p className="mb-5 text-xs leading-relaxed text-[#B5B2AC]">
+        <p className="mb-5 text-xs leading-relaxed text-[#a4a6aa]">
           {mode === 'login' ? dict.auth.loginSubtitle : dict.auth.signupSubtitle}
         </p>
 
@@ -77,10 +77,10 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
             {dict.auth.steps.map((step, i) => (
               <div
                 key={step}
-                className={`rounded-lg border p-2 text-center text-[11px] font-bold ${
+                className={`rounded-none border p-2 text-center text-[11px] font-bold ${
                   i === 0
-                    ? 'border-[#FF6A1A]/50 bg-[#FF6A1A]/15 text-[#FF6A1A]'
-                    : 'border-[#27272C] bg-[#0B0B0C] text-[#7A7874]'
+                    ? 'border-[#e5ed43]/50 bg-[#e5ed43]/15 text-[#e5ed43]'
+                    : 'border-[#2b2d30] bg-[#0d0e10] text-[#6f7276]'
                 }`}
               >
                 <span className="ltr-isolate">{i + 1}.</span> {step}
@@ -90,7 +90,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
         )}
 
         {error && (
-          <div className="mb-4 rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/15 p-3 text-xs font-bold text-[#FCA5A5]">
+          <div className="mb-4 rounded-none border border-[#EF4444]/40 bg-[#EF4444]/15 p-3 text-xs font-bold text-[#FCA5A5]">
             {error}
           </div>
         )}
@@ -98,32 +98,32 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label className="mb-1.5 block text-xs font-bold text-[#B5B2AC]">{dict.auth.username}</label>
+              <label className="mb-1.5 block text-xs font-bold text-[#a4a6aa]">{dict.auth.username}</label>
               <input
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ProSniper"
-                className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none ltr-isolate"
+                className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
               />
             </div>
           )}
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-[#B5B2AC]">{dict.auth.email}</label>
+            <label className="mb-1.5 block text-xs font-bold text-[#a4a6aa]">{dict.auth.email}</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="player@ragegames.net"
-              className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none ltr-isolate"
+              className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
             />
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold text-[#B5B2AC]">{dict.auth.password}</label>
+            <label className="mb-1.5 block text-xs font-bold text-[#a4a6aa]">{dict.auth.password}</label>
             <input
               type="password"
               required
@@ -131,7 +131,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none ltr-isolate"
+              className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
             />
           </div>
 
@@ -140,11 +140,11 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
           </Button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-[#B5B2AC]">
+        <p className="mt-5 text-center text-xs text-[#a4a6aa]">
           {mode === 'login' ? dict.auth.noAccount : dict.auth.hasAccount}{' '}
           <Link
             href={`/${locale}/${mode === 'login' ? 'register' : 'login'}`}
-            className="font-bold text-[#FF6A1A] hover:underline"
+            className="font-bold text-[#e5ed43] hover:underline"
           >
             {mode === 'login' ? dict.nav.signup : dict.nav.login}
           </Link>

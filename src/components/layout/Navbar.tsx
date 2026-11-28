@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { MobileNavigation } from './MobileNavigation';
@@ -46,24 +45,15 @@ export function Navbar({ locale, dict }: NavbarProps) {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[#27272C] bg-[#0B0B0C]/95 backdrop-blur">
-      <div className="border-b border-[#27272C] bg-[#171719] px-4 py-1.5 text-center text-xs text-[#B5B2AC]">
+    <header className="sticky top-0 z-40 border-b border-[#2b2d30] bg-[#0d0e10]/95 backdrop-blur">
+      <div className="border-b border-[#2b2d30] bg-[#151619] px-4 py-1.5 text-center text-xs text-[#a4a6aa]">
         {dict.demoBanner}
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href={`/${locale}`} className="flex items-center gap-3">
-          <Image
-            src="/brand/logo-rage-fire.png"
-            alt="RAGE"
-            width={115}
-            height={32}
-            className="h-7 w-auto"
-            priority
-          />
-          <span className="hidden text-sm font-extrabold tracking-wide text-[#F2EFE9] sm:inline">
-            {dict.brand}
-          </span>
+        <Link href={`/${locale}`} className="brand-lockup" aria-label="RAGE Tournaments">
+          <span className="brand-wordmark">RAGE</span>
+          <span className="brand-sublabel">{locale === 'ar' ? 'بطولات' : 'TOURNAMENTS'}</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1.5 text-sm font-bold">
@@ -76,10 +66,10 @@ export function Navbar({ locale, dict }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-lg px-3.5 py-2 transition-colors ${
+                className={`rounded-none px-3.5 py-2 transition-colors ${
                   isActive
-                    ? 'bg-[#202024] text-[#FF6A1A]'
-                    : 'text-[#B5B2AC] hover:bg-[#171719] hover:text-[#F2EFE9]'
+                    ? 'bg-[#1b1d20] text-[#e5ed43]'
+                    : 'text-[#a4a6aa] hover:bg-[#151619] hover:text-[#f4f4ed]'
                 }`}
               >
                 {item.label}
@@ -91,7 +81,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
         <div className="hidden md:flex items-center gap-2.5">
           <Link
             href={`/${otherLocale}`}
-            className="rounded-lg border border-[#27272C] bg-[#171719] px-3 py-1.5 text-xs font-bold text-[#F2EFE9] hover:border-[#3A3A42]"
+            className="rounded-none border border-[#2b2d30] bg-[#151619] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#3a3d40]"
           >
             {dict.nav.langSwitch}
           </Link>
@@ -99,14 +89,14 @@ export function Navbar({ locale, dict }: NavbarProps) {
             <>
               <Link
                 href={`/${locale}/dashboard`}
-                className="rounded-lg border border-[#27272C] bg-[#171719] px-3.5 py-1.5 text-sm font-bold text-[#FF6A1A] ltr-isolate"
+                className="rounded-none border border-[#2b2d30] bg-[#151619] px-3.5 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate"
               >
                 {demoUser.username}
               </Link>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-lg border border-[#EF4444]/35 bg-[#EF4444]/15 px-3 py-1.5 text-xs font-bold text-[#FCA5A5] cursor-pointer"
+                className="rounded-none border border-[#EF4444]/35 bg-[#EF4444]/15 px-3 py-1.5 text-xs font-bold text-[#FCA5A5] cursor-pointer"
               >
                 {dict.nav.logout}
               </button>
@@ -115,13 +105,13 @@ export function Navbar({ locale, dict }: NavbarProps) {
             <>
               <Link
                 href={`/${locale}/login`}
-                className="rounded-lg border border-[#27272C] bg-[#171719] px-3.5 py-1.5 text-sm font-bold text-[#F2EFE9] hover:border-[#3A3A42]"
+                className="rounded-none border border-[#2b2d30] bg-[#151619] px-3.5 py-1.5 text-sm font-bold text-[#f4f4ed] hover:border-[#3a3d40]"
               >
                 {dict.nav.login}
               </Link>
               <Link
                 href={`/${locale}/register`}
-                className="rounded-lg bg-[#FF6A1A] px-4 py-1.5 text-sm font-extrabold text-[#0B0B0C] hover:bg-[#FF7E38]"
+                className="rounded-none bg-[#e5ed43] px-4 py-1.5 text-sm font-extrabold text-[#0d0e10] hover:bg-[#eef46b]"
               >
                 {dict.nav.signup}
               </Link>
@@ -134,7 +124,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? dict.nav.menuClose : dict.nav.menuOpen}
-          className="md:hidden rounded-lg border border-[#27272C] bg-[#171719] p-2 text-[#F2EFE9] hover:border-[#3A3A42] cursor-pointer"
+          className="md:hidden rounded-none border border-[#2b2d30] bg-[#151619] p-2 text-[#f4f4ed] hover:border-[#3a3d40] cursor-pointer"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             {mobileOpen ? (

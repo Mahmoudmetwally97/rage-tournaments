@@ -31,7 +31,7 @@ export function FilterBar({
   const hasActiveFilter = search || statusFilter !== 'all' || typeFilter !== 'all' || formatFilter !== 'all';
 
   return (
-    <div className="mb-6 grid gap-3 rounded-xl border border-[#27272C] bg-[#171719] p-4 sm:grid-cols-2 lg:grid-cols-12">
+    <div className="mb-6 grid gap-3 rounded-none border border-[#2b2d30] bg-[#151619] p-4 sm:grid-cols-2 lg:grid-cols-12">
       <div className="lg:col-span-4">
         <input
           type="search"
@@ -39,7 +39,7 @@ export function FilterBar({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder={dict.filters.searchPlaceholder}
           aria-label={dict.filters.searchPlaceholder}
-          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] placeholder:text-[#7A7874] focus:border-[#FF6A1A] focus:outline-none"
+          className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] placeholder:text-[#6f7276] focus:border-[#e5ed43] focus:outline-none"
         />
       </div>
 
@@ -47,7 +47,7 @@ export function FilterBar({
         <select
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+          className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
         >
           <option value="all">{dict.filters.allStatuses}</option>
           <option value="registration_open">{dict.tournament.open}</option>
@@ -61,7 +61,7 @@ export function FilterBar({
         <select
           value={typeFilter}
           onChange={(e) => onTypeChange(e.target.value)}
-          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+          className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
         >
           <option value="all">{dict.filters.allTypes}</option>
           <option value="solo">{dict.tournament.solo}</option>
@@ -73,7 +73,7 @@ export function FilterBar({
         <select
           value={formatFilter}
           onChange={(e) => onFormatChange(e.target.value)}
-          className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none"
+          className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
         >
           <option value="all">{dict.filters.allFormats}</option>
           <option value="ffa">FFA</option>

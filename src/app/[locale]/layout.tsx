@@ -1,11 +1,16 @@
-import { Cairo, Inter } from 'next/font/google';
+import { Barlow, Barlow_Condensed, Cairo } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 
-const cairo = Cairo({ subsets: ['arabic', 'latin'], weight: ['400', '600', '700', '800'] });
-const inter = Inter({ subsets: ['latin'], weight: ['400', '600', '700', '800'] });
+const cairo = Cairo({ subsets: ['arabic', 'latin'], weight: ['400', '600', '700', '800'], variable: '--font-arabic' });
+const barlow = Barlow({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-barlow' });
+const barlowCondensed = Barlow_Condensed({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-barlow-condensed'
+});
 
 export default async function LocaleLayout({
   children,
@@ -19,11 +24,12 @@ export default async function LocaleLayout({
 
   const dict = dictionaries[locale];
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
-  const fontClass = locale === 'ar' ? cairo.className : inter.className;
+  const fontClass = [cairo.variable, barlow.variable, barlowCondensed.variable].join(' ');
+  const baseFont = locale === 'ar' ? 'font-[family-name:var(--font-arabic)]' : 'font-[family-name:var(--font-barlow)]';
 
   return (
     <html lang={locale} dir={dir}>
-      <body className={`${fontClass} min-h-screen flex flex-col bg-[#0B0B0C] text-[#F2EFE9]`}>
+      <body className={`${fontClass} ${baseFont} min-h-screen flex flex-col bg-[#0d0e10] text-[#f4f4ed]`}>
         <Navbar locale={locale} dict={dict} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} />

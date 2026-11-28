@@ -18,8 +18,8 @@ export function StatusBadge({
   const styles: Record<StatusVariant, string> = {
     open: 'bg-[#10B981]/12 text-[#6EE7B7] border-[#10B981]/30',
     warning: 'bg-[#F59E0B]/12 text-[#FCD34D] border-[#F59E0B]/30',
-    live: 'bg-[#FF6A1A]/15 text-[#FF8C4D] border-[#FF6A1A]/35',
-    neutral: 'bg-[#202024] text-[#B5B2AC] border-[#27272C]',
+    live: 'bg-[#e5ed43]/15 text-[#FF8C4D] border-[#e5ed43]/35',
+    neutral: 'bg-[#1b1d20] text-[#a4a6aa] border-[#2b2d30]',
     danger: 'bg-[#EF4444]/12 text-[#FCA5A5] border-[#EF4444]/30',
     reward: 'bg-[#FFB938]/12 text-[#FFB938] border-[#FFB938]/35'
   };
@@ -27,8 +27,8 @@ export function StatusBadge({
   const dotColors: Record<StatusVariant, string> = {
     open: 'bg-[#10B981]',
     warning: 'bg-[#F59E0B]',
-    live: 'bg-[#FF6A1A]',
-    neutral: 'bg-[#7A7874]',
+    live: 'bg-[#e5ed43]',
+    neutral: 'bg-[#6f7276]',
     danger: 'bg-[#EF4444]',
     reward: 'bg-[#FFB938]'
   };

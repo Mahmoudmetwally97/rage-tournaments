@@ -50,23 +50,23 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Tournament Cover / Hero */}
-      <section className="relative mb-8 overflow-hidden rounded-2xl border border-[#27272C] bg-[#171719] p-6 sm:p-8 tactical-grid-bg">
-        <div className="absolute inset-x-0 top-0 h-1 bg-[#FF6A1A]" />
+      <section className="relative mb-8 overflow-hidden rounded-none border border-[#2b2d30] bg-[#151619] p-6 sm:p-8 tactical-grid-bg">
+        <div className="absolute inset-x-0 top-0 h-1 bg-[#e5ed43]" />
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <StatusBadge variant="open">{dict.tournament.open}</StatusBadge>
           <StatusBadge>
             {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
           </StatusBadge>
           <StatusBadge>{dict.tournament.free}</StatusBadge>
-          <span className="text-xs font-extrabold text-[#FF6A1A]">{game}</span>
+          <span className="text-xs font-extrabold text-[#e5ed43]">{game}</span>
         </div>
 
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#F2EFE9] sm:text-4xl">
+            <h1 className="text-2xl font-extrabold tracking-tight text-[#f4f4ed] sm:text-4xl">
               {title}
             </h1>
-            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-[#B5B2AC]">
+            <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-[#a4a6aa]">
               <span className="ltr-isolate">{tournament.formatLabel}</span>
               <span>•</span>
               <span>{formattedDate}</span>
@@ -94,17 +94,17 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
       </section>
 
       {/* Tabs */}
-      <div role="tablist" className="mb-6 flex flex-wrap gap-2 border-b border-[#27272C] pb-3">
+      <div role="tablist" className="mb-6 flex flex-wrap gap-2 border-b border-[#2b2d30] pb-3">
         {(Object.keys(dict.tournament.tabs) as TabKey[]).map((key) => (
           <button
             key={key}
             role="tab"
             aria-selected={activeTab === key}
             onClick={() => setActiveTab(key)}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors cursor-pointer ${
+            className={`rounded-none px-4 py-2 text-sm font-bold transition-colors cursor-pointer ${
               activeTab === key
-                ? 'bg-[#FF6A1A] text-[#0B0B0C]'
-                : 'bg-[#171719] text-[#B5B2AC] hover:bg-[#202024] hover:text-[#F2EFE9]'
+                ? 'bg-[#e5ed43] text-[#0d0e10]'
+                : 'bg-[#151619] text-[#a4a6aa] hover:bg-[#1b1d20] hover:text-[#f4f4ed]'
             }`}
           >
             {dict.tournament.tabs[key]}
@@ -117,35 +117,35 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         role="tabpanel"
         id={`tabpanel-${activeTab}`}
         aria-labelledby={`tab-${activeTab}`}
-        className="rounded-xl border border-[#27272C] bg-[#171719] p-6"
+        className="rounded-none border border-[#2b2d30] bg-[#151619] p-6"
       >
         {activeTab === 'overview' && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
-            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-xs text-[#7A7874]">{dict.tournament.game}</div>
-              <div className="mt-1 font-extrabold text-[#F2EFE9]">{game}</div>
+            <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs text-[#6f7276]">{dict.tournament.game}</div>
+              <div className="mt-1 font-extrabold text-[#f4f4ed]">{game}</div>
             </div>
-            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-xs text-[#7A7874]">{dict.tournament.format}</div>
-              <div className="mt-1 font-extrabold text-[#F2EFE9] ltr-isolate">{tournament.formatLabel}</div>
+            <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs text-[#6f7276]">{dict.tournament.format}</div>
+              <div className="mt-1 font-extrabold text-[#f4f4ed] ltr-isolate">{tournament.formatLabel}</div>
             </div>
-            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-xs text-[#7A7874]">{dict.tournament.slots}</div>
-              <div className="mt-1 font-extrabold text-[#F2EFE9] ltr-isolate">
+            <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs text-[#6f7276]">{dict.tournament.slots}</div>
+              <div className="mt-1 font-extrabold text-[#f4f4ed] ltr-isolate">
                 {tournament.maxParticipants > 0
                   ? `${tournament.registeredCount} / ${tournament.maxParticipants}`
                   : `${tournament.registeredCount} / ${dict.tournament.unlimited}`}
               </div>
             </div>
-            <div className="rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4">
-              <div className="text-xs text-[#7A7874]">{dict.tournament.startsAt}</div>
-              <div className="mt-1 font-bold text-[#F2EFE9]">{formattedDate}</div>
+            <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs text-[#6f7276]">{dict.tournament.startsAt}</div>
+              <div className="mt-1 font-bold text-[#f4f4ed]">{formattedDate}</div>
             </div>
           </div>
         )}
 
         {activeTab === 'rules' && (
-          <ul className="list-disc space-y-2.5 ps-5 text-sm leading-relaxed text-[#B5B2AC]">
+          <ul className="list-disc space-y-2.5 ps-5 text-sm leading-relaxed text-[#a4a6aa]">
             {rules.map((r, i) => (
               <li key={i}>{r}</li>
             ))}
@@ -157,13 +157,13 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             {tournament.stages.map((st) => (
               <div
                 key={st.order}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4 text-sm"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4 text-sm"
               >
                 <div>
-                  <span className="font-extrabold text-[#FF6A1A] ltr-isolate">Stage {st.order}: </span>
-                  <span className="font-bold text-[#F2EFE9]">{locale === 'ar' ? st.nameAr : st.nameEn}</span>
+                  <span className="font-extrabold text-[#e5ed43] ltr-isolate">Stage {st.order}: </span>
+                  <span className="font-bold text-[#f4f4ed]">{locale === 'ar' ? st.nameAr : st.nameEn}</span>
                 </div>
-                <div className="text-xs font-semibold text-[#B5B2AC] ltr-isolate">
+                <div className="text-xs font-semibold text-[#a4a6aa] ltr-isolate">
                   {st.format} → {st.qualifies}
                 </div>
               </div>
@@ -176,10 +176,10 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             {tournament.sampleParticipants.map((p) => (
               <div
                 key={p.code}
-                className="flex items-center justify-between gap-3 rounded-xl border border-[#27272C] bg-[#0B0B0C] p-4"
+                className="flex items-center justify-between gap-3 rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4"
               >
                 <div>
-                  <div className="font-extrabold text-[#F2EFE9] ltr-isolate">{p.ign}</div>
+                  <div className="font-extrabold text-[#f4f4ed] ltr-isolate">{p.ign}</div>
                   <div className="mt-0.5 font-mono text-xs font-bold text-[#FFB938] ltr-isolate">{p.code}</div>
                 </div>
                 <StatusBadge variant={p.status === 'checked_in' ? 'open' : 'neutral'}>
@@ -209,15 +209,15 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
           aria-labelledby="reg-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
         >
-          <div className="w-full max-w-md rounded-2xl border border-[#27272C] bg-[#171719] p-6">
-            <h2 id="reg-modal-title" className="mb-2 text-xl font-extrabold text-[#F2EFE9]">
+          <div className="w-full max-w-md rounded-none border border-[#2b2d30] bg-[#151619] p-6">
+            <h2 id="reg-modal-title" className="mb-2 text-xl font-extrabold text-[#f4f4ed]">
               {regCode ? dict.tournament.successTitle : dict.tournament.registerModalTitle}
             </h2>
 
             {regCode ? (
               <div className="space-y-4 py-4 text-center">
-                <p className="text-sm text-[#B5B2AC]">{dict.tournament.successCode}</p>
-                <div className="rounded-xl border border-dashed border-[#FFB938] bg-[#FFB938]/10 p-4 text-2xl font-extrabold text-[#FFB938] ltr-isolate">
+                <p className="text-sm text-[#a4a6aa]">{dict.tournament.successCode}</p>
+                <div className="rounded-none border border-dashed border-[#FFB938] bg-[#FFB938]/10 p-4 text-2xl font-extrabold text-[#FFB938] ltr-isolate">
                   {regCode}
                 </div>
                 <Button onClick={() => setModalOpen(false)} className="w-full">
@@ -227,12 +227,12 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             ) : (
               <form onSubmit={handleRegister} className="mt-4 space-y-4">
                 {error && (
-                  <div className="rounded-lg border border-[#EF4444]/40 bg-[#EF4444]/15 p-3 text-xs font-bold text-[#FCA5A5]">
+                  <div className="rounded-none border border-[#EF4444]/40 bg-[#EF4444]/15 p-3 text-xs font-bold text-[#FCA5A5]">
                     {error}
                   </div>
                 )}
                 <div>
-                  <label className="mb-1.5 block text-xs font-bold text-[#B5B2AC]">
+                  <label className="mb-1.5 block text-xs font-bold text-[#a4a6aa]">
                     {dict.tournament.ignLabel}
                   </label>
                   <input
@@ -240,18 +240,18 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
                     value={ign}
                     onChange={(e) => setIgn(e.target.value)}
                     placeholder="[EG]ProSniper"
-                    className="w-full rounded-lg border border-[#27272C] bg-[#0B0B0C] px-3.5 py-2.5 text-sm text-[#F2EFE9] focus:border-[#FF6A1A] focus:outline-none ltr-isolate"
+                    className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
                     required
                   />
-                  <p className="mt-1 text-xs text-[#7A7874]">{dict.tournament.ignHelper}</p>
+                  <p className="mt-1 text-xs text-[#6f7276]">{dict.tournament.ignHelper}</p>
                 </div>
 
-                <label className="flex cursor-pointer items-start gap-2.5 text-xs text-[#B5B2AC]">
+                <label className="flex cursor-pointer items-start gap-2.5 text-xs text-[#a4a6aa]">
                   <input
                     type="checkbox"
                     checked={agreed}
                     onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-0.5 accent-[#FF6A1A]"
+                    className="mt-0.5 accent-[#e5ed43]"
                   />
                   <span>{dict.tournament.agreeRules}</span>
                 </label>
