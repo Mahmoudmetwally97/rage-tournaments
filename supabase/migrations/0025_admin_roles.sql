@@ -1,4 +1,4 @@
--- 0024: "Team and roles" admin page. Only super_admins can list users, change roles, read the change log.
+-- 0025: "Team and roles" admin page. Only super_admins can list users, change roles, read the change log.
 CREATE OR REPLACE FUNCTION admin_list_users(p_q text DEFAULT '')
 RETURNS TABLE (id uuid, username text, display_name text, role text, created_at timestamptz)
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = public AS $$
