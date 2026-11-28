@@ -20,15 +20,30 @@ export interface Notice {
 const EXPIRED_WINDOW_MS = 12 * 3600_000; // do not announce "missed" for windows that closed long ago
 
 export function noticeText(kind: NoticeKind, tournament: string, teamName: string | null, closesAt: string | null): string {
-  const when = closesAt ? new Date(closesAt).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }) : null;
-  if (kind === 'checkin_open') {
-    return teamName
-      ? `✅ التشيك إن اتفتح لتورنمنت **${tournament}**. يا قائد تيم **${teamName}**، اعمل تشيك إن من الموقع${when ? ` قبل ${when} (القاهرة)` : ''}.\nCheck-in is open for **${tournament}**. Team captain of **${teamName}**: please check in on the site${when ? ` before ${when} (Cairo)` : ''}.`
-      : `✅ التشيك إن اتفتح لتورنمنت **${tournament}**. اعمل تشيك إن من الموقع${when ? ` قبل ${when} (القاهرة)` : ''}.\nCheck-in is open for **${tournament}**. Please check in on the site${when ? ` before ${when} (Cairo)` : ''}.`;
+  // Names and times sit on their own lines so Arabic (RTL) and English (LTR) never mix inside one line.
+  const time = closesAt
+    ? new Date(closesAt).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }).replace(',', ' ·')
+    : null;
+  const open = kind === 'checkin_open';
+  const ar: string[] = [open ? '✅ التشيك إن اتفتح' : '⛔ وقت التشيك إن خلص'];
+  const en: string[] = [open ? '✅ Check-in is open' : '⛔ Check-in has closed'];
+  const info = [`🏆 **${tournament}**`];
+  if (teamName) info.push(`👥 **${teamName}**`);
+  ar.push(...info);
+  en.push(...info);
+  if (open) {
+    ar.push(teamName ? 'يا قائد التيم، اعمل تشيك إن من الموقع' : 'اعمل تشيك إن من الموقع');
+    en.push(teamName ? 'Team captain: please check in on the site' : 'Please check in on the site');
+    if (time) { ar.push('قبل (بتوقيت القاهرة):'); en.push('Before (Cairo time):'); ar.push(`⏰ ${time}`); en.push(`⏰ ${time}`); }
+  } else {
+    ar.push(teamName ? 'التيم ماعملش تشيك إن، وممكن يتشال من البطولة' : 'انت ماعملتش تشيك إن، ومكانك ممكن يتشال');
+    ar.push('كلم المنظم لو في مشكلة');
+    en.push(teamName ? 'Your team did not check in and may be removed' : 'You did not check in and your spot may be removed');
+    en.push('Talk to the organizer if this is a mistake');
   }
-  return teamName
-    ? `⛔ وقت التشيك إن خلص في **${tournament}** وتيم **${teamName}** ماعملش تشيك إن، فالتيم ممكن يتشال من البطولة. كلم المنظم لو في مشكلة.\nCheck-in has closed for **${tournament}** and team **${teamName}** did not check in. Talk to the organizer if this is a mistake.`
-    : `⛔ وقت التشيك إن خلص في **${tournament}** وانت ماعملتش تشيك إن، فمكانك ممكن يتشال. كلم المنظم لو في مشكلة.\nCheck-in has closed for **${tournament}** and you did not check in. Talk to the organizer if this is a mistake.`;
+  // The Arabic lines start with an RTL mark so each paragraph is laid out right-to-left.
+  const rtl = (l: string) => (/^[\u0600-\u06FF]/.test(l.replace(/^[^\u0600-\u06FFA-Za-z]+/, '')) ? '\u200F' + l : l);
+  return `${ar.map(rtl).join('\n')}\n\n${en.join('\n')}`;
 }
 
 async function discordIdOf(sb: SupabaseClient, userId: string): Promise<string | null> {
