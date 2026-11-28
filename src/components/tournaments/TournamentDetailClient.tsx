@@ -49,7 +49,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Tournament Cover / Hero */}
-      <section className="clip-card hero-slash relative mb-8 overflow-hidden rounded-none bg-[#0d0e10] p-6 sm:p-10">
+      <section className="clip-card hero-slash relative mb-8 flex min-h-[380px] flex-col justify-end overflow-hidden rounded-none bg-[#0d0e10] p-6 sm:min-h-[460px] sm:p-10 lg:min-h-[520px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={tournament.coverUrl || "/brand/rage-characters.png"} alt="" className={`absolute inset-0 h-full w-full object-cover ${tournament.coverUrl ? "object-center opacity-80" : "object-[62%_18%] opacity-70"}`} />
         <div className={`absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] to-[#0d0e10]/10 ${tournament.coverUrl ? 'via-[#0d0e10]/60 sm:via-[#0d0e10]/75' : 'via-[#0d0e10]/85'}`} />
