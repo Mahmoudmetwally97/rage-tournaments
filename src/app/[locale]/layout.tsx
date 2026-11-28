@@ -29,8 +29,8 @@ export default async function LocaleLayout({
   const baseFont = locale === 'ar' ? 'font-[family-name:var(--font-arabic)]' : 'font-[family-name:var(--font-barlow)]';
 
   return (
-    <html lang={locale} dir={dir}>
-      <body className={`${fontClass} ${baseFont} min-h-screen flex flex-col bg-[#0d0e10] text-[#f4f4ed]`}>
+    <html lang={locale} dir={dir} className={fontClass}>
+      <body className={`${baseFont} min-h-screen flex flex-col bg-[#0d0e10] text-[#f4f4ed]`}>
         <Navbar locale={locale} dict={dict} />
         <main className="flex-1">{children}</main>
         <Footer locale={locale} />
