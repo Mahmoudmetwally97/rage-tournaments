@@ -2,9 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { MobileNavigation } from './MobileNavigation';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 interface NavbarProps {
   locale: Locale;
@@ -13,12 +14,15 @@ interface NavbarProps {
 
 export function Navbar({ locale, dict }: NavbarProps) {
   const pathname = usePathname() || `/${locale}`;
+  const router = useRouter();
   const otherLocale: Locale = locale === 'ar' ? 'en' : 'ar';
   const [demoUser, setDemoUser] = useState<{ username: string } | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const sync = () => {
+    const supabase = getSupabaseBrowserClient();
+
+    const readDemo = () => {
       try {
         const raw = localStorage.getItem('rage_demo_user');
         setDemoUser(raw ? JSON.parse(raw) : null);
@@ -26,15 +30,35 @@ export function Navbar({ locale, dict }: NavbarProps) {
         setDemoUser(null);
       }
     };
-    sync();
-    window.addEventListener('rage-demo-auth-change', sync);
-    return () => window.removeEventListener('rage-demo-auth-change', sync);
+
+    if (!supabase) {
+      readDemo();
+      window.addEventListener('rage-demo-auth-change', readDemo);
+      return () => window.removeEventListener('rage-demo-auth-change', readDemo);
+    }
+
+    const nameOf = (user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) => {
+      if (!user) return null;
+      const meta = user.user_metadata?.username;
+      return { username: (typeof meta === 'string' && meta) || user.email?.split('@')[0] || 'Player' };
+    };
+
+    supabase.auth.getSession().then(({ data }) => setDemoUser(nameOf(data.session?.user ?? null)));
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setDemoUser(nameOf(session?.user ?? null));
+    });
+
+    return () => sub.subscription.unsubscribe();
   }, []);
 
-  function handleLogout() {
+  async function handleLogout() {
+    const supabase = getSupabaseBrowserClient();
+    if (supabase) await supabase.auth.signOut();
     localStorage.removeItem('rage_demo_user');
     setDemoUser(null);
     window.dispatchEvent(new Event('rage-demo-auth-change'));
+    router.refresh();
   }
 
   const navItems = [
