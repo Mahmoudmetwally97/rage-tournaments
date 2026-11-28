@@ -1,9 +1,9 @@
-import { label } from '@/lib/labels';
+import { label, rewardText } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
 import { addBonus, addPool, addReward, deleteBonus, deletePool, deleteReward, setClaimStatus } from '../../actions';
 
-const KINDS = ['cash', 'coins', 'voucher', 'other'];
+const KINDS = ['cash', 'rp', 'coins', 'voucher', 'other'];
 
 export default async function PrizesPage({
   params,
@@ -42,7 +42,7 @@ export default async function PrizesPage({
                 {(p.prize_rewards as any[]).map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-2">
                     <span className="text-[#a4a6aa]">
-                      <Pill>{label(locale, r.kind)}</Pill> {r.amount ?? ''} {r.currency ?? ''} {locale === 'ar' ? r.text_ar : r.text_en}{' '}
+                      <Pill>{label(locale, r.kind)}</Pill> {rewardText(r, locale)}{' '}
                       {r.is_placeholder && <Pill>{tr(locale, 'مؤقت', 'placeholder')}</Pill>}
                     </span>
                     <form action={deleteReward}><Hidden values={{ locale, slug, id: r.id }} /><Btn tone="danger">×</Btn></form>
@@ -75,7 +75,7 @@ export default async function PrizesPage({
         <ul className="mb-3 space-y-1 text-sm">
           {(bonuses ?? []).map((b) => (
             <li key={b.id} className="flex items-center justify-between">
-              <span className="text-[#a4a6aa]">{locale === 'ar' ? b.title_ar : b.title_en} {b.is_placeholder && <Pill>{tr(locale, 'مؤقت', 'placeholder')}</Pill>}</span>
+              <span className="text-[#a4a6aa]">{locale === 'ar' ? b.title_ar : b.title_en}{b.amount != null && ` (${rewardText(b, locale)})`} {b.is_placeholder && <Pill>{tr(locale, 'مؤقت', 'placeholder')}</Pill>}</span>
               <form action={deleteBonus}><Hidden values={{ locale, slug, id: b.id }} /><Btn tone="danger">×</Btn></form>
             </li>
           ))}

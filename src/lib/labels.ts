@@ -26,6 +26,7 @@ const L: Record<string, [string, string]> = {
   resolved: ['تم الحل', 'Resolved'],
   all: ['الكل', 'All'],
   cash: ['كاش', 'Cash'],
+  rp: ['RP', 'RP'],
   coins: ['كوينز', 'Coins'],
   voucher: ['قسيمة', 'Voucher'],
   other: ['أخرى', 'Other']
@@ -33,4 +34,12 @@ const L: Record<string, [string, string]> = {
 export function label(locale: string, key: string): string {
   const v = L[key];
   return v ? (locale === 'ar' ? v[0] : v[1]) : key;
+}
+
+/** "5,000 RP", "100 EGP", or the free text when there is no amount. */
+export function rewardText(r: { kind?: string | null; amount?: number | string | null; currency?: string | null; text_ar?: string | null; text_en?: string | null }, locale: string): string {
+  const amt = r.amount != null && r.amount !== '' ? Number(r.amount).toLocaleString('en-US') : '';
+  const unit = r.kind === 'rp' ? 'RP' : r.kind === 'cash' ? (r.currency ?? '') : r.kind === 'coins' ? label(locale, 'coins') : (r.currency ?? '');
+  const txt = (locale === 'ar' ? r.text_ar : r.text_en) ?? '';
+  return [amt && `${amt}${unit ? ' ' + unit : ''}`, txt].filter(Boolean).join(' ').trim();
 }

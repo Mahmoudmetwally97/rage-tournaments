@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { isValidLocale } from '@/lib/i18n/dictionaries';
 import { tr } from '@/lib/admin';
-import { label } from '@/lib/labels';
+import { label, rewardText } from '@/lib/labels';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 import { Btn, Card, Flash, Hidden, PageHero, Pill, inputCls } from '@/components/admin/ui';
 import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister, playerRegisterTeam } from '../../../admin/actions';
@@ -185,13 +185,13 @@ export default async function PlayPage({
                 <span className="font-bold text-[#f4f4ed]">{locale === 'ar' ? p.label_ar : p.label_en}</span>
                 {(p.prize_rewards as any[]).map((r, i) => (
                   <span key={i} className="block text-[#a4a6aa]">
-                    {r.amount ?? ''} {r.currency ?? ''} {locale === 'ar' ? r.text_ar : r.text_en}
+                    {rewardText(r, locale)}
                   </span>
                 ))}
               </li>
             ))}
             {(bonuses ?? []).map((b) => (
-              <li key={b.id} className="text-[#a4a6aa]">+ {locale === 'ar' ? b.title_ar : b.title_en}</li>
+              <li key={b.id} className="text-[#a4a6aa]">+ {locale === 'ar' ? b.title_ar : b.title_en}{b.amount != null && ` (${rewardText(b, locale)})`}</li>
             ))}
           </ul>
         </Card>
