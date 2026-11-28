@@ -1,7 +1,7 @@
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { saveMatch, seedStage, createStage, advanceStage, seedBracket, saveTeamMatch } from '../../actions';
+import { saveMatch, seedStage, createStage, advanceStage, seedBracket, saveTeamMatch, reopenMatch } from '../../actions';
 import { loadBracket } from '@/lib/bracket';
 import { TeamBracket } from '@/components/tournaments/TeamBracket';
 import { RoomBoard } from '@/components/admin/RoomBoard';
@@ -158,6 +158,7 @@ export default async function MatchesPage({
         const res = new Map((results ?? []).filter((r) => r.match_id === m.id).map((r) => [r.registration_id, r]));
         const g = m.groups as unknown as { name: string } | { name: string }[] | null;
         const gname = Array.isArray(g) ? g[0]?.name : g?.name;
+        const locked = m.status === 'completed';
         return (
           <Card
             key={m.id}
@@ -184,7 +185,7 @@ export default async function MatchesPage({
                 <span>{tr(locale, 'كيلز', 'Kills')}</span>
                 <span>{tr(locale, 'نقاط', 'Pts')}</span>
               </div>
-              <div className="space-y-2">
+              <fieldset disabled={locked} className="space-y-2 border-0 p-0 disabled:opacity-70">
                 {mp.map((p) => {
                   const r = res.get(p.registration_id);
                   const reg = p.registrations as unknown as { ign_snapshot: string } | { ign_snapshot: string }[] | null;
@@ -198,9 +199,17 @@ export default async function MatchesPage({
                     </div>
                   );
                 })}
-              </div>
-              <div className="mt-4"><Btn tone="primary">{tr(locale, 'حفظ النتائج', 'Save results')}</Btn></div>
+              </fieldset>
+              {!locked && <div className="mt-4"><Btn tone="primary">{tr(locale, 'حفظ النتائج', 'Save results')}</Btn></div>}
             </form>
+            {locked && (
+              <form action={reopenMatch} className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#2b2d30] pt-4">
+                <Hidden values={{ locale, slug, match_id: m.id }} />
+                <input name="reason" placeholder={tr(locale, 'سبب إعادة الفتح (اختياري)', 'Reason for reopening (optional)')} className={inputCls} />
+                <Btn>{tr(locale, 'إعادة فتح النتائج للتعديل', 'Reopen results')}</Btn>
+                <p className="w-full text-[11px] text-[#6f7276]">{tr(locale, 'بعد الحفظ تاني الترتيب والنتايج النهائية بيتحدثوا لوحدهم. النسخة القديمة بتفضل في السجل.', 'After you save again, standings and Final Results update automatically. The old version stays in history.')}</p>
+              </form>
+            )}
           </Card>
         );
       })}

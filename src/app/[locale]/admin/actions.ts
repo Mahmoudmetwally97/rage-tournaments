@@ -9,6 +9,7 @@ type Msg = string | null;
 const s = (f: FormData, k: string) => String(f.get(k) ?? '').trim();
 
 const ERR: Record<string, string> = {
+  MATCH_NOT_COMPLETED: 'الراوند ده مش مقفول / This round is not completed',
   USERNAME_TAKEN: 'الاسم ده مستخدم عند لاعب تاني / That name is already used by another player',
   FORBIDDEN: 'ليس لديك صلاحية / Not allowed',
   UNAUTHORIZED: 'سجل دخول أولاً / Sign in first',
@@ -675,4 +676,10 @@ export async function resolveNameFlag(f: FormData) {
   const loc = s(f, 'locale') || 'ar';
   const { error } = await sb.rpc('admin_resolve_name_flag', { p_flag: s(f, 'flag'), p_status: s(f, 'status') || 'dismissed' });
   return done(`/${loc}/admin/team`, error ? error.message : null);
+}
+
+export async function reopenMatch(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_reopen_match', { p_match_id: s(f, 'match_id'), p_reason: s(f, 'reason') || null });
+  await done(back(f, '/matches'), error?.message ?? null);
 }
