@@ -53,7 +53,9 @@ function cleanPrize(v?: string | null): string {
   return v;
 }
 
-function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number): DemoTournament {
+interface StandingRow { tournament_id: string; rank: number; ign: string; total_points: number; total_kills: number }
+
+function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number, standings: StandingRow[] = []): DemoTournament {
   const stageRows = stages.filter((s) => s.tournament_id === row.id).sort((a, b) => a.stage_order - b.stage_order);
   const primaryFormat = stageRows[0]?.format ?? 'ffa';
 
@@ -83,7 +85,10 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number)
       format: s.format,
       qualifies: s.advance_rule === 'top_n_overall' ? `Top ${s.qualify_count} overall` : `Top ${s.qualify_count} per group`
     })),
-    sampleParticipants: []
+    sampleParticipants: standings
+      .filter((r) => r.tournament_id === row.id)
+      .sort((a, b) => a.rank - b.rank)
+      .map((r) => ({ code: `#${r.rank}`, ign: r.ign, status: 'checked_in', points: Number(r.total_points), kills: Number(r.total_kills) }))
   };
 }
 
@@ -97,7 +102,7 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
   }
 
   try {
-    const [rows, stages, registrations] = await Promise.all([
+    const [rows, stages, registrations, standings] = await Promise.all([
       sbSelect<TournamentRow>('tournaments', {
         select: 'id,slug,title_ar,title_en,description_ar,description_en,competition_type,status,min_participants,max_participants,starts_at,prize_summary_ar,prize_summary_en,rules_text_ar,rules_text_en,games(name_ar,name_en)',
         status: 'neq.archived',
@@ -106,7 +111,8 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
       sbSelect<StageRow>('stages', {
         select: 'tournament_id,stage_order,name_ar,name_en,format,qualify_count,advance_rule'
       }),
-      sbSelect<{ tournament_id: string }>('registrations', { select: 'tournament_id' })
+      sbSelect<{ tournament_id: string }>('registrations', { select: 'tournament_id' }),
+      sbSelect<StandingRow>('tournament_standings', { select: 'tournament_id,rank,ign,total_points,total_kills' }).catch(() => [] as StandingRow[])
     ]);
 
     if (rows.length === 0) {
@@ -119,7 +125,7 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
     }, {});
 
     return {
-      items: rows.map((row) => mapRow(row, stages, counts[row.id] ?? 0)),
+      items: rows.map((row) => mapRow(row, stages, counts[row.id] ?? 0, standings)),
       source: 'db'
     };
   } catch {
