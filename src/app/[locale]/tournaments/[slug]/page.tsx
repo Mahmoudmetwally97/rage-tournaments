@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import { DEMO_TOURNAMENTS } from '@/lib/data/demo-tournaments';
+import { getTournamentBySlug } from '@/lib/data/tournament-repo';
 import { TournamentDetailClient } from '@/components/tournaments/TournamentDetailClient';
 
 export default async function TournamentDetailPage({
@@ -10,7 +10,7 @@ export default async function TournamentDetailPage({
 }) {
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
-  const tournament = DEMO_TOURNAMENTS.find((t) => t.slug === slug);
+  const { item: tournament } = await getTournamentBySlug(slug);
   if (!tournament) notFound();
 
   return (

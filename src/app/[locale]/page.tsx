@@ -2,11 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import {
-  DEMO_RECENT_RESULTS,
-  DEMO_TOURNAMENTS,
-  DEMO_UPCOMING_MATCHES
-} from '@/lib/data/demo-tournaments';
+import { DEMO_RECENT_RESULTS, DEMO_TOURNAMENTS, DEMO_UPCOMING_MATCHES } from '@/lib/data/demo-tournaments';
+import { getTournaments } from '@/lib/data/tournament-repo';
 import { FeaturedTournament } from '@/components/tournaments/FeaturedTournament';
 import { TournamentCard } from '@/components/tournaments/TournamentCard';
 import { MatchCard } from '@/components/tournaments/MatchCard';
@@ -22,7 +19,8 @@ export default async function HomePage({
   if (!isValidLocale(locale)) notFound();
   const dict = dictionaries[locale];
 
-  const featured = DEMO_TOURNAMENTS.find((t) => t.featured) ?? DEMO_TOURNAMENTS[0];
+  const { items: tournaments, source } = await getTournaments();
+  const featured = tournaments.find((t) => t.featured) ?? tournaments[0];
   const topPlayers = DEMO_TOURNAMENTS[0]?.sampleParticipants ?? [];
 
   return (
@@ -40,7 +38,12 @@ export default async function HomePage({
         <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
         <div className="relative p-6 sm:p-12 lg:p-16">
           <div className="max-w-2xl">
-            <p className="eyebrow mb-5">{dict.hero.eyebrow}</p>
+            <p className="eyebrow mb-5">
+              {dict.hero.eyebrow}
+              <span className="ml-3 border border-[#2b2d30] px-2 py-0.5 text-[10px] font-bold tracking-[0.16em] text-[#a4a6aa]">
+                {source === 'db' ? 'SUPABASE • LIVE' : 'DEMO DATA'}
+              </span>
+            </p>
             <h1 className="mb-5 text-4xl font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] sm:text-6xl lg:text-7xl">
               {dict.hero.title}
             </h1>
@@ -81,7 +84,7 @@ export default async function HomePage({
           actionHref={`/${locale}/tournaments`}
         />
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {DEMO_TOURNAMENTS.map((t) => (
+          {tournaments.map((t) => (
             <TournamentCard key={t.slug} tournament={t} locale={locale} dict={dict} />
           ))}
         </div>
