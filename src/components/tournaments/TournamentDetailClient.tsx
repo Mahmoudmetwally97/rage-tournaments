@@ -77,17 +77,12 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             </div>
           </div>
 
-          <Button
-            onClick={() => {
-              setModalOpen(true);
-              setRegCode(null);
-              setError('');
-            }}
-            size="lg"
-            className="w-full sm:w-auto"
+          <a
+            href={`/${locale}/tournaments/${tournament.slug}/play`}
+            className="inline-flex w-full items-center justify-center bg-[#e5ed43] px-6 py-3 text-sm font-extrabold text-[#0d0e10] sm:w-auto"
           >
             {dict.tournament.registerNow}
-          </Button>
+          </a>
         </div>
       </section>
 

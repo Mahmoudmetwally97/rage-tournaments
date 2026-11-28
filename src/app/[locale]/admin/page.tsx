@@ -65,19 +65,17 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
               >
                 {dict.nav.tournaments}
               </Link>
-              <span className="border border-[#e5ed43]/40 bg-[#e5ed43]/10 px-3 py-2 text-[11px] font-bold text-[#e5ed43]">
-                {locale === 'ar' ? 'إدارة (التالي)' : 'Manage (next)'}
-              </span>
+              <Link
+                href={`/${locale}/admin/${t.slug}`}
+                className="border border-[#e5ed43] bg-[#e5ed43] px-4 py-2 text-xs font-bold text-[#0d0e10]"
+              >
+                {locale === 'ar' ? 'إدارة' : 'Manage'}
+              </Link>
             </div>
           </article>
         ))}
       </div>
 
-      <p className="text-xs text-[#6f7276]">
-        {locale === 'ar'
-          ? 'أول قطعة من لوحة الإدارة: البطولات مع عدد المسجلين الحقيقي. التالي: قائمة التقدم، المشاركون، وإدخال النتائج.'
-          : 'First slice of the admin console: tournaments with live registration counts. Next: progress checklist, participants, score entry.'}
-      </p>
     </div>
   );
 }
