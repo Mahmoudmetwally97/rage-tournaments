@@ -46,8 +46,8 @@ export default async function TeamsPage({
   const teams = rows.filter((r) => r.status === 'accepted');
   const members: Record<string, Member[]> = {};
   for (const r of teams) {
-    const { data } = await supabase.from('team_members').select('user_id,invite_status,player_profiles(username)').eq('team_id', r.team.id).order('joined_at');
-    members[r.team.id] = (data ?? []) as unknown as Member[];
+    const { data } = await supabase.rpc('team_roster', { p_team_id: r.team.id });
+    members[r.team.id] = ((data ?? []) as { user_id: string; username: string; invite_status: string }[]).map((x) => ({ user_id: x.user_id, invite_status: x.invite_status, player_profiles: { username: x.username } }));
   }
 
   return (
