@@ -2,12 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import { DEMO_RECENT_RESULTS, DEMO_TOURNAMENTS, DEMO_UPCOMING_MATCHES } from '@/lib/data/demo-tournaments';
 import { getTournaments } from '@/lib/data/tournament-repo';
 import { FeaturedTournament } from '@/components/tournaments/FeaturedTournament';
 import { TournamentCard } from '@/components/tournaments/TournamentCard';
-import { MatchCard } from '@/components/tournaments/MatchCard';
-import { LeaderboardTable } from '@/components/tournaments/LeaderboardTable';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export default async function HomePage({
@@ -21,7 +18,6 @@ export default async function HomePage({
 
   const { items: tournaments, source } = await getTournaments();
   const featured = tournaments.find((t) => t.featured) ?? tournaments[0];
-  const topPlayers = DEMO_TOURNAMENTS[0]?.sampleParticipants ?? [];
 
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
@@ -90,35 +86,21 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Live / Upcoming Matches & Recent Results */}
-      <section className="grid gap-8 lg:grid-cols-2">
-        <div>
-          <SectionHeader title={dict.home.upcomingMatches} />
-          <div className="grid gap-3.5">
-            {DEMO_UPCOMING_MATCHES.map((m) => (
-              <MatchCard key={m.id} match={m} locale={locale} />
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <SectionHeader title={dict.home.recentResults} />
-          <div className="grid gap-3.5">
-            {DEMO_RECENT_RESULTS.map((m) => (
-              <MatchCard key={m.id} match={m} locale={locale} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Leaderboard Preview */}
+      {/* How it works (replaces demo match/leaderboard data until real results exist) */}
       <section>
-        <SectionHeader
-          title={dict.home.leaderboardPreview}
-          actionLabel={dict.home.viewLeaderboard}
-          actionHref={`/${locale}/leaderboards`}
-        />
-        <LeaderboardTable rows={topPlayers} dict={dict} locale={locale} />
+        <h2 className="mb-5 text-2xl font-extrabold text-[#f4f4ed]">{locale === 'ar' ? 'كيف تشارك؟' : 'How it works'}</h2>
+        <div className="grid gap-4 md:grid-cols-4">
+          {(locale === 'ar'
+            ? [['سجّل', 'اعمل حساب وسجّل في البطولة'], ['انتظر الموافقة', 'الإدارة بتراجع طلبك'], ['تشيك إن', 'أكّد حضورك قبل البداية'], ['العب واكسب', 'النقاط = الترتيب + الكيلز']]
+            : [['Register', 'Create an account and join'], ['Get approved', 'Admins review your entry'], ['Check in', 'Confirm before kickoff'], ['Play and win', 'Points = placement + kills']]
+          ).map(([t, d], i) => (
+            <div key={t} className="clip-card card-surface card-hover relative border border-[#2b2d30] bg-[#151619] p-5">
+              <span className="display-type text-5xl font-extrabold text-[#e5ed43]/25">{i + 1}</span>
+              <h3 className="mt-2 text-lg font-bold text-[#f4f4ed]">{t}</h3>
+              <p className="mt-1 text-sm text-[#a4a6aa]">{d}</p>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
