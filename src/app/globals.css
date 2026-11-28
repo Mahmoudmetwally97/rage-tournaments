@@ -160,3 +160,46 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { box-shadow: 
 html, body { max-width: 100%; overflow-x: hidden; }
 input, select, textarea { min-width: 0; max-width: 100%; }
 [class*='grid'] > * { min-width: 0; }
+
+/* ---- RAGE motion pass: transform/opacity only (no layout shift), off for reduced motion ---- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rage-in { from { opacity: 0; transform: translateY(18px) skewX(-2deg); } to { opacity: 1; transform: none; } }
+  @keyframes rage-clip { from { clip-path: inset(0 100% 0 0); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+  @keyframes rage-zoom { from { transform: scale(1.12); } to { transform: scale(1); } }
+  @keyframes rage-slash { 0%,100% { transform: skewX(-18deg) translateX(0); opacity: .9; } 50% { transform: skewX(-18deg) translateX(26px); opacity: .45; } }
+  @keyframes rage-draw { from { stroke-dashoffset: 220; } to { stroke-dashoffset: 0; } }
+  @keyframes rage-glow { 0%,100% { box-shadow: 0 0 0 0 rgba(229,237,67,.0); } 50% { box-shadow: 0 0 18px 0 rgba(229,237,67,.45); } }
+  @keyframes rage-pop { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: none; } }
+  @keyframes rage-reveal { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+
+  /* hero: art settles, text staggers in, slash pulses */
+  .hero-art { animation: rage-zoom 1.6s cubic-bezier(.2,.7,.2,1) backwards; transform-origin: 70% 30%; }
+  .stagger > * { animation: rage-in .7s cubic-bezier(.2,.7,.2,1) backwards; }
+  .stagger > *:nth-child(1) { animation-delay: .05s; }
+  .stagger > *:nth-child(2) { animation-delay: .18s; }
+  .stagger > *:nth-child(3) { animation-delay: .3s; }
+  .stagger > *:nth-child(4) { animation-delay: .42s; }
+  .stagger > *:nth-child(5) { animation-delay: .54s; }
+  .hero-slash::before { animation: rage-slash 5s ease-in-out infinite; }
+  .rage-title { animation: rage-clip .8s cubic-bezier(.7,0,.2,1) .15s backwards; }
+
+  /* sections reveal as they scroll into view (CSS scroll timeline, visible by default if unsupported) */
+  @supports (animation-timeline: view()) {
+    .reveal { animation: rage-reveal linear backwards; animation-timeline: view(); animation-range: entry 0% entry 40%; }
+  }
+
+  /* bracket + standings */
+  .bracket-node { animation: rage-pop .5s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--i, 0) * 140ms + 150ms); }
+  .bracket-line path:first-child { stroke-dasharray: 220; animation: rage-draw .7s ease-out backwards; animation-delay: calc(var(--i, 0) * 140ms + 300ms); }
+  .row-in { animation: rage-in .5s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: calc(var(--i, 0) * 55ms + 100ms); }
+  .row-top1 { animation: rage-in .5s backwards, rage-glow 3s ease-in-out 1s infinite; }
+
+  /* live + interaction states */
+  .live-badge { animation: rage-glow 1.8s ease-in-out infinite; }
+  .clip-btn, .card-hover { transition: transform .18s ease, filter .18s ease, background-color .25s ease, border-color .25s ease; }
+  a.clip-btn:hover, button.clip-btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
+  a.clip-btn:active, button.clip-btn:active { transform: translateY(1px) scale(.97); filter: brightness(.95); }
+  .clip-card.card-hover:hover { transform: translateY(-4px); border-color: #e5ed43; }
+  nav a { transition: color .2s ease, background-color .2s ease, transform .2s ease; }
+  nav a:hover { transform: translateY(-1px); }
+}

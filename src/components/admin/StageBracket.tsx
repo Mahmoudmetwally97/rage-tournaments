@@ -4,7 +4,7 @@ export function StageBracket({ stages, selected, base, ar, statusLabel }: { stag
   return (
     <div className="flex items-stretch gap-0 overflow-x-auto pb-2" data-testid="stage-bracket">
       {stages.map((s, i) => (
-        <div key={s.order} className="flex items-center">
+        <div key={s.order} style={{ ["--i" as string]: i } as React.CSSProperties} className="bracket-node flex items-center">
           <a
             href={`${base}?stage=${s.order}`}
             className={`clip-card block w-[200px] shrink-0 border p-3 transition-colors hover:border-[#e5ed43] ${selected === s.order ? 'border-[#e5ed43] bg-[#e5ed43]/10' : 'border-[#2b2d30] bg-[#101113]'}`}

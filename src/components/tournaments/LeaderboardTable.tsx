@@ -36,7 +36,8 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
         {rows.map((row, idx) => (
           <div
             key={row.code}
-            className="flex items-center justify-between gap-3 rounded-none border border-[#2b2d30] bg-[#151619] p-4"
+            style={{ ['--i' as string]: idx } as React.CSSProperties}
+            className="row-in flex items-center justify-between gap-3 rounded-none border border-[#2b2d30] bg-[#151619] p-4"
           >
             <div className="flex items-center gap-3 min-w-0">
               <span
@@ -82,7 +83,7 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
             </thead>
             <tbody className="divide-y divide-[#2b2d30]">
               {rows.map((row, idx) => (
-                <tr key={row.code} className="transition-colors hover:bg-[#1b1d20]/60">
+                <tr key={row.code} style={{ ["--i" as string]: idx } as React.CSSProperties} className="row-in transition-colors hover:bg-[#1b1d20]/60">
                   <td className="py-3.5 px-4">
                     <span
                       className={`inline-flex h-7 w-7 items-center justify-center rounded-none border text-xs font-extrabold ltr-isolate ${rankBadgeClass(idx)}`}

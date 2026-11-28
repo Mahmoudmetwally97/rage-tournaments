@@ -29,16 +29,16 @@ export default async function HomePage({
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[62%_18%] opacity-95"
+          className="hero-art object-cover object-[62%_18%] opacity-95"
         />
         <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
         <div className="relative p-6 sm:p-12 lg:p-16">
-          <div className="max-w-2xl">
+          <div className="stagger max-w-2xl">
             <p className="eyebrow mb-5">
               {dict.hero.eyebrow}
 
             </p>
-            <h1 className="mb-5 text-4xl font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] sm:text-6xl lg:text-7xl">
+            <h1 className="rage-title mb-5 text-4xl font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] sm:text-6xl lg:text-7xl">
               {dict.hero.title}
             </h1>
             <p className="mb-8 max-w-xl text-sm leading-relaxed text-[#a4a6aa] sm:text-base">
@@ -64,13 +64,13 @@ export default async function HomePage({
 
       {/* Featured Tournament */}
       {featured && (
-        <section>
+        <section className="reveal">
           <FeaturedTournament tournament={featured} locale={locale} dict={dict} />
         </section>
       )}
 
       {/* Open & Upcoming Tournaments */}
-      <section>
+      <section className="reveal">
         <SectionHeader
           title={dict.home.openTournaments}
           subtitle={dict.home.openTournamentsSub}
@@ -85,7 +85,7 @@ export default async function HomePage({
       </section>
 
       {/* How it works (replaces demo match/leaderboard data until real results exist) */}
-      <section>
+      <section className="reveal">
         <h2 className="mb-5 text-2xl font-extrabold text-[#f4f4ed]">{locale === 'ar' ? 'كيف تشارك؟' : 'How it works'}</h2>
         <div className="grid gap-4 md:grid-cols-4">
           {(locale === 'ar'
