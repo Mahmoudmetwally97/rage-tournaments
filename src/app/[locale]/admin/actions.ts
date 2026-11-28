@@ -92,11 +92,21 @@ async function applyCover(sb: Awaited<ReturnType<typeof client>>['sb'], tid: str
   return null;
 }
 
+function revalidatePublic(f: FormData) {
+  for (const l of ['ar', 'en']) {
+    revalidatePath(`/${l}/tournaments/${s(f, 'slug')}`);
+    revalidatePath(`/${l}/tournaments`);
+    revalidatePath(`/${l}`);
+  }
+}
+
 export async function saveCover(f: FormData) {
   const { sb } = await client();
   const file = f.get('cover');
   if (!(file instanceof File) || file.size === 0) return done(back(f), 'اختار صورة الأول / Choose an image first');
-  await done(back(f), await applyCover(sb, s(f, 'tid'), file));
+  const err = await applyCover(sb, s(f, 'tid'), file);
+  revalidatePublic(f);
+  await done(back(f), err);
 }
 
 export async function removeCover(f: FormData) {
@@ -107,6 +117,7 @@ export async function removeCover(f: FormData) {
   if (error || !upd?.length) return done(back(f), error?.message ?? 'FORBIDDEN');
   const old = coverPathFromUrl(cur?.cover_image_url);
   if (old) await sb.storage.from(COVER_BUCKET).remove([old]);
+  revalidatePublic(f);
   await done(back(f), null);
 }
 
