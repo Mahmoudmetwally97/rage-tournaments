@@ -112,6 +112,14 @@ export default async function PlayPage({
               )}
             </div>
             {myRank && <p className="text-sm text-[#e5ed43]">{tr(locale, `ترتيبك: ${myRank}`, `Your rank: ${myRank}`)}</p>}
+            {myRank && (
+              <div className="flex flex-wrap items-center gap-2 border-t border-[#2b2d30] pt-3">
+                <span className="text-xs font-bold text-[#a4a6aa]">{tr(locale, 'كارت نتيجتك للمشاركة:', 'Your result card:')}</span>
+                <a className="border border-[#e5ed43] px-3 py-1.5 text-xs font-bold text-[#e5ed43]" href={`/api/card?t=${slug}&r=${mine.id}&size=story&dl=1`}>{tr(locale, 'ستوري', 'Story')}</a>
+                <a className="border border-[#e5ed43] px-3 py-1.5 text-xs font-bold text-[#e5ed43]" href={`/api/card?t=${slug}&r=${mine.id}&size=square&dl=1`}>{tr(locale, 'مربع', 'Square')}</a>
+                <a className="text-xs text-[#a4a6aa] underline" target="_blank" rel="noreferrer" href={`/api/card?t=${slug}&r=${mine.id}&size=story`}>{tr(locale, 'معاينة', 'Preview')}</a>
+              </div>
+            )}
           </div>
         ) : isTeam && t.status === 'registration_open' ? (
           myTeams.length > 0 ? (
