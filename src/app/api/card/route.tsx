@@ -34,8 +34,8 @@ export async function GET(req: Request) {
   if (cairo) fonts.push({ name: 'Cairo', data: cairo, weight: 800, style: 'normal' });
 
   const W = 1080, H = size === 'story' ? 1920 : 1080;
-  const podium = me.rank <= 3;
-  const accent = podium ? '#FFB938' : '#e5ed43';
+    const accent = me.rank === 1 ? '#FFB938' : me.rank === 2 ? '#D6D9E0' : me.rank === 3 ? '#E5A970' : '#e5ed43';
+  const isAr = /[\u0600-\u06FF]/.test(me.ign);
   const final = t.status === 'completed';
   const ff = 'Barlow, Cairo, sans-serif';
   const big = size === 'story' ? 300 : 210;
@@ -49,9 +49,9 @@ export async function GET(req: Request) {
 
   const img = new ImageResponse(
     (
-      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#0d0e10', color: '#f4f4ed', fontFamily: ff, padding: 80, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -200, right: 330, width: 60, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.95, display: 'flex' }} />
-        <div style={{ position: 'absolute', top: -200, right: 150, width: 18, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.35, display: 'flex' }} />
+      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#0d0e10', color: '#f4f4ed', fontFamily: ff, padding: 80, paddingRight: 190, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -200, right: 70, width: 44, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.95, display: 'flex' }} />
+        <div style={{ position: 'absolute', top: -200, right: -10, width: 16, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.35, display: 'flex' }} />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 40, letterSpacing: 10, color: '#e5ed43', display: 'flex' }}>RAGE TOURNAMENTS</div>
           <div style={{ fontSize: 44, color: '#a4a6aa', marginTop: 14, display: 'flex', maxWidth: 800 }}>{t.title_en.toUpperCase()}</div>
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 40, letterSpacing: 8, color: accent, display: 'flex' }}>{final ? 'FINAL PLACE' : 'CURRENT PLACE'}</div>
           <div style={{ fontSize: big * 1.5, lineHeight: 0.9, color: accent, display: 'flex' }}>{`#${me.rank}`}</div>
-          <div style={{ fontSize: 120, marginTop: 24, lineHeight: 1.05, display: 'flex', maxWidth: 900, wordBreak: 'break-word' }}>{me.ign}</div>
+          <div style={{ fontSize: 120, marginTop: 24, lineHeight: 1.05, display: 'flex', maxWidth: 800, wordBreak: 'break-word', direction: isAr ? 'rtl' : 'ltr' }}>{me.ign}</div>
         </div>
         <div style={{ display: 'flex', gap: 36 }}>
           {stat('POINTS', Number(me.total_points))}
