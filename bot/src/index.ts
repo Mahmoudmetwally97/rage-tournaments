@@ -167,4 +167,52 @@ client.once(Events.ClientReady, async (c) => {
   console.log(`RAGE results bot ready as ${c.user.tag}`);
 });
 
+// ---- Check-in notifications: DM each player/captain; list the ones we could not DM in the channel. ----
+// Only tournaments named in NOTIFY_SLUGS (comma separated) are ever notified. Empty = off.
+const NOTIFY_SLUGS = (process.env.NOTIFY_SLUGS ?? '').split(',').map((x) => x.trim()).filter(Boolean);
+let notifying = false;
+
+async function notifyTick() {
+  if (notifying || !NOTIFY_SLUGS.length) return;
+  notifying = true;
+  try {
+    const { notices } = await api<{ notices: any[] }>('notify', { slugs: NOTIFY_SLUGS });
+    if (!notices?.length) return;
+    const acks: any[] = [];
+    const missed = new Map<string, { channelIds: string[]; tournament: string; kind: string; names: string[] }>();
+    for (const n of notices) {
+      let outcome = 'no_discord' as 'dm' | 'failed' | 'no_discord';
+      if (n.discordUserId) {
+        try {
+          const u = await client.users.fetch(n.discordUserId);
+          await u.send(n.text);
+          outcome = 'dm';
+        } catch { outcome = 'failed'; }
+      }
+      acks.push({ tournamentId: n.tournamentId, kind: n.kind, registrationId: n.registrationId, outcome });
+      if (outcome !== 'dm') {
+        const k = `${n.tournamentId}|${n.kind}`;
+        const m = missed.get(k) ?? { channelIds: n.channelIds as string[], tournament: n.tournament as string, kind: n.kind as string, names: [] as string[] };
+        m.names.push(n.teamName ? `${n.teamName} (${n.username})` : n.username);
+        missed.set(k, m);
+      }
+    }
+    for (const m of missed.values()) {
+      const ch = await client.channels.fetch(m.channelIds[0]).catch(() => null);
+      if (ch && 'send' in ch) {
+        const what = m.kind === 'checkin_open' ? 'check-in is open' : 'check-in closed, not checked in';
+        await (ch as any).send(`⚠️ **${m.tournament}**: could not DM (${what}):\n${m.names.map((x) => `• ${x}`).join('\n').slice(0, 1800)}`).catch(() => null);
+      }
+    }
+    await api('notify', { ack: acks });
+    console.log(`notify: ${acks.length} notices, ${acks.filter((a) => a.outcome === 'dm').length} DMed`);
+  } catch (e) {
+    console.error('notify', e);
+  } finally {
+    notifying = false;
+  }
+}
+
+client.once(Events.ClientReady, () => { setInterval(notifyTick, 60_000); });
+
 client.login(TOKEN);
