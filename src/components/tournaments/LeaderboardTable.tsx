@@ -47,7 +47,7 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
               <div className="min-w-0">
                 <div className="truncate font-extrabold text-[#f4f4ed] ltr-isolate">{row.ign}</div>
                 <div className="mt-0.5 flex items-center gap-2 text-xs">
-                  <span className="font-mono font-bold text-[#FFB938] ltr-isolate">{row.code}</span>
+                  <span className="font-mono font-bold text-[#a4a6aa] ltr-isolate">{row.code}</span>
                   <StatusBadge variant={row.status === 'checked_in' ? 'open' : 'neutral'}>
                     {formatStatus(row.status)}
                   </StatusBadge>
@@ -91,7 +91,7 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
                     </span>
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="font-mono text-xs font-bold text-[#FFB938] ltr-isolate">{row.code}</span>
+                    <span className="font-mono text-xs font-bold text-[#a4a6aa] ltr-isolate">{row.code}</span>
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="font-extrabold text-[#f4f4ed] ltr-isolate">{row.ign}</span>

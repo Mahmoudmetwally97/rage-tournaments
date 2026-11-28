@@ -37,7 +37,7 @@ export function MatchCard({ match, locale }: MatchCardProps) {
       <div className="flex items-center justify-between text-xs text-[#a4a6aa]">
         <span>{timeLabel}</span>
         {match.scoreLabel && (
-          <span className="font-bold text-[#FFB938] ltr-isolate">{match.scoreLabel}</span>
+          <span className="font-bold text-[#e5ed43] ltr-isolate">{match.scoreLabel}</span>
         )}
       </div>
     </div>
