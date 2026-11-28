@@ -15,6 +15,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
   if (!supabase) redirect(`/${locale}`);
 
   const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+  const isSuper = (roles ?? []).some((r) => r.role === 'super_admin');
   const isOrganizer = (roles ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator');
   if (!isOrganizer) redirect(`/${locale}/dashboard`);
 
@@ -40,9 +41,19 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
             {locale === 'ar' ? 'بطولاتك' : 'Your tournaments'}
           </h1>
         </div>
-        <span className="border border-[#2b2d30] px-3 py-1.5 text-[11px] font-bold tracking-[0.16em] text-[#a4a6aa] ltr-isolate">
-          {user.email}
-        </span>
+        <div className="flex flex-wrap items-center gap-3">
+          {isSuper && (
+            <Link
+              href={`/${locale}/admin/new`}
+              className="clip-btn btn-shine bg-[#e5ed43] px-4 py-2 text-xs font-extrabold text-[#0d0e10] hover:bg-[#eef46b]"
+            >
+              + {locale === 'ar' ? 'بطولة جديدة' : 'Create tournament'}
+            </Link>
+          )}
+          <span className="border border-[#2b2d30] px-3 py-1.5 text-[11px] font-bold tracking-[0.16em] text-[#a4a6aa] ltr-isolate">
+            {user.email}
+          </span>
+        </div>
       </div>
 
       <div className="space-y-3">

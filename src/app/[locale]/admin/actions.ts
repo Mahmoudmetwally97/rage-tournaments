@@ -311,3 +311,113 @@ export async function movePlayer(registrationId: string, toGroupId: string, slug
   revalidatePath(`/en/admin/${slug}/matches`);
   return null;
 }
+
+export async function createTournament(f: FormData) {
+  const { sb, user } = await client();
+  const locale = s(f, 'locale') || 'ar';
+  const fail = (m: string) => done(`/${locale}/admin/new`, m);
+
+  const { data: roles } = await sb.from('user_roles').select('role').eq('user_id', user.id);
+  if (!(roles ?? []).some((r) => r.role === 'super_admin')) return fail('FORBIDDEN');
+
+  const titleEn = s(f, 'title_en');
+  const titleAr = s(f, 'title_ar') || titleEn;
+  if (titleEn.length < 2) return fail('اكتب اسم البطولة / Enter the tournament name');
+  let slug = s(f, 'slug').toLowerCase() || titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || ['new', 'create'].includes(slug)) {
+    return fail('الرابط لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات / Slug must be lowercase letters, numbers and dashes');
+  }
+  const gameId = s(f, 'game_id');
+  if (!gameId) return fail('اختار اللعبة / Choose a game');
+  const roomSize = Math.max(2, Number(s(f, 'room_size') || 25));
+  const startsRaw = s(f, 'starts_at');
+  const startsAt = startsRaw ? cairoLocalToIso(startsRaw) : null;
+  const regRaw = s(f, 'registration_deadline');
+  const openMin = Math.max(0, Number(s(f, 'checkin_minutes') || 40));
+  const checkinOpens = startsAt ? new Date(new Date(startsAt).getTime() - openMin * 60000).toISOString() : null;
+
+  const copyId = s(f, 'copy_from');
+  let src: Record<string, any> | null = null;
+  if (copyId) {
+    const { data } = await sb.from('tournaments').select('*').eq('id', copyId).maybeSingle();
+    src = data;
+  }
+
+  const row: Record<string, unknown> = {
+    slug,
+    game_id: gameId,
+    title_en: titleEn,
+    title_ar: titleAr,
+    competition_type: 'solo',
+    team_size: 1,
+    language: 'both',
+    status: f.get('publish') === 'on' ? 'published' : 'draft',
+    min_participants: 2,
+    max_participants: Math.max(0, Number(s(f, 'max_participants') || 0)),
+    room_size: roomSize,
+    requires_approval: f.get('requires_approval') === 'on',
+    starts_at: startsAt,
+    checkin_opens_at: checkinOpens,
+    registration_deadline: regRaw ? cairoLocalToIso(regRaw) : null,
+    timezone: 'Africa/Cairo',
+    created_by: user.id,
+    contact_url: s(f, 'contact_url') || src?.contact_url || null,
+    contact_label: s(f, 'contact_label') || src?.contact_label || null
+  };
+  if (src) {
+    for (const k of ['game_version', 'description_ar', 'description_en', 'rules_url', 'rules_text_ar', 'rules_text_en', 'rules_sections', 'prize_summary_ar', 'prize_summary_en', 'dispute_window_minutes']) {
+      if (src[k] !== undefined) row[k] = src[k];
+    }
+  }
+  const { data: created, error } = await sb.from('tournaments').insert(row).select('id').single();
+  if (error || !created) return fail(error?.message ?? 'create failed');
+  const tid = created.id as string;
+
+  const rollback = async (m: string) => {
+    await sb.from('tournaments').delete().eq('id', tid);
+    return fail(m);
+  };
+
+  const mgr = await sb.from('tournament_admins').insert({ tournament_id: tid, user_id: user.id, role: 'tournament_manager', assigned_by: user.id });
+  if (mgr.error) return rollback(mgr.error.message);
+
+  if (src) {
+    const { data: stages } = await sb.from('stages').select('*').eq('tournament_id', src.id).order('stage_order');
+    const map: Record<string, string> = {};
+    for (const st of stages ?? []) {
+      const { data: ns, error: e } = await sb
+        .from('stages')
+        .insert({ tournament_id: tid, stage_order: st.stage_order, name_ar: st.name_ar, name_en: st.name_en, format: st.format, participant_mode: st.participant_mode, seeding_mode: st.seeding_mode, qualify_count: st.qualify_count, advance_rule: st.advance_rule, config: st.config })
+        .select('id')
+        .single();
+      if (e || !ns) return rollback(e?.message ?? 'stage copy failed');
+      map[st.id] = ns.id;
+    }
+    const { data: rules } = await sb.from('tournament_scoring_rules').select('*').eq('tournament_id', src.id).eq('is_active', true);
+    for (const r of rules ?? []) {
+      const { error: e } = await sb.from('tournament_scoring_rules').insert({ tournament_id: tid, stage_id: r.stage_id ? (map[r.stage_id] ?? null) : null, version: 1, placement_points: r.placement_points, kill_points: r.kill_points, win_points: r.win_points, round_count: r.round_count, aggregation_mode: r.aggregation_mode, tie_breaker_rules: r.tie_breaker_rules, is_active: true });
+      if (e) return rollback(e.message);
+    }
+    const { data: pools } = await sb.from('prize_pools').select('*').eq('tournament_id', src.id);
+    for (const p of pools ?? []) {
+      const { data: np, error: e } = await sb.from('prize_pools').insert({ tournament_id: tid, rank_from: p.rank_from, rank_to: p.rank_to, label_ar: p.label_ar, label_en: p.label_en, sort_order: p.sort_order }).select('id').single();
+      if (e || !np) return rollback(e?.message ?? 'prize copy failed');
+      const { data: rw } = await sb.from('prize_rewards').select('*').eq('pool_id', p.id);
+      for (const w of rw ?? []) {
+        await sb.from('prize_rewards').insert({ pool_id: np.id, kind: w.kind, amount: w.amount, currency: w.currency, text_ar: w.text_ar, text_en: w.text_en, note: w.note, is_placeholder: w.is_placeholder });
+      }
+    }
+    const { data: bonuses } = await sb.from('tournament_bonuses').select('*').eq('tournament_id', src.id);
+    for (const b of bonuses ?? []) {
+      await sb.from('tournament_bonuses').insert({ tournament_id: tid, title_ar: b.title_ar, title_en: b.title_en, description_ar: b.description_ar, description_en: b.description_en, kind: b.kind, amount: b.amount, is_placeholder: b.is_placeholder });
+    }
+  } else {
+    const { error: e1 } = await sb.rpc('admin_create_stage', { p_tournament_id: tid, p_name_ar: 'المرحلة الأولى', p_name_en: 'Stage 1', p_qualify_count: 1 });
+    if (e1) return rollback(e1.message);
+    const { error: e2 } = await sb.rpc('admin_set_scoring', { p_tournament_id: tid, p_placement: { '1': 10, '2': 8, '3': 6, '4': 5, '5': 4, '6': 3, '7': 2, '8': 1 }, p_kill: 1, p_rounds: 1 });
+    if (e2) return rollback(e2.message);
+  }
+
+  revalidatePath(`/${locale}/admin`);
+  redirect(`/${locale}/admin/${slug}?ok=1`);
+}
