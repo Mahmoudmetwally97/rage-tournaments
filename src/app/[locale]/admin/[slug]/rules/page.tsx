@@ -20,6 +20,7 @@ export default async function RulesPage({
     .eq('is_active', true)
     .maybeSingle();
   const placement = Object.entries((rule?.placement_points ?? {}) as Record<string, number>)
+    .filter(([r]) => /^\d+$/.test(r))
     .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map(([r, p]) => `${r}:${p}`)
     .join(', ');
