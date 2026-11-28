@@ -56,9 +56,10 @@ function parseJson(text: string): unknown {
 async function callGemini(img: { data: string; mime: string }): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('NO_VISION_KEY');
-  const model = process.env.VISION_MODEL || 'gemini-2.5-flash';
+  const model = process.env.VISION_MODEL || 'gemini-3.5-flash';
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: 'POST',
+    signal: AbortSignal.timeout(50_000),
     headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
     body: JSON.stringify({
       contents: [{ parts: [{ text: VISION_PROMPT }, { inline_data: { mime_type: img.mime, data: img.data } }] }],
