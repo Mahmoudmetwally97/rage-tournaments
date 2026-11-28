@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { ensureProfile } from '@/lib/supabase/ensure-profile';
 
-export default function AuthCallback() {
+export default function AuthFinish() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
   const sp = useSearchParams();
@@ -16,13 +16,8 @@ export default function AuthCallback() {
     (async () => {
       const supabase = getSupabaseBrowserClient();
       if (!supabase) return router.replace(`/${locale}/login`);
-      const code = sp.get('code');
       const providerErr = sp.get('error_description');
       if (providerErr) return setErr(providerErr);
-      if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) return setErr(error.message);
-      }
       const { data } = await supabase.auth.getUser();
       if (!data.user) return setErr(ar ? 'تعذر تسجيل الدخول. جرّب تاني.' : 'Sign-in failed. Please try again.');
       await ensureProfile(supabase, data.user, locale);
