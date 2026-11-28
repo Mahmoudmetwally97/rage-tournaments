@@ -19,6 +19,8 @@ const ERR: Record<string, string> = {
   NO_CHECKED_IN_PLAYERS: 'لا يوجد لاعبين عملوا تشيك إن / No checked-in players',
   STAGE_DELETE_NEEDS_CONFIRM: 'المرحلة فيها نتائج، لازم تأكيد صريح / Stage has results, explicit confirmation needed',
   BAD_ADVANCE_RULE: 'نوع الترقية غير صحيح / Invalid advance mode',
+  TOO_MANY_GROUPS: 'عدد المجموعات أكبر من اللاعبين / More groups than players',
+  GROUP_TOO_BIG: 'المجموعة أكبر من حجم الغرفة، زود عدد المجموعات / Group bigger than the room size, add more groups',
   STAGE_NOT_FOUND: 'المرحلة مش موجودة / Stage not found',
   BAD_QUALIFY: 'عدد المتأهلين لازم 1 أو أكثر / Qualify count must be 1 or more',
   NAME_REQUIRED: 'الاسم مطلوب بالعربي والإنجليزي / Name required in both languages',
@@ -174,7 +176,7 @@ export async function setTournamentStatus(f: FormData) {
 
 export async function seedStage(f: FormData) {
   const { sb } = await client();
-  const { error } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: Number(s(f, 'order') || 1) });
+  const { error } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: Number(s(f, 'order') || 1), p_groups: Number(s(f, 'groups')) > 0 ? Number(s(f, 'groups')) : null, p_mode: s(f, 'mode') === 'random' ? 'random' : 'balanced' });
   await done(back(f, `/matches?stage=${s(f, 'order') || 1}`), error?.message ?? null);
 }
 
@@ -397,7 +399,7 @@ export async function advanceStage(f: FormData) {
     p_tournament_id: s(f, 'tid'),
     p_from_order: from,
     p_top_n: Number(s(f, 'top_n') || 1),
-    p_rule: s(f, 'advance_rule') === 'top_n_per_group' ? 'top_n_per_group' : s(f, 'advance_rule') === 'top_n_overall' ? 'top_n_overall' : null
+    p_rule: ['top_n_per_group', 'top_n_total', 'top_n_overall'].includes(s(f, 'advance_rule')) ? s(f, 'advance_rule') : null
   });
   if (!error) {
     const { error: e2 } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: from + 1 });
@@ -697,7 +699,7 @@ export async function updateStage(f: FormData) {
     p_name_ar: s(f, 'name_ar'),
     p_name_en: s(f, 'name_en'),
     p_qualify_count: Number(s(f, 'qualify') || 1),
-    p_advance_rule: s(f, 'advance_rule') === 'top_n_per_group' ? 'top_n_per_group' : 'top_n_overall'
+    p_advance_rule: (['top_n_per_group', 'top_n_total'].includes(s(f, 'advance_rule')) ? s(f, 'advance_rule') : 'top_n_overall')
   });
   await done(back(f, `/matches?stage=${s(f, 'order') || 1}`), error?.message ?? null);
 }

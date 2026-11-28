@@ -127,6 +127,7 @@ export default async function MatchesPage({
               <select name="advance_rule" defaultValue={sel?.advance_rule ?? 'top_n_overall'} className={inputCls} aria-label="Advance mode">
                 <option value="top_n_overall">{tr(locale, 'أفضل N في المرحلة كلها', 'Top N overall (all rooms together)')}</option>
                 <option value="top_n_per_group">{tr(locale, 'أفضل N من كل روم', 'Top N per room')}</option>
+                <option value="top_n_total">{tr(locale, 'إجمالي N متأهل موزعين على المجموعات (والباقي أحسن النتائج)', 'Total N across groups (rest filled by best overall)')}</option>
               </select>
               <Btn tone="primary">{tr(locale, 'ترقية وتوليد الغرف', 'Advance and seed rooms')}</Btn>
               {!allDone && <p className="text-[11px] text-[#6f7276]">{tr(locale, 'لازم كل ماتشات المرحلة تكون مكتملة.', 'All matches of the stage must be scored first.')}</p>}
@@ -148,6 +149,7 @@ export default async function MatchesPage({
               <select name="advance_rule" defaultValue={sel.advance_rule ?? 'top_n_overall'} className={inputCls} aria-label="Advance mode">
                 <option value="top_n_overall">{tr(locale, 'أفضل N في المرحلة كلها', 'Top N overall (all rooms together)')}</option>
                 <option value="top_n_per_group">{tr(locale, 'أفضل N من كل روم', 'Top N per room')}</option>
+                <option value="top_n_total">{tr(locale, 'إجمالي N متأهل موزعين على المجموعات (والباقي أحسن النتائج)', 'Total N across groups (rest filled by best overall)')}</option>
               </select>
               <Btn tone="primary">{tr(locale, 'حفظ التعديل', 'Save changes')}</Btn>
             </form>
@@ -168,8 +170,13 @@ export default async function MatchesPage({
       <Card
         title={tr(locale, 'الغرف والماتشات', 'Rooms and matches')}
         right={
-          <form action={seedStage}>
+          <form action={seedStage} className="flex flex-wrap items-center gap-2">
             <Hidden values={{ locale, slug, tid, order: String(selOrder) }} />
+            <input name="groups" type="number" min={1} placeholder={tr(locale, 'عدد المجموعات (فاضي = تلقائي)', 'Groups (empty = auto)')} className={inputCls + ' !w-44'} aria-label="Groups" />
+            <select name="mode" className={inputCls + ' !w-40'} aria-label="Split">
+              <option value="balanced">{tr(locale, 'توزيع متوازن بالسييد', 'Balanced by seed')}</option>
+              <option value="random">{tr(locale, 'عشوائي', 'Random')}</option>
+            </select>
             <Btn tone="primary">{tr(locale, 'توليد الغرف من اللاعبين اللي عملوا تشيك إن', 'Seed rooms from checked-in players')}</Btn>
           </form>
         }

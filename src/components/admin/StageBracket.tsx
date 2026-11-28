@@ -22,7 +22,7 @@ export function StageBracket({ stages, selected, base, ar, statusLabel }: { stag
           </a>
           {i < stages.length - 1 && (
             <div className="flex w-16 shrink-0 flex-col items-center text-[10px] font-extrabold text-[#e5ed43]">
-              <span className="ltr-isolate">TOP {s.qualify}{s.rule === 'top_n_per_group' ? (ar ? ' / روم' : ' / ROOM') : ''}</span>
+              <span className="ltr-isolate">{s.rule === 'top_n_total' ? `${s.qualify} ${ar ? 'إجمالي' : 'TOTAL'} / ${s.rooms || '?'} ${ar ? 'مجموعات' : 'GROUPS'}` : `TOP ${s.qualify}`}{s.rule === 'top_n_per_group' ? (ar ? ' / روم' : ' / ROOM') : ''}</span>
               <span aria-hidden className="h-0.5 w-full bg-gradient-to-r from-[#e5ed43]/20 to-[#e5ed43]" />
               <span aria-hidden className="ltr-isolate text-lg leading-none">{ar ? '◀' : '▶'}</span>
             </div>
