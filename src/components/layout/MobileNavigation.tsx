@@ -33,6 +33,13 @@ export function MobileNavigation({
     { href: `/${locale}/tournaments`, label: dict.nav.tournaments },
     { href: `/${locale}/leaderboards`, label: dict.nav.leaderboards },
     { href: `/${locale}/dashboard`, label: dict.nav.dashboard },
+    ...(demoUser
+      ? [
+          { href: `/${locale}/u/${demoUser.username}`, label: locale === 'ar' ? 'البروفايل' : 'Profile' },
+          { href: `/${locale}/settings`, label: locale === 'ar' ? 'إعدادات الحساب' : 'Account settings' },
+          { href: `/${locale}/teams`, label: locale === 'ar' ? 'تيماتي' : 'My teams' }
+        ]
+      : []),
     ...(isOrganizer
       ? [{ href: `/${locale}/admin`, label: locale === 'ar' ? 'لوحة الإدارة' : 'Admin console' }]
       : [])

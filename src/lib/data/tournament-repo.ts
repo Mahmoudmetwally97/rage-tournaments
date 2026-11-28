@@ -6,6 +6,7 @@ export type DataSource = 'db' | 'demo';
 interface TournamentRow {
   id: string;
   slug: string;
+  cover_image_url: string | null;
   title_ar: string;
   title_en: string;
   description_ar: string | null;
@@ -34,9 +35,14 @@ interface StageRow {
 
 const STATUS_MAP: Record<string, DemoTournament['status']> = {
   registration_open: 'registration_open',
+  registration_closed: 'registration_closed',
   check_in: 'check_in',
+  ready: 'ready',
   live: 'live',
-  completed: 'completed'
+  completed: 'completed',
+  archived: 'completed',
+  cancelled: 'cancelled',
+  suspended: 'suspended'
 };
 
 function toLines(text: string | null | undefined): string[] {
@@ -61,6 +67,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number,
 
   return {
     slug: row.slug,
+    coverUrl: row.cover_image_url,
     isDemo: true,
     featured: true,
     titleAr: row.title_ar,
@@ -104,7 +111,7 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
   try {
     const [rows, stages, registrations, standings] = await Promise.all([
       sbSelect<TournamentRow>('tournaments', {
-        select: 'id,slug,title_ar,title_en,description_ar,description_en,competition_type,status,min_participants,max_participants,starts_at,prize_summary_ar,prize_summary_en,rules_text_ar,rules_text_en,games(name_ar,name_en)',
+        select: 'id,slug,cover_image_url,title_ar,title_en,description_ar,description_en,competition_type,status,min_participants,max_participants,starts_at,prize_summary_ar,prize_summary_en,rules_text_ar,rules_text_en,games(name_ar,name_en)',
         status: 'neq.archived',
         order: 'created_at.desc'
       }),

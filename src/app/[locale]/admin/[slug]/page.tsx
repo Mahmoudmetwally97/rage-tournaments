@@ -2,7 +2,7 @@ import { isoToCairoLocal } from '@/lib/format';
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { saveSettings, setTournamentStatus } from '../actions';
+import { removeCover, saveCover, saveSettings, setTournamentStatus } from '../actions';
 
 const FLOW: [string, string, string][] = [
   ['registration_open', 'فتح التسجيل', 'Open registration'],
@@ -89,6 +89,33 @@ export default async function AdminOverview({
           </p>
         </Card>
       </div>
+
+      <Card title={tr(locale, 'صورة الغلاف', 'Cover image')}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="relative h-36 overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={t!.cover_image_url || '/brand/rage-characters.png'} alt="" className={`absolute inset-0 h-full w-full object-cover ${t!.cover_image_url ? 'object-center opacity-80' : 'object-[62%_18%] opacity-70'}`} />
+            <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/70 to-transparent" />
+            <span className="absolute bottom-2 start-3 text-[10px] font-bold tracking-[0.16em] text-[#e5ed43]">
+              {t!.cover_image_url ? tr(locale, 'صورة مخصصة', 'CUSTOM') : tr(locale, 'الصورة الافتراضية', 'DEFAULT ART')}
+            </span>
+          </div>
+          <div className="space-y-3">
+            <form action={saveCover} className="space-y-2">
+              <Hidden values={{ locale, slug, tid }} />
+              <input name="cover" type="file" required accept="image/jpeg,image/png,image/webp" className="block w-full text-xs text-[#a4a6aa] file:me-3 file:border-0 file:bg-[#23252a] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#f4f4ed]" />
+              <Btn tone="primary">{tr(locale, 'رفع الصورة', 'Upload image')}</Btn>
+            </form>
+            {t!.cover_image_url && (
+              <form action={removeCover}>
+                <Hidden values={{ locale, slug, tid }} />
+                <Btn tone="danger">{tr(locale, 'حذف والرجوع للافتراضي', 'Remove, use default art')}</Btn>
+              </form>
+            )}
+            <p className="text-xs text-[#6f7276]">{tr(locale, 'JPG أو PNG أو WebP، حتى 3 ميجا. يفضل عريضة (مثلاً 1600×600). بيظهر في صفحة البطولة والكارت مع طبقة غامقة عشان الكلام يفضل مقروء.', 'JPG, PNG or WebP, up to 3 MB. Wide images work best (e.g. 1600x600). Shown on the tournament page and card under a dark overlay so text stays readable.')}</p>
+          </div>
+        </div>
+      </Card>
 
       <Card title={tr(locale, 'الإعدادات', 'Settings')}>
         <form action={saveSettings} className="grid gap-3 sm:grid-cols-2">

@@ -1,4 +1,4 @@
-import { ctaFor, ctaHref, upcomingText } from '@/lib/format';
+import { primaryAction, statusBadge } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
@@ -20,25 +20,8 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
       ? `${tournament.registeredCount} / ${tournament.maxParticipants}`
       : `${tournament.registeredCount} / ${dict.tournament.unlimited}`;
 
-  const statusVariant =
-    tournament.status === 'registration_open'
-      ? 'open'
-      : tournament.status === 'check_in'
-      ? 'warning'
-      : tournament.status === 'live'
-      ? 'live'
-      : 'neutral';
-
-  const statusText =
-    tournament.status === 'registration_open'
-      ? dict.tournament.open
-      : tournament.status === 'check_in'
-      ? dict.tournament.checkIn
-      : tournament.status === 'live'
-      ? dict.tournament.live
-      : tournament.status === 'upcoming'
-      ? upcomingText(locale === 'ar')
-      : dict.tournament.completed;
+  const badge = statusBadge(tournament.status, locale === 'ar');
+  const action = primaryAction(tournament.status, locale, tournament.slug);
 
   const formattedDate = formatStartDate(tournament.startsAtIso, locale);
 
@@ -46,14 +29,14 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
     <article className="reveal clip-card card-surface card-hover group flex flex-col justify-between rounded-none border-t-2 border-t-[#e5ed43]/70 p-5">
       <div className="-mx-5 -mt-5 mb-4 h-24 overflow-hidden relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/rage-characters.png" alt="" className="h-full w-full object-cover object-[62%_20%] opacity-80 transition-transform duration-500 group-hover:scale-105" />
+        <img src={tournament.coverUrl || "/brand/rage-characters.png"} alt="" className={`h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 ${tournament.coverUrl ? "object-center" : "object-[62%_20%]"}`} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#151619] to-transparent" />
       </div>
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">
-            <StatusBadge variant={statusVariant} pulse={tournament.status === 'live'}>
-              {statusText}
+            <StatusBadge variant={badge.variant} pulse={badge.pulse}>
+              {badge.text}
             </StatusBadge>
             <StatusBadge>
               {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
@@ -84,12 +67,21 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
       </div>
 
       <div className="flex items-center gap-2.5">
-        <Link
-          href={ctaHref(tournament.status, locale, tournament.slug)}
-          className="flex-1 rounded-none bg-[#e5ed43] px-4 py-2.5 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
-        >
-          {ctaFor(tournament.status, locale === 'ar')}
-        </Link>
+        {action.href ? (
+          <Link
+            href={action.href}
+            className="flex-1 rounded-none bg-[#e5ed43] px-4 py-2.5 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
+          >
+            {action.label}
+          </Link>
+        ) : (
+          <span
+            aria-disabled="true"
+            className="flex-1 cursor-not-allowed rounded-none border border-[#2b2d30] bg-[#1b1d20] px-4 py-2.5 text-center text-sm font-extrabold text-[#6f7276]"
+          >
+            {action.label}
+          </span>
+        )}
         <Link
           href={`/${locale}/tournaments/${tournament.slug}`}
           className="rounded-none border border-[#2b2d30] bg-[#1b1d20] px-4 py-2.5 text-sm font-bold text-[#f4f4ed] transition-colors hover:border-[#3a3d40]"

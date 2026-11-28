@@ -28,7 +28,7 @@ export default async function AdminTournamentLayout({
       <Link href={`/${locale}/admin`} className="inline-block text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">
         ← {tr(locale, 'لوحة الإدارة', 'Admin')}
       </Link>
-      <PageHero compact eyebrow={tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')} title={locale === 'ar' ? tournament!.title_ar : tournament!.title_en}>
+      <PageHero compact coverUrl={tournament!.cover_image_url} eyebrow={tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')} title={locale === 'ar' ? tournament!.title_ar : tournament!.title_en}>
         <Pill on>{label(locale, tournament!.status)}</Pill>
       </PageHero>
       <nav className="-mx-4 flex gap-2 overflow-x-auto border-b border-[#2b2d30] px-4 pb-3 [mask-image:linear-gradient(to_right,black_88%,transparent)] rtl:[mask-image:linear-gradient(to_left,black_88%,transparent)] sm:mx-0 sm:px-0 sm:[mask-image:none]">

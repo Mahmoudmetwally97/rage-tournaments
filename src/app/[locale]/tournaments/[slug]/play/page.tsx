@@ -6,7 +6,9 @@ import { tr } from '@/lib/admin';
 import { label } from '@/lib/labels';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 import { Btn, Card, Flash, Hidden, PageHero, Pill, inputCls } from '@/components/admin/ui';
-import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister } from '../../../admin/actions';
+import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister, playerRegisterTeam } from '../../../admin/actions';
+import { loadBracket } from '@/lib/bracket';
+import { TeamBracket } from '@/components/tournaments/TeamBracket';
 
 export default async function PlayPage({
   params,
@@ -33,11 +35,22 @@ export default async function PlayPage({
     supabase.from('registrations').select('id', { count: 'exact', head: true }).eq('tournament_id', tid).in('status', ['pending', 'confirmed', 'checked_in'])
   ]);
 
+  const isTeam = t.competition_type === 'team';
+  let myTeams: { id: string; name: string; tag: string }[] = [];
   let mine: { id: string; status: string; ign_snapshot: string; registration_code: string } | null = null;
   let myClaim: { status: string } | null = null;
   let myIssues: { id: string; subject: string; status: string; staff_reply: string | null }[] = [];
-  let ign = '';
   if (user) {
+    if (isTeam) {
+      const { data: rm } = await supabase.from('registration_roster_members').select('registration_id').eq('tournament_id', tid).eq('user_id', user.id);
+      const rid = (rm ?? [])[0]?.registration_id;
+      const { data: reg } = rid
+        ? await supabase.from('registrations').select('id,status,ign_snapshot,registration_code').eq('id', rid).not('status', 'in', '(cancelled,rejected)').maybeSingle()
+        : { data: null };
+      mine = reg;
+      const { data: ct } = await supabase.from('teams').select('id,name,tag').eq('captain_id', user.id).eq('game_id', t.game_id);
+      myTeams = ct ?? [];
+    } else {
     const { data: reg } = await supabase
       .from('registrations')
       .select('id,status,ign_snapshot,registration_code')
@@ -46,13 +59,14 @@ export default async function PlayPage({
       .not('status', 'in', '(cancelled)')
       .maybeSingle();
     mine = reg;
-    const { data: prof } = await supabase.from('player_profiles').select('username').eq('id', user.id).maybeSingle();
-    ign = prof?.username ?? '';
+    }
     const { data: c } = await supabase.from('prize_claims').select('status').eq('tournament_id', tid).eq('user_id', user.id).maybeSingle();
     myClaim = c;
     const { data: iss } = await supabase.from('tournament_issues').select('id,subject,status,staff_reply').eq('tournament_id', tid).eq('user_id', user.id);
     myIssues = iss ?? [];
   }
+  const bracket = isTeam ? await loadBracket(supabase, tid) : null;
+  const isCaptain = isTeam && !!user && !!mine && myTeams.some((x) => mine!.ign_snapshot === `${x.tag} ${x.name}`);
   const myRank = mine ? (stand ?? []).find((r) => r.registration_id === mine!.id)?.rank : undefined;
   const finished = t.status === 'completed' || t.status === 'archived';
   const sections = (t.rules_sections ?? []) as { title_ar: string; title_en: string; body_ar: string; body_en: string }[];
@@ -90,19 +104,36 @@ export default async function PlayPage({
               <span className="ms-2 text-xs text-[#6f7276] ltr-isolate">{mine.registration_code}</span>
             </p>
             <div className="flex flex-wrap gap-2">
-              {(t.status === 'check_in' || (t.starts_at && ['registration_open','registration_closed','ready'].includes(t.status) && Date.now() >= new Date(t.starts_at).getTime() - 40 * 60000 && Date.now() < new Date(t.starts_at).getTime() + 6 * 3600000)) && mine.status === 'confirmed' && (
+              {(t.status === 'check_in' || (t.starts_at && ['registration_open','registration_closed','ready'].includes(t.status) && Date.now() >= new Date(t.starts_at).getTime() - 40 * 60000 && Date.now() < new Date(t.starts_at).getTime() + 6 * 3600000)) && mine.status === 'confirmed' && (!isTeam || isCaptain) && (
                 <form action={playerCheckIn}><Hidden values={hid} /><Btn tone="primary">{tr(locale, 'تشيك إن', 'Check in')}</Btn></form>
               )}
-              {!['live', 'completed', 'archived'].includes(t.status) && ['pending', 'confirmed', 'checked_in', 'waitlisted'].includes(mine.status) && (
+              {!isTeam && !['live', 'completed', 'archived'].includes(t.status) && ['pending', 'confirmed', 'checked_in', 'waitlisted'].includes(mine.status) && (
                 <form action={playerCancel}><Hidden values={hid} /><Btn tone="danger">{tr(locale, 'إلغاء التسجيل', 'Cancel registration')}</Btn></form>
               )}
             </div>
             {myRank && <p className="text-sm text-[#e5ed43]">{tr(locale, `ترتيبك: ${myRank}`, `Your rank: ${myRank}`)}</p>}
           </div>
+        ) : isTeam && t.status === 'registration_open' ? (
+          myTeams.length > 0 ? (
+            <form action={playerRegisterTeam} className="flex flex-wrap gap-2">
+              <Hidden values={hid} />
+              <select name="team_id" required className={`${inputCls} w-full max-w-xs`}>
+                {myTeams.map((x) => (<option key={x.id} value={x.id}>[{x.tag}] {x.name}</option>))}
+              </select>
+              <Btn tone="primary">{tr(locale, 'سجل التيم', 'Register team')}</Btn>
+              <p className="w-full text-[11px] text-[#6f7276]">{tr(locale, 'التشكيلة (القائد + اللاعبين اللي قبلوا الدعوة) بتتقفل بعد التسجيل.', 'The roster (leader + accepted players) locks once you register.')}</p>
+            </form>
+          ) : (
+            <p className="text-sm text-[#a4a6aa]">
+              {tr(locale, 'قائد التيم بس هو اللي بيسجل. ', 'Only a team leader can register. ')}
+              <Link className="font-bold text-[#e5ed43]" href={`/${locale}/teams`}>{tr(locale, 'اعمل تيم أو شوف تيمك', 'Create or view your team')}</Link>
+            </p>
+          )
         ) : t.status === 'registration_open' ? (
           <form action={playerRegister} className="flex flex-wrap gap-2">
             <Hidden values={hid} />
-            <input name="ign" defaultValue={ign} required minLength={2} placeholder={tr(locale, 'اسمك في اللعبة', 'In-game name')} className={`${inputCls} max-w-xs`} />
+            <input name="ign" required minLength={2} autoComplete="off" placeholder={tr(locale, 'اسمك في اللعبة (IGN)', 'In-game name (IGN)')} className={`${inputCls} w-full max-w-xs`} />
+            <input name="email" type="email" required autoComplete="email" dir="ltr" placeholder={tr(locale, 'Gmail بتاعك', 'Your Gmail')} className={`${inputCls} w-full max-w-xs`} />
             <Btn tone="primary">{tr(locale, 'سجل في البطولة', 'Join tournament')}</Btn>
           </form>
         ) : (
@@ -120,7 +151,13 @@ export default async function PlayPage({
         </div>
       </Card>
 
-      <Card title={tr(locale, 'الترتيب', 'Standings')}>
+      {isTeam && bracket && (
+        <Card title={tr(locale, 'البراكت', 'Bracket')}>
+          <TeamBracket rounds={bracket.rounds} ar={locale === 'ar'} />
+        </Card>
+      )}
+
+      {!isTeam && (<Card title={tr(locale, 'الترتيب', 'Standings')}>
         {(stand ?? []).length === 0 ? (
           <p className="text-sm text-[#a4a6aa]">{tr(locale, 'لا توجد نتائج بعد.', 'No results yet.')}</p>
         ) : (
@@ -138,7 +175,7 @@ export default async function PlayPage({
             </tbody>
           </table>
         )}
-      </Card>
+      </Card>)}
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card title={tr(locale, 'الجوائز', 'Prizes')}>

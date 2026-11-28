@@ -80,8 +80,10 @@ export function PageHero({
   eyebrow,
   title,
   children,
-  compact
+  compact,
+  coverUrl
 }: {
+  coverUrl?: string | null;
   eyebrow: string;
   title: string;
   children?: ReactNode;
@@ -91,9 +93,9 @@ export function PageHero({
     <section className="clip-card hero-slash relative overflow-hidden bg-[#0d0e10]">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/brand/rage-characters.png"
+        src={coverUrl || '/brand/rage-characters.png'}
         alt=""
-        className={`absolute inset-0 h-full w-full object-cover object-[62%_18%] ${compact ? 'opacity-40' : 'opacity-90'}`}
+        className={`absolute inset-0 h-full w-full object-cover ${coverUrl ? 'object-center' : 'object-[62%_18%]'} ${compact ? 'opacity-40' : 'opacity-90'}`}
       />
       <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
       <div className={`relative ${compact ? 'p-5 sm:p-7' : 'p-6 sm:p-10'}`}>

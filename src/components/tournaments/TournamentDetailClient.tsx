@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { formatStartDate, ctaFor, ctaHref, upcomingText, formatLabel, qualifiesLabel } from '@/lib/format';
+import { formatStartDate, ctaFor, ctaHref, statusBadge, primaryAction, formatLabel, qualifiesLabel } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -46,22 +46,22 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
     setRegCode(randomCode);
   }
 
+  const heroBadge = statusBadge(tournament.status, locale === 'ar');
+  const action = primaryAction(tournament.status, locale, tournament.slug);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Tournament Cover / Hero */}
-      <section className="clip-card hero-slash relative mb-8 overflow-hidden rounded-none bg-[#0d0e10] p-6 sm:p-10">
+      <section className="clip-card hero-slash relative mb-8 flex min-h-[380px] flex-col justify-end overflow-hidden rounded-none bg-[#0d0e10] p-6 sm:min-h-[460px] sm:p-10 lg:min-h-[520px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/rage-characters.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%] opacity-70" />
-        <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e10] via-[#0d0e10]/80 to-transparent sm:hidden" />
+        <img src={tournament.coverUrl || "/brand/rage-characters.png"} alt="" className={`absolute inset-0 h-full w-full object-cover ${tournament.coverUrl ? "object-center opacity-80" : "object-[62%_18%] opacity-70"}`} />
+        <div className={`absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] to-[#0d0e10]/10 ${tournament.coverUrl ? 'via-[#0d0e10]/60 sm:via-[#0d0e10]/75' : 'via-[#0d0e10]/85'}`} />
+        <div className={`absolute inset-0 bg-gradient-to-t from-[#0d0e10] to-transparent sm:hidden ${tournament.coverUrl ? 'via-[#0d0e10]/45' : 'via-[#0d0e10]/80'}`} />
         <div className="absolute inset-x-0 top-0 h-1 bg-[#e5ed43]" />
         <div className="relative">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <StatusBadge
-            variant={tournament.status === 'live' ? 'live' : tournament.status === 'check_in' ? 'warning' : tournament.status === 'registration_open' ? 'open' : 'neutral'}
-            pulse={tournament.status === 'live'}
-          >
-            {tournament.status === 'live' ? dict.tournament.live : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'registration_open' ? dict.tournament.open : tournament.status === 'upcoming' ? upcomingText(locale === 'ar') : dict.tournament.completed}
+          <StatusBadge variant={heroBadge.variant} pulse={heroBadge.pulse} className="!px-3.5 !py-1.5 !text-sm !font-extrabold">
+            {heroBadge.text}
           </StatusBadge>
           <StatusBadge>
             {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
@@ -88,12 +88,31 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             </div>
           </div>
 
-          <a
-            href={ctaHref(tournament.status, locale, tournament.slug)}
-            className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
-          >
-            {ctaFor(tournament.status, locale === 'ar')}
-          </a>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            {action.href ? (
+              <a
+                href={action.href}
+                className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
+              >
+                {action.label}
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="clip-btn inline-flex w-full cursor-not-allowed items-center justify-center border border-[#2b2d30] bg-[#1b1d20]/90 px-8 py-3.5 text-base font-extrabold text-[#a4a6aa] sm:w-auto"
+              >
+                {action.label}
+              </span>
+            )}
+            {action.secondary && (
+              <a
+                href={action.secondary.href}
+                className="clip-btn inline-flex w-full items-center justify-center bg-[#23252a] px-6 py-3.5 text-base font-extrabold text-[#f4f4ed] hover:bg-[#2d3036] sm:w-auto"
+              >
+                {action.secondary.label}
+              </a>
+            )}
+          </div>
         </div>
       </div>
       </section>
