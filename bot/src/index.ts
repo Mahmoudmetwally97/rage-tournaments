@@ -124,6 +124,19 @@ client.on(Events.InteractionCreate, async (i) => {
         await i.reply({ content: 'Post a results screenshot in a linked channel. I read it and ask an organizer to approve. `/rage link tournament:<slug>` links this channel.', ephemeral: true });
         return;
       }
+      if (sub === 'testnotify') {
+        await i.deferReply({ ephemeral: true });
+        const r = await api('notify', { preview: { discordUserId: i.user.id } });
+        if (!r.ok) { await i.editReply(r.error === 'NOT_APPROVER' ? 'Owner only.' : `Failed: ${r.error}`); return; }
+        let dmOk = true;
+        for (const smp of r.samples as { label: string; text: string }[]) {
+          await i.user.send(`🧪 **TEST sample, ${smp.label}**\n\n${smp.text}`).catch(() => { dmOk = false; });
+        }
+        // What the organizer sees in the channel for someone who could not be DMed (invented names, test only).
+        await (i.channel as any)?.send('⚠️ **TEST - Registration trial**: could not DM (check-in is open):\n• ExamplePlayer (no Discord linked)\n• Team Rage (CaptainName)').catch(() => {});
+        await i.editReply(dmOk ? 'Sent you 4 sample DMs and a sample channel list. Samples only, nobody else got anything.' : 'Could not DM you. Check that DMs from server members are allowed, then retry.');
+        return;
+      }
       if (sub === 'link') {
         const r = await api('link', {
           discordUserId: i.user.id, guildId: i.guildId, channelId: i.channelId,
@@ -162,6 +175,7 @@ client.once(Events.ClientReady, async (c) => {
     .addSubcommand((s) => s.setName('link').setDescription('Link this channel to a tournament')
       .addStringOption((o) => o.setName('tournament').setDescription('Tournament slug').setRequired(true))
       .addStringOption((o) => o.setName('room').setDescription('Optional fixed room, e.g. Room 2')))
+    .addSubcommand((s) => s.setName('testnotify').setDescription('Send yourself sample check-in notices (owner only)'))
     .addSubcommand((s) => s.setName('help').setDescription('How the bot works'));
   await new REST().setToken(TOKEN).put(Routes.applicationCommands(APP_ID), { body: [cmd.toJSON()] });
   console.log(`RAGE results bot ready as ${c.user.tag}`);
