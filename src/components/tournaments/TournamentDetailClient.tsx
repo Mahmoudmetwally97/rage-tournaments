@@ -48,10 +48,19 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Tournament Cover / Hero */}
-      <section className="relative mb-8 overflow-hidden rounded-none border border-[#2b2d30] bg-[#151619] p-6 sm:p-8 tactical-grid-bg">
+      <section className="clip-card hero-slash relative mb-8 overflow-hidden rounded-none bg-[#0d0e10] p-6 sm:p-10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/brand/rage-characters.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%] opacity-70" />
+        <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
         <div className="absolute inset-x-0 top-0 h-1 bg-[#e5ed43]" />
+        <div className="relative">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <StatusBadge variant="open">{dict.tournament.open}</StatusBadge>
+          <StatusBadge
+            variant={tournament.status === 'live' ? 'live' : tournament.status === 'check_in' ? 'warning' : tournament.status === 'registration_open' ? 'open' : 'neutral'}
+            pulse={tournament.status === 'live'}
+          >
+            {tournament.status === 'live' ? dict.tournament.live : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'registration_open' ? dict.tournament.open : dict.tournament.completed}
+          </StatusBadge>
           <StatusBadge>
             {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
           </StatusBadge>
@@ -61,7 +70,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
 
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-[#f4f4ed] sm:text-4xl">
+            <h1 className="text-4xl font-extrabold tracking-tight text-[#f4f4ed] sm:text-6xl">
               {title}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-4 text-xs font-semibold text-[#a4a6aa]">
@@ -84,6 +93,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             {dict.tournament.registerNow}
           </a>
         </div>
+      </div>
       </section>
 
       {/* Tabs */}
