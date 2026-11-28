@@ -1,28 +1,62 @@
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { saveMatch, seedStage } from '../../actions';
+import { saveMatch, seedStage, createStage, advanceStage } from '../../actions';
+import { RoomBoard } from '@/components/admin/RoomBoard';
+import { StageBracket } from '@/components/admin/StageBracket';
 
 export default async function MatchesPage({
   params,
   searchParams
 }: {
   params: Promise<{ locale: string; slug: string }>;
-  searchParams: Promise<{ ok?: string; err?: string }>;
+  searchParams: Promise<{ ok?: string; err?: string; stage?: string }>;
 }) {
   const { locale: l, slug } = await params;
   const sp = await searchParams;
   const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
   const tid = t!.id as string;
 
-  const { data: stages } = await supabase.from('stages').select('id').eq('tournament_id', tid);
-  const stageIds = (stages ?? []).map((s) => s.id);
+  const { data: stageRows } = await supabase.from('stages').select('id,stage_order,name_ar,name_en,status,qualify_count').eq('tournament_id', tid).order('stage_order');
+  const stages = stageRows ?? [];
+  const selOrder = Number(sp.stage) || stages.find((x) => x.status === 'active')?.stage_order || stages[0]?.stage_order || 1;
+  const sel = stages.find((x) => x.stage_order === selOrder);
+  const allIds = stages.map((x) => x.id);
+  const { data: allMatches } = await supabase.from('matches').select('id,stage_id,group_id,status').in('stage_id', allIds.length ? allIds : ['00000000-0000-0000-0000-000000000000']);
+  const { data: allGroups } = await supabase.from('group_participants').select('group_id,registration_id,groups(stage_id)');
+  const bracket = stages.map((x) => {
+    const ms = (allMatches ?? []).filter((m) => m.stage_id === x.id);
+    const rooms = new Set(ms.map((m) => m.group_id)).size;
+    const players = (allGroups ?? []).filter((g) => {
+      const gg = g.groups as unknown as { stage_id: string } | { stage_id: string }[] | null;
+      return (Array.isArray(gg) ? gg[0]?.stage_id : gg?.stage_id) === x.id;
+    }).length;
+    return { order: x.stage_order, name: locale === 'ar' ? x.name_ar : x.name_en, status: x.status, rooms, players, qualify: x.qualify_count, scored: ms.filter((m) => m.status === 'completed').length, total: ms.length };
+  });
   const { data: matches } = await supabase
     .from('matches')
     .select('id,status,round_number,match_number,group_id,groups(name)')
-    .in('stage_id', stageIds.length ? stageIds : ['00000000-0000-0000-0000-000000000000'])
+    .eq('stage_id', sel?.id ?? '00000000-0000-0000-0000-000000000000')
     .order('match_number')
     .order('round_number');
+  const { data: gps } = await supabase
+    .from('group_participants')
+    .select('group_id,registration_id,seed_in_group,registrations(ign_snapshot),groups!inner(id,name,group_order,stage_id)')
+    .eq('groups.stage_id', sel?.id ?? '00000000-0000-0000-0000-000000000000')
+    .order('seed_in_group');
+  const lockedGroups = new Set((matches ?? []).filter((m) => m.status === 'completed').map((m) => m.group_id));
+  const roomMap = new Map<string, { id: string; name: string; order: number; locked: boolean; players: { id: string; ign: string }[] }>();
+  for (const g of gps ?? []) {
+    const gr = g.groups as unknown as { id: string; name: string; group_order: number } | { id: string; name: string; group_order: number }[];
+    const grp = Array.isArray(gr) ? gr[0]! : gr;
+    const rg = g.registrations as unknown as { ign_snapshot: string } | { ign_snapshot: string }[] | null;
+    const ign = (Array.isArray(rg) ? rg[0]?.ign_snapshot : rg?.ign_snapshot) ?? '';
+    if (!roomMap.has(grp.id)) roomMap.set(grp.id, { id: grp.id, name: grp.name, order: grp.group_order, locked: lockedGroups.has(grp.id), players: [] });
+    roomMap.get(grp.id)!.players.push({ id: g.registration_id, ign });
+  }
+  const boardRooms = [...roomMap.values()].sort((x, y) => x.order - y.order);
+  const nextExists = stages.some((x) => x.stage_order === selOrder + 1);
+  const allDone = (matches ?? []).length > 0 && (matches ?? []).every((m) => m.status === 'completed');
   const ids = (matches ?? []).map((m) => m.id);
   const safe = ids.length ? ids : ['00000000-0000-0000-0000-000000000000'];
   const [{ data: parts }, { data: results }] = await Promise.all([
@@ -33,11 +67,39 @@ export default async function MatchesPage({
   return (
     <div className="space-y-4">
       <Flash ok={sp.ok} err={sp.err} />
+      <Card title={tr(locale, 'المراحل والبراكت', 'Stages and bracket')}>
+        {stages.length > 0 && <StageBracket stages={bracket} selected={selOrder} base={`/${locale}/admin/${slug}/matches`} ar={locale === 'ar'} statusLabel={(x) => label(locale, x)} />}
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <form action={createStage} className="space-y-2">
+            <Hidden values={{ locale, slug, tid }} />
+            <p className="text-xs font-bold text-[#a4a6aa]">{tr(locale, 'إضافة مرحلة جديدة', 'Add a stage')}</p>
+            <input name="name_ar" required placeholder={tr(locale, 'الاسم بالعربي (مثال: النهائي)', 'Arabic name')} className={inputCls} />
+            <input name="name_en" required placeholder={tr(locale, 'الاسم بالإنجليزي (مثال: Final)', 'English name (e.g. Final)')} className={inputCls} />
+            <Btn>{tr(locale, 'إضافة مرحلة', 'Add stage')}</Btn>
+          </form>
+          {nextExists && (
+            <form action={advanceStage} className="space-y-2">
+              <Hidden values={{ locale, slug, tid, from: String(selOrder) }} />
+              <p className="text-xs font-bold text-[#a4a6aa]">{tr(locale, `ترقية أفضل اللاعبين من مرحلة ${selOrder} للمرحلة التالية`, `Advance the top players from stage ${selOrder}`)}</p>
+              <input name="top_n" type="number" min={1} defaultValue={sel?.qualify_count ?? 1} className={inputCls} aria-label="Top N" />
+              <Btn tone="primary">{tr(locale, 'ترقية وتوليد الغرف', 'Advance and seed rooms')}</Btn>
+              {!allDone && <p className="text-[11px] text-[#6f7276]">{tr(locale, 'لازم كل ماتشات المرحلة تكون مكتملة.', 'All matches of the stage must be scored first.')}</p>}
+            </form>
+          )}
+        </div>
+      </Card>
+
+      {boardRooms.length > 0 && (
+        <Card title={tr(locale, 'توزيع اللاعبين على الغرف', 'Player rooms')}>
+          <RoomBoard rooms={boardRooms} roomSize={t!.room_size as number} slug={slug} locale={locale} />
+        </Card>
+      )}
+
       <Card
         title={tr(locale, 'الغرف والماتشات', 'Rooms and matches')}
         right={
           <form action={seedStage}>
-            <Hidden values={{ locale, slug, tid }} />
+            <Hidden values={{ locale, slug, tid, order: String(selOrder) }} />
             <Btn tone="primary">{tr(locale, 'توليد الغرف من اللاعبين اللي عملوا تشيك إن', 'Seed rooms from checked-in players')}</Btn>
           </form>
         }

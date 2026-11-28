@@ -19,6 +19,14 @@ const ERR: Record<string, string> = {
   NOT_PARTICIPANT: 'لست مشاركاً / Not a participant',
   NO_PRIZE_FOR_RANK: 'مركزك بدون جائزة / No prize for your rank',
   CONTACT_REQUIRED: 'اكتب وسيلة التواصل / Add a payout contact',
+  ROOM_HAS_RESULTS: 'الغرفة فيها نتائج، مينفعش النقل / Room has results, cannot move',
+  ROOM_FULL: 'الغرفة مكتملة / Room is full',
+  PLAYER_NOT_IN_STAGE: 'اللاعب مش في المرحلة دي / Player not in this stage',
+  STAGE_NOT_FINISHED: 'لسه فيه ماتشات ناقصة نتائج / Some matches have no results yet',
+  STAGE_NOT_SEEDED: 'المرحلة لم تتولد بعد / Stage not seeded',
+  NO_NEXT_STAGE: 'اعمل مرحلة تانية الأول / Create the next stage first',
+  NO_PLAYERS_FOR_STAGE: 'مفيش لاعبين للمرحلة دي (اعمل ترقية الأول) / No players for this stage (advance first)',
+  NEXT_STAGE_HAS_RESULTS: 'المرحلة التالية فيها نتائج / Next stage already has results',
   INVALID_IGN: 'اسم اللعبة قصير / In-game name too short'
 };
 
@@ -65,8 +73,8 @@ export async function setTournamentStatus(f: FormData) {
 
 export async function seedStage(f: FormData) {
   const { sb } = await client();
-  const { error } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: 1 });
-  await done(back(f, '/matches'), error?.message ?? null);
+  const { error } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: Number(s(f, 'order') || 1) });
+  await done(back(f, `/matches?stage=${s(f, 'order') || 1}`), error?.message ?? null);
 }
 
 export async function saveMatch(f: FormData) {
@@ -265,4 +273,40 @@ export async function playerIssue(f: FormData) {
     body: s(f, 'body')
   });
   await done(play(f), error?.message ?? null);
+}
+
+export async function createStage(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_create_stage', {
+    p_tournament_id: s(f, 'tid'),
+    p_name_ar: s(f, 'name_ar'),
+    p_name_en: s(f, 'name_en'),
+    p_qualify_count: Number(s(f, 'qualify') || 1)
+  });
+  await done(back(f, '/matches'), error?.message ?? null);
+}
+
+export async function advanceStage(f: FormData) {
+  const { sb } = await client();
+  const from = Number(s(f, 'from') || 1);
+  const { error } = await sb.rpc('admin_advance_stage', {
+    p_tournament_id: s(f, 'tid'),
+    p_from_order: from,
+    p_top_n: Number(s(f, 'top_n') || 1)
+  });
+  if (!error) {
+    const { error: e2 } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: from + 1 });
+    await done(back(f, `/matches?stage=${from + 1}`), e2?.message ?? null);
+  }
+  await done(back(f, `/matches?stage=${from}`), error?.message ?? null);
+}
+
+/** Called from the drag and drop board. Returns an error string instead of redirecting. */
+export async function movePlayer(registrationId: string, toGroupId: string, slug: string): Promise<string | null> {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_move_player', { p_registration_id: registrationId, p_to_group_id: toGroupId });
+  if (error) return pretty(error.message);
+  revalidatePath(`/ar/admin/${slug}/matches`);
+  revalidatePath(`/en/admin/${slug}/matches`);
+  return null;
 }

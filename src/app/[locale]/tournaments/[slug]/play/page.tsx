@@ -90,7 +90,7 @@ export default async function PlayPage({
               <span className="ms-2 text-xs text-[#6f7276] ltr-isolate">{mine.registration_code}</span>
             </p>
             <div className="flex flex-wrap gap-2">
-              {t.status === 'check_in' && mine.status === 'confirmed' && (
+              {(t.status === 'check_in' || (t.starts_at && ['registration_open','registration_closed','ready'].includes(t.status) && Date.now() >= new Date(t.starts_at).getTime() - 40 * 60000 && Date.now() < new Date(t.starts_at).getTime() + 6 * 3600000)) && mine.status === 'confirmed' && (
                 <form action={playerCheckIn}><Hidden values={hid} /><Btn tone="primary">{tr(locale, 'تشيك إن', 'Check in')}</Btn></form>
               )}
               {!['live', 'completed', 'archived'].includes(t.status) && ['pending', 'confirmed', 'checked_in', 'waitlisted'].includes(mine.status) && (
