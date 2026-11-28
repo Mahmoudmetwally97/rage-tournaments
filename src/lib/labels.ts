@@ -11,6 +11,7 @@ const L: Record<string, [string, string]> = {
   cancelled: ['ملغية', 'Cancelled'],
   suspended: ['موقوفة', 'Suspended'],
   pending: ['معلق', 'Pending'],
+  active: ['شغالة', 'Active'],
   confirmed: ['مقبول', 'Accepted'],
   checked_in: ['عمل تشيك إن', 'Checked in'],
   waitlisted: ['انتظار', 'Waitlisted'],
