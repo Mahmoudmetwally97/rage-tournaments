@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
+import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 interface DemoAuthFormProps {
   mode: 'login' | 'register';
@@ -21,7 +22,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
 
@@ -39,14 +40,65 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
     }
 
     setLoading(true);
-    const demoUser = {
-      username: mode === 'register' ? username.trim() : email.split('@')[0] || 'Player',
-      email: email.trim(),
-      isDemoSession: true
-    };
-    localStorage.setItem('rage_demo_user', JSON.stringify(demoUser));
-    window.dispatchEvent(new Event('rage-demo-auth-change'));
-    router.push(`/${locale}/dashboard`);
+    const supabase = getSupabaseBrowserClient();
+
+    // No project configured: keep the preview usable with a local session.
+    if (!supabase) {
+      const demoUser = {
+        username: mode === 'register' ? username.trim() : email.split('@')[0] || 'Player',
+        email: email.trim(),
+        isDemoSession: true
+      };
+      localStorage.setItem('rage_demo_user', JSON.stringify(demoUser));
+      window.dispatchEvent(new Event('rage-demo-auth-change'));
+      router.push(`/${locale}/dashboard`);
+      return;
+    }
+
+    try {
+      if (mode === 'register') {
+        const { data, error: signUpError } = await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: { data: { username: username.trim() } }
+        });
+        if (signUpError) throw signUpError;
+
+        if (data.user) {
+          // RLS allows a user to insert only their own profile row.
+          await supabase.from('player_profiles').insert({
+            id: data.user.id,
+            username: username.trim(),
+            display_name: username.trim(),
+            preferred_locale: locale
+          });
+        }
+
+        if (!data.session) {
+          setError(
+            locale === 'ar'
+              ? 'تم إنشاء الحساب. افتح رابط التأكيد في بريدك ثم سجّل الدخول.'
+              : 'Account created. Open the confirmation link in your email, then sign in.'
+          );
+          setLoading(false);
+          return;
+        }
+      } else {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password
+        });
+        if (signInError) throw signInError;
+      }
+
+      router.push(`/${locale}/dashboard`);
+      router.refresh();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Authentication failed';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -61,7 +113,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
             className="h-6 w-auto"
           />
           <span className="rounded-full border border-[#F59E0B]/35 bg-[#F59E0B]/15 px-2.5 py-0.5 text-[11px] font-bold text-[#FCD34D]">
-            {locale === 'ar' ? 'معاينة Demo' : 'Demo Auth'}
+            {locale === 'ar' ? 'حساب حقيقي' : 'Live account'}
           </span>
         </div>
 
