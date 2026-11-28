@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { MobileNavigation } from './MobileNavigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 
 interface NavbarProps {
   locale: Locale;
@@ -20,6 +21,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
   const [isOrganizer, setIsOrganizer] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
   const [prof, setProf] = useState<{ username: string; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
@@ -51,6 +53,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
     };
 
     const loadRoles = async (userId: string | null) => {
+      setUid(userId);
       if (!userId) {
         setProf(null);
         setIsOrganizer(false);
@@ -140,6 +143,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
           </Link>
           {demoUser ? (
             <>
+              {uid && <NotificationBell locale={locale} userId={uid} />}
               <div className="relative">
                 <button
                   type="button"
@@ -162,6 +166,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
                       <div className="border-b border-[#2b2d30] px-3 pb-2 pt-1 text-xs font-extrabold text-[#a4a6aa] ltr-isolate">{prof?.username || demoUser.username}</div>
                       {[
                         { href: `/${locale}/u/${prof?.username || demoUser.username}`, label: locale === 'ar' ? 'البروفايل' : 'Profile' },
+                        { href: `/${locale}/notifications`, label: locale === 'ar' ? 'الإشعارات' : 'Notifications' },
                         { href: `/${locale}/settings`, label: locale === 'ar' ? 'إعدادات الحساب' : 'Account settings' },
                         { href: `/${locale}/teams`, label: locale === 'ar' ? 'تيماتي' : 'My teams' },
                         { href: `/${locale}/dashboard`, label: locale === 'ar' ? 'بطولاتي' : 'My tournaments' },
@@ -193,12 +198,14 @@ export function Navbar({ locale, dict }: NavbarProps) {
           )}
         </div>
 
+        <div className="flex items-center gap-2 md:hidden">
+        {uid && <NotificationBell locale={locale} userId={uid} />}
         <button
           type="button"
           onClick={() => setMobileOpen((prev) => !prev)}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? dict.nav.menuClose : dict.nav.menuOpen}
-          className="md:hidden rounded-none border border-[#2b2d30] bg-[#151619] p-2 text-[#f4f4ed] hover:border-[#3a3d40] cursor-pointer"
+          className="rounded-none border border-[#2b2d30] bg-[#151619] p-2 text-[#f4f4ed] hover:border-[#3a3d40] cursor-pointer"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             {mobileOpen ? (
@@ -208,6 +215,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
             )}
           </svg>
         </button>
+        </div>
       </div>
 
       <MobileNavigation
