@@ -60,7 +60,7 @@ function cleanPrize(v?: string | null): string {
   return v;
 }
 
-interface StandingRow { tournament_id: string; rank: number; ign: string; total_points: number; total_kills: number }
+interface StandingRow { tournament_id: string; rank: number; ign: string; total_points: number; total_kills: number; best_placement: number | null; matches_played: number }
 
 function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number, standings: StandingRow[] = []): DemoTournament {
   const stageRows = stages.filter((s) => s.tournament_id === row.id).sort((a, b) => a.stage_order - b.stage_order);
@@ -97,7 +97,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number,
     sampleParticipants: standings
       .filter((r) => r.tournament_id === row.id)
       .sort((a, b) => a.rank - b.rank)
-      .map((r) => ({ code: `#${r.rank}`, ign: r.ign, status: 'checked_in', points: Number(r.total_points), kills: Number(r.total_kills) }))
+      .map((r) => ({ code: `#${r.rank}`, ign: r.ign, status: 'checked_in', points: Number(r.total_points), kills: Number(r.total_kills), bestPlacement: r.best_placement, matches: Number(r.matches_played) }))
   };
 }
 
@@ -121,7 +121,7 @@ export async function getTournaments(opts: { includeTest?: boolean } = {}): Prom
         select: 'tournament_id,stage_order,name_ar,name_en,format,qualify_count,advance_rule'
       }),
       sbSelect<{ tournament_id: string }>('registrations', { select: 'tournament_id' }),
-      sbSelect<StandingRow>('tournament_standings', { select: 'tournament_id,rank,ign,total_points,total_kills' }).catch(() => [] as StandingRow[])
+      sbSelect<StandingRow>('tournament_standings', { select: 'tournament_id,rank,ign,total_points,total_kills,best_placement,matches_played' }).catch(() => [] as StandingRow[])
     ]);
 
     if (rows.length === 0) {

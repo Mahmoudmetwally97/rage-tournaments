@@ -32,6 +32,8 @@ export interface DemoTournament {
     status: string;
     points: number;
     kills: number;
+    bestPlacement?: number | null;
+    matches?: number;
   }>;
 }
 

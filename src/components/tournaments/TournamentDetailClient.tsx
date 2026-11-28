@@ -6,6 +6,7 @@ import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { FinalResults } from '@/components/tournaments/FinalResults';
 import { LeaderboardTable } from '@/components/tournaments/LeaderboardTable';
 
 interface Props {
@@ -144,6 +145,9 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         className="rounded-none border border-[#2b2d30] bg-[#151619] p-6"
       >
         {activeTab === 'overview' && (<div className="space-y-6">
+          {tournament.status === 'completed' && tournament.sampleParticipants.length > 0 && (
+            <FinalResults rows={tournament.sampleParticipants} locale={locale} />
+          )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
               <div className="text-xs text-[#6f7276]">{dict.tournament.game}</div>
