@@ -1,8 +1,18 @@
 # RAGE TOURNAMENTS — Information Architecture, UX & Wireframes
 
 ## 1. UX Benchmark & Originality Rule
-- **Reference Study (GB Arena):** Adopted usability strengths—immediate tournament discovery, scannable tournament cards, low-friction registration, clear match center, and structured tabs on tournament pages.
-- **Original RAGE Execution:** Zero copied branding, layouts, or assets. Built around RAGE's `#0B0B0C` / `#171719` / `#FF6A1A` / `#F2EFE9` / `#FFB938` system with bilingual RTL/LTR support.
+- **Reference Study (GB Arena):** Studied GB Arena's end-to-end tournament operations clarity—from discovery and check-in to live match rooms, scoreboards, and final standings—and translated those operational patterns into **RAGE TOURNAMENTS** without copying GB Arena's branding, visual assets, or Arenas system.
+- **Original RAGE Execution:** Built around RAGE's `#0B0B0C` / `#171719` / `#FF6A1A` / `#F2EFE9` / `#FFB938` system with bilingual RTL/LTR support.
+
+---
+
+## 1.5 End-to-End Tournament Operations UX (6 Core Stages)
+1. **Tournament Overview:** Clear header with Game (`CrossFire – RAGE`), Solo/Team mode, Format, Rules, Eligibility, Capacity meter, UTC-to-local Schedule, and live Lifecycle Status badge.
+2. **Registration & Participants:** Paginated participant/team roster, registration status (`Confirmed`, `Checked-in`, `Waitlisted` with queue position), and 1-click Check-in during the active check-in window.
+3. **Tournament Operations:** Room/Group distribution view (`Group A / Room 1`), deterministic seeding indicator, scheduled match times, and match room assignments.
+4. **Live Competition:** Real-time/refreshed Match Center showing match rooms, kills, placement points, total scores, tie-breaker rank, and stage-to-stage qualification indicators (`Qualified` / `Eliminated`).
+5. **Tournament Administration:** Scoped Organizer & Referee console for Tournament Builder, participant check-in overrides, side-by-side result & screenshot review, dispute resolution queue (`Submitted` → `Under Review` → `Resolved`), and immutable `audit_logs`.
+6. **Final Results:** Official podium (`#FFB938` gold for verified winners only), complete final standings, and permanent `Archived` tournament history page.
 
 ---
 

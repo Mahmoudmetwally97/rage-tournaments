@@ -41,8 +41,12 @@ Evaluated deterministically in strict order from `tournament_scoring_rules.tie_b
    - `Player Submission` → `pending_review` → `approved` or `rejected` (with reason).
    - `Referee / Tournament Manager Entry` → `approved` (opens configurable `dispute_window_minutes`, default 30 min).
    - **Correction / Reopen:** Creates a new `match_results` row (`version + 1`, `is_current = true`), sets prior version `is_current = false`, writes `audit_logs`, and triggers **recalculation** of stage standings/leaderboard.
-4. **Stage Advancement Gate (Strict):**
-   - A stage **cannot** advance to the next stage while any required match in that stage is not `completed` OR while any `disputes` row for that stage is `submitted` or `under_review`.
+   - **Post-Qualification Correction Policy:**
+     - **Case A (Next stage NOT yet `Live`):** `Tournament Manager` / `Super Admin` must explicitly **Reopen & Re-seed** the next stage (`stage_qualifications` updated and `pending` downstream matches regenerated, logged in `audit_logs`).
+     - **Case B (Next stage already `Live` / matches played):** Automatic re-seeding is **blocked** to protect bracket integrity; resolution requires explicit `Super Admin` / `Tournament Manager` administrative override with `audit_logs` + public announcement.
+4. **Dispute Eligibility & Stage Advancement Gate (Strict):**
+   - **Dispute Eligibility:** Only **active participants in that specific match** (`match_participants` for that `match_id`, or the `teams.captain_id` of a participating team) may raise a dispute—unrelated tournament registrants cannot dispute other matches.
+   - **Stage Advancement Gate:** A stage **cannot** advance to the next stage while any required match in that stage is not `completed` OR while any `disputes` row for that stage is `submitted` or `under_review`.
 
 ---
 

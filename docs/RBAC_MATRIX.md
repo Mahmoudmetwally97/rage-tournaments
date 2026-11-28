@@ -12,7 +12,7 @@ To eliminate ambiguity between `user_roles` and `tournament_admins`:
    - `referee`: Match management & result entry/approval **only** for their assigned tournament(s).
    - `moderator` (optional scoped assignment): Dispute & evidence review for assigned tournament(s).
 3. **Derived Ownership (NOT a global role):**
-   - `team_leader`: Derived dynamically on the server from `teams.captain_id = auth.uid()` or `team_members.role = 'leader' AND invite_status = 'accepted'`.
+   - `team_leader`: Derived dynamically on the server **exclusively** from `teams.captain_id = auth.uid()` (single source of truth). `team_members.role` only distinguishes `'member'` vs `'sub'`.
    - `guest`: Unauthenticated visitor.
 
 ---

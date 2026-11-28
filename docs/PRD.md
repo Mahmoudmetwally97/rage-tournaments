@@ -3,7 +3,7 @@
 **Date:** November 2026  
 **Product:** RAGE Tournaments  
 **Product Type:** Esports Tournament Management Platform  
-**Initial Game:** CrossFire – RAGE  
+**Initial Launch Scope (v1.0):** CrossFire – RAGE exclusively at launch, architected (`games`, `player_game_profiles`) to add future games without core redesign.  
 **Primary Audience:** Solo Players, Team Leaders, Tournament Organizers, Referees  
 **Product Vision:** منصة مستقلة لإدارة وتنظيم البطولات الإلكترونية، تتيح للاعبين التسجيل والمنافسة ومتابعة نتائجهم، وتتيح للإدارة إنشاء البطولات وإدارة التصفيات والنتائج من نظام موحد.
 

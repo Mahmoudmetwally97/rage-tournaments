@@ -12,6 +12,8 @@
 | **DEC-006** | Nov 2026 | **`team_size` Includes Captain + Extra `substitute_slots`** | Eliminates roster-count ambiguity (e.g., 5v5 = Captain + 4 starters, plus optional bench subs). | Resolved (Review) |
 | **DEC-007** | Nov 2026 | **30-Min Default Dispute Window & Stage Advancement Gate** | Approved results can be disputed within `dispute_window_minutes` (default 30); stages cannot advance with open disputes or missing results. | Resolved (Review) |
 | **DEC-008** | Nov 2026 | **Live Configuration Freeze (`config_locked`)** | Core format/scoring freezes at `Live`; only logged schedule/DQ adjustments allowed. | Resolved (Review) |
+| **DEC-009** | Nov 2026 | **CrossFire – RAGE Exclusive Launch Scope (Multi-Game Ready)** | Launch v1.0 for CrossFire – RAGE exclusively while keeping `games` + `player_game_profiles` ready for future games without redesign. | Approved |
+| **DEC-010** | Nov 2026 | **`teams.captain_id` Sole Leadership Source & Post-Qualification Policy** | Eliminates captain/member role drift; defines Case A (reopen & re-seed before next stage `Live`) vs Case B (block auto-reseed once next stage is `Live`). | Resolved (Review) |
 
 ---
 
