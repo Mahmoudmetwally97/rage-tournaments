@@ -1,3 +1,4 @@
+import { siteUrl } from '@/lib/seo';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export type NoticeKind = 'checkin_open' | 'checkin_expired';
@@ -15,9 +16,34 @@ export interface Notice {
   teamName: string | null;
   discordUserId: string | null;
   text: string;
+  card: NoticeCard;
 }
 
 const EXPIRED_WINDOW_MS = 12 * 3600_000; // do not announce "missed" for windows that closed long ago
+
+export interface NoticeCard {
+  kind: NoticeKind; tournament: string; teamName: string | null; time: string | null; url: string;
+  titleAr: string; titleEn: string; bodyAr: string; bodyEn: string; buttonAr: string; buttonEn: string;
+}
+
+export function noticeCard(kind: NoticeKind, tournament: string, slug: string, teamName: string | null, closesAt: string | null): NoticeCard {
+  const time = closesAt
+    ? new Date(closesAt).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }).replace(',', ' ·')
+    : null;
+  const open = kind === 'checkin_open';
+  const team = !!teamName;
+  const base = siteUrl();
+  return {
+    kind, tournament, teamName, time,
+    url: open ? `${base}/ar/tournaments/${slug}/play` : `${base}/ar/tournaments/${slug}`,
+    titleAr: open ? '✅ التشيك إن اتفتح' : '⛔ وقت التشيك إن خلص',
+    titleEn: open ? '✅ Check-in is open' : '⛔ Check-in has closed',
+    bodyAr: open ? (team ? 'يا قائد التيم، اعمل تشيك إن دلوقتي.' : 'اعمل تشيك إن دلوقتي.') : (team ? 'التيم ماعملش تشيك إن، وممكن يتشال.' : 'انت ماعملتش تشيك إن، ومكانك ممكن يتشال.'),
+    bodyEn: open ? (team ? 'Team captain, check in now.' : 'Check in now.') : (team ? 'Your team did not check in and may be removed.' : 'You did not check in and your spot may be removed.'),
+    buttonAr: open ? 'اعمل تشيك إن' : 'افتح البطولة',
+    buttonEn: open ? 'Check in now' : 'Open tournament'
+  };
+}
 
 export function noticeText(kind: NoticeKind, tournament: string, teamName: string | null, closesAt: string | null): string {
   // Names and times sit on their own lines so Arabic (RTL) and English (LTR) never mix inside one line.
@@ -94,7 +120,8 @@ export async function dueNotices(sb: SupabaseClient, slugs: string[], now = new 
         tournament: t.title_en, slug: t.slug, channelIds: channels,
         userId: uid, username: prof?.username ?? '?', teamName: team?.name ?? null,
         discordUserId: await discordIdOf(sb, uid),
-        text: noticeText(kind, t.title_en, team?.name ?? null, t.checkin_closes_at)
+        text: noticeText(kind, t.title_en, team?.name ?? null, t.checkin_closes_at),
+        card: noticeCard(kind, t.title_en, t.slug, team?.name ?? null, t.checkin_closes_at)
       });
     }
   }

@@ -8,6 +8,25 @@ const APP_ID = need('DISCORD_APP_ID');
 const API = need('RAGE_API_URL').replace(/\/$/, '');
 const SECRET = need('BOT_SHARED_SECRET');
 
+
+function noticeMessage(c: any, label?: string) {
+  const open = c.kind === 'checkin_open';
+  const line = (ar: string, en: string) => `\u200F${ar}\n\n${en}`;
+  const e = new EmbedBuilder()
+    .setColor(open ? 0x22c55e : 0xef4444)
+    .setTitle(c.titleAr)
+    .setDescription(`\u200F${c.bodyAr}\n\n**${c.titleEn}**\n${c.bodyEn}`)
+    .addFields({ name: '🏆', value: `**${c.tournament}**` });
+  if (c.teamName) e.addFields({ name: '👥', value: `**${c.teamName}**` });
+  if (open && c.time) e.addFields({ name: '⏰ Closes (Cairo) · يقفل', value: `**${c.time}**` });
+  e.setFooter({ text: label ? `TEST sample, ${label}` : 'RAGE Tournaments' });
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder().setStyle(ButtonStyle.Link).setURL(c.url).setLabel(`${c.buttonAr} | ${c.buttonEn}`)
+  );
+  void line;
+  return { embeds: [e], components: [row] };
+}
+
 function need(k: string): string {
   const v = process.env[k];
   if (!v) { console.error(`Missing env ${k}`); process.exit(1); }
@@ -130,7 +149,7 @@ client.on(Events.InteractionCreate, async (i) => {
         if (!r.ok) { await i.editReply(r.error === 'NOT_APPROVER' ? 'Owner only.' : `Failed: ${r.error}`); return; }
         let dmOk = true;
         for (const smp of r.samples as { label: string; text: string }[]) {
-          await i.user.send(`🧪 **TEST sample, ${smp.label}**\n\n${smp.text}`).catch(() => { dmOk = false; });
+          await i.user.send(noticeMessage((smp as any).card, smp.label)).catch(() => { dmOk = false; });
         }
         // What the organizer sees in the channel for someone who could not be DMed (invented names, test only).
         await (i.channel as any)?.send('⚠️ **TEST - Registration trial**: could not DM (check-in is open):\n• ExamplePlayer (no Discord linked)\n• Team Rage (CaptainName)').catch(() => {});
@@ -199,7 +218,7 @@ async function notifyTick() {
       if (n.discordUserId) {
         try {
           const u = await client.users.fetch(n.discordUserId);
-          await u.send(n.text);
+          await u.send(noticeMessage(n.card));
           outcome = 'dm';
         } catch { outcome = 'failed'; }
       }

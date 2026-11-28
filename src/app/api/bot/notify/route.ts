@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { authorized } from '@/lib/bot/auth';
 import { isApprover, serviceClient } from '@/lib/bot/service';
-import { dueNotices, mirrorToBell, noticeText, recordNotices } from '@/lib/bot/notify';
+import { dueNotices, mirrorToBell, noticeCard, noticeText, recordNotices } from '@/lib/bot/notify';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -31,10 +31,10 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       samples: [
-        { label: 'FFA - check-in open', text: noticeText('checkin_open', t, null, closes) },
-        { label: 'FFA - check-in expired', text: noticeText('checkin_expired', t, null, closes) },
-        { label: 'Team captain - check-in open', text: noticeText('checkin_open', t, 'Team Rage', closes) },
-        { label: 'Team captain - check-in expired', text: noticeText('checkin_expired', t, 'Team Rage', closes) }
+        { label: 'FFA - check-in open', text: noticeText('checkin_open', t, null, closes), card: noticeCard('checkin_open', t, 'test-registration', null, closes) },
+        { label: 'FFA - check-in expired', text: noticeText('checkin_expired', t, null, closes), card: noticeCard('checkin_expired', t, 'test-registration', null, closes) },
+        { label: 'Team captain - check-in open', text: noticeText('checkin_open', t, 'Team Rage', closes), card: noticeCard('checkin_open', t, 'test-registration', 'Team Rage', closes) },
+        { label: 'Team captain - check-in expired', text: noticeText('checkin_expired', t, 'Team Rage', closes), card: noticeCard('checkin_expired', t, 'test-registration', 'Team Rage', closes) }
       ]
     });
   }
