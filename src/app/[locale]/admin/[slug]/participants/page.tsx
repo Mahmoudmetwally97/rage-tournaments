@@ -1,6 +1,7 @@
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill } from '@/components/admin/ui';
+import { TeamLogo } from '@/components/tournaments/TeamLogo';
 import { setRegStatus } from '../../actions';
 
 const ACTIONS: Record<string, [string, string, string, 'default' | 'primary' | 'danger'][]> = {
@@ -24,9 +25,11 @@ export default async function Participants({
   const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
   const { data: regs } = await supabase
     .from('registrations')
-    .select('id,ign_snapshot,status,registration_code,contact_email,created_at,user_id')
+    .select('id,ign_snapshot,status,registration_code,contact_email,created_at,user_id,team_id')
     .eq('tournament_id', t!.id)
     .order('created_at');
+  const tids = Array.from(new Set((regs ?? []).map((r) => r.team_id as string | null).filter(Boolean))) as string[];
+  const { data: tms } = tids.length ? await supabase.from('teams').select('id,tag,logo_url').in('id', tids) : { data: [] as { id: string; tag: string; logo_url: string | null }[] };
   const filter = sp.f ?? 'all';
   const rows = (regs ?? []).filter((r) => filter === 'all' || r.status === filter);
   const stat = (st: string) => (regs ?? []).filter((r) => r.status === st).length;
@@ -48,9 +51,12 @@ export default async function Participants({
           <ul className="divide-y divide-[#2b2d30]">
             {rows.map((r) => (
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <div>
+                <div className="flex items-center gap-3">
+                  {r.team_id && (() => { const tm = (tms ?? []).find((x) => x.id === r.team_id); return <TeamLogo src={tm?.logo_url} tag={tm?.tag} size={36} />; })()}
+                  <div>
                   <p className="font-bold text-[#f4f4ed]">{r.ign_snapshot}</p>
                   <p className="text-xs text-[#6f7276] ltr-isolate">{r.registration_code}{r.contact_email ? ` · ${r.contact_email}` : ''}</p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Pill on={r.status === 'checked_in' || r.status === 'confirmed'}>{label(locale, r.status)}</Pill>
