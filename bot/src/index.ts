@@ -130,12 +130,18 @@ client.on(Events.MessageCreate, async (msg: Message) => {
         await msg.reply({ content: 'Could not read results from this screenshot. Send a clearer, full-screen one.', allowedMentions: { repliedUser: false } });
       } else if (r.outcome === 'not_live') {
         await msg.react('💤').catch(() => {});
+        await msg.reply({ content: `💤 Not read: the tournament is not live (${String(r.reason ?? '').replace(/_/g, ' ')}). Results are only read while a stage is active.`, allowedMentions: { repliedUser: false } }).catch(() => {});
       } else if (r.outcome === 'duplicate') {
         await msg.react('♻️').catch(() => {});
+        await msg.reply({ content: '♻️ Not read again: this exact image was already submitted.', allowedMentions: { repliedUser: false } }).catch(() => {});
+      } else if (r.outcome === 'ignored') {
+        await msg.react('🤷').catch(() => {});
+        await msg.reply({ content: `🤷 Not used: ${String(r.reason ?? 'not a results or lobby screenshot').replace(/_/g, ' ')}.`, allowedMentions: { repliedUser: false } }).catch(() => {});
       }
     }
   } catch (e) {
     console.error('messageCreate', e);
+    await msg.reply({ content: '⚠️ Could not process this image right now (reading service error). Try again in a minute.', allowedMentions: { repliedUser: false } }).catch(() => {});
   }
 });
 
