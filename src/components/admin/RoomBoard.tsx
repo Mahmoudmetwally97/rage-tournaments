@@ -41,7 +41,7 @@ export function RoomBoard({ rooms, roomSize, slug, locale }: { rooms: BoardRoom[
             key={r.id}
             data-room-id={r.id}
             data-testid={`room-${r.name}`}
-            className={`clip-card min-h-[120px] border p-3 transition-colors ${over === r.id && !r.locked ? 'border-[#e5ed43] bg-[#e5ed43]/10' : 'border-[#2b2d30] bg-[#101113]'}`}
+            className={`clip-card room-zone min-h-[120px] border p-3 transition-colors ${over === r.id && !r.locked ? 'room-over border-[#e5ed43] bg-[#e5ed43]/10' : 'border-[#2b2d30] bg-[#101113]'}`}
           >
             <div className="mb-2 flex items-center justify-between text-xs font-extrabold">
               <span className="text-[#f4f4ed]">{r.name}</span>
@@ -74,7 +74,7 @@ export function RoomBoard({ rooms, roomSize, slug, locale }: { rooms: BoardRoom[
                   }}
                   onPointerCancel={() => { dragRef.current = null; setDrag(null); setOver(null); }}
                   style={{ touchAction: r.locked ? 'auto' : 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
-                  className={`clip-chip flex items-center gap-2 border border-[#2b2d30] bg-[#1b1d20] px-2 py-1.5 text-sm font-bold text-[#f4f4ed] ${r.locked ? '' : 'cursor-grab active:cursor-grabbing'} ${drag?.id === p.id ? 'opacity-40' : ''}`}
+                  className={`clip-chip chip-in flex items-center gap-2 border border-[#2b2d30] bg-[#1b1d20] px-2 py-1.5 text-sm font-bold text-[#f4f4ed] ${r.locked ? '' : 'cursor-grab active:cursor-grabbing'} ${drag?.id === p.id ? 'opacity-40 chip-lifted' : ''}`}
                 >
                   {!r.locked && <span aria-hidden className="text-[#6f7276]">⋮⋮</span>}
                   <span className="min-w-0 flex-1 truncate">{p.ign}</span>
@@ -99,7 +99,7 @@ export function RoomBoard({ rooms, roomSize, slug, locale }: { rooms: BoardRoom[
         ))}
       </div>
       {drag && (
-        <div style={{ position: 'fixed', left: drag.x + 8, top: drag.y + 8, pointerEvents: 'none', zIndex: 60 }} className="clip-chip bg-[#e5ed43] px-3 py-1.5 text-sm font-extrabold text-[#121408]">
+        <div style={{ position: 'fixed', left: drag.x + 8, top: drag.y + 8, pointerEvents: 'none', zIndex: 60 }} className="clip-chip drag-ghost bg-[#e5ed43] px-3 py-1.5 text-sm font-extrabold text-[#121408]">
           {drag.ign}
         </div>
       )}

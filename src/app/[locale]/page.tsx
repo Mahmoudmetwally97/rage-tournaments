@@ -5,6 +5,7 @@ import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
 import { getTournaments } from '@/lib/data/tournament-repo';
 import { FeaturedTournament } from '@/components/tournaments/FeaturedTournament';
 import { TournamentCard } from '@/components/tournaments/TournamentCard';
+import { CountUp } from '@/components/ui/CountUp';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 
 export default async function HomePage({
@@ -62,6 +63,19 @@ export default async function HomePage({
         </div>
       </section>
 
+      {/* Ticker strip */}
+      <div aria-hidden className="ticker clip-btn border border-[#2b2d30] bg-[#101113] py-2">
+        <div className="ticker-track display-type text-sm font-extrabold uppercase tracking-[0.3em] text-[#e5ed43]/70">
+          {Array.from({ length: 2 }).map((_, k) => (
+            <span key={k} className="ticker-group">
+              {(locale === 'ar' ? ['راج كاب', 'سجّل', 'العب', 'اكسب', 'كل كيل بيفرق'] : ['RAGE CUP', 'REGISTER', 'DROP IN', 'FRAG OUT', 'EVERY KILL COUNTS']).map((w) => (
+                <span key={w + k} className="ticker-item">{w}<i className="ticker-sep" /></span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Featured Tournament */}
       {featured && (
         <section className="reveal">
@@ -93,7 +107,7 @@ export default async function HomePage({
             : [['Register', 'Create an account and join'], ['Get approved', 'Admins review your entry'], ['Check in', 'Confirm before kickoff'], ['Play and win', 'Points = placement + kills']]
           ).map(([t, d], i) => (
             <div key={t} className="clip-card card-surface card-hover relative border border-[#2b2d30] bg-[#151619] p-5">
-              <span className="display-type text-5xl font-extrabold text-[#e5ed43]/25">{i + 1}</span>
+              <CountUp value={i + 1} className="display-type step-num text-5xl font-extrabold text-[#e5ed43]/25" />
               <h3 className="mt-2 text-lg font-bold text-[#f4f4ed]">{t}</h3>
               <p className="mt-1 text-sm text-[#a4a6aa]">{d}</p>
             </div>
