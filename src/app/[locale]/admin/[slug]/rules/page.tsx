@@ -49,8 +49,8 @@ export default async function RulesPage({
               <div className="grid gap-2 sm:grid-cols-2">
                 <input name={`title_ar_${i}`} defaultValue={s.title_ar} placeholder="العنوان" className={inputCls} />
                 <input name={`title_en_${i}`} defaultValue={s.title_en} placeholder="Title" className={inputCls} />
-                <textarea name={`body_ar_${i}`} rows={3} defaultValue={s.body_ar} className={inputCls} />
-                <textarea name={`body_en_${i}`} rows={3} defaultValue={s.body_en} className={inputCls} />
+                <textarea name={`body_ar_${i}`} rows={Math.max(4, Math.ceil((s.body_ar||"").length/45))} defaultValue={s.body_ar} className={`${inputCls} [field-sizing:content]`} />
+                <textarea name={`body_en_${i}`} rows={Math.max(4, Math.ceil((s.body_en||"").length/45))} defaultValue={s.body_en} className={`${inputCls} [field-sizing:content]`} />
               </div>
               <label className="flex items-center gap-2 text-xs text-[#ff8a8a]"><input type="checkbox" name={`del_${i}`} /> {tr(locale, 'حذف القسم', 'Delete section')}</label>
             </div>

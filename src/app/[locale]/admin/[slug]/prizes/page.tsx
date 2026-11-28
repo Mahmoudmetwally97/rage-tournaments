@@ -36,7 +36,7 @@ export default async function PrizesPage({
                   {locale === 'ar' ? p.label_ar : p.label_en}{' '}
                   <span className="text-xs text-[#6f7276] ltr-isolate">#{p.rank_from}{p.rank_to > p.rank_from ? `-${p.rank_to}` : ''}</span>
                 </h3>
-                <form action={deletePool}><Hidden values={{ locale, slug, id: p.id }} /><Btn tone="danger">{tr(locale, 'حذف', 'Delete')}</Btn></form>
+                <form action={deletePool}><Hidden values={{ locale, slug, id: p.id }} /><Btn tone="danger">{tr(locale, 'حذف الجائزة: ', 'Delete pool: ')}{locale === 'ar' ? p.label_ar : p.label_en}</Btn></form>
               </div>
               <ul className="mb-3 space-y-1 text-sm">
                 {(p.prize_rewards as any[]).map((r) => (

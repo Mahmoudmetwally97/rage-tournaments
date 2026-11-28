@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { formatStartDate } from '@/lib/format';
+import { formatStartDate, ctaFor } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -53,6 +53,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/rage-characters.png" alt="" className="absolute inset-0 h-full w-full object-cover object-[62%_18%] opacity-70" />
         <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e10] via-[#0d0e10]/80 to-transparent sm:hidden" />
         <div className="absolute inset-x-0 top-0 h-1 bg-[#e5ed43]" />
         <div className="relative">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -91,7 +92,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             href={`/${locale}/tournaments/${tournament.slug}/play`}
             className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
           >
-            {dict.tournament.registerNow}
+            {ctaFor(tournament.status, locale === 'ar')}
           </a>
         </div>
       </div>
@@ -144,6 +145,22 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
               <div className="text-xs text-[#6f7276]">{dict.tournament.startsAt}</div>
               <div className="mt-1 font-bold text-[#f4f4ed]">{formattedDate}</div>
+            </div>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="clip-card border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'التسجيل' : 'REGISTRATION'}</div>
+              <div className="mt-2 text-sm font-bold text-[#f4f4ed] ltr-isolate">{tournament.registeredCount} / {tournament.maxParticipants || '∞'}</div>
+              <div className="mt-2 h-2 w-full bg-[#23252a]"><div className="h-full bg-[#e5ed43]" style={{ width: `${tournament.maxParticipants ? Math.min(100, (100 * tournament.registeredCount) / tournament.maxParticipants) : 0}%` }} /></div>
+            </div>
+            <div className="clip-card border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'الجوايز' : 'PRIZES'}</div>
+              <p className="mt-2 text-sm text-[#a4a6aa]">{(locale === 'ar' ? tournament.prizeConfirmedAr : tournament.prizeConfirmedEn) || (locale === 'ar' ? 'الجوايز تتعلن لاحقاً' : 'Prizes to be announced')}</p>
+            </div>
+            <div className="clip-card border border-[#2b2d30] bg-[#0d0e10] p-4">
+              <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'القواعد والتواصل' : 'RULES AND CONTACT'}</div>
+              <p className="mt-2 text-sm text-[#a4a6aa]">{locale === 'ar' ? 'اقرأ القواعد كاملة في تبويب القواعد.' : 'Read the full rules in the Rules tab.'}</p>
+              <a href="https://discord.gg/kByUSDBPF" target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm font-extrabold text-[#e5ed43] underline">RAGE Discord</a>
             </div>
           </div>
           <div>

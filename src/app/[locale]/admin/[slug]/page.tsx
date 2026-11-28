@@ -1,3 +1,4 @@
+import { isoToCairoLocal } from '@/lib/format';
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
@@ -11,7 +12,7 @@ const FLOW: [string, string, string][] = [
   ['completed', 'إنهاء البطولة', 'Finish']
 ];
 
-const local = (v?: string | null) => (v ? new Date(v).toISOString().slice(0, 16) : '');
+const local = isoToCairoLocal;
 
 export default async function AdminOverview({
   params,
@@ -96,9 +97,9 @@ export default async function AdminOverview({
           <label className="text-xs text-[#a4a6aa]">Title EN<input name="title_en" defaultValue={t!.title_en} className={inputCls} /></label>
           <label className="text-xs text-[#a4a6aa]">{tr(locale, 'أقصى عدد لاعبين (0 = مفتوح)', 'Max players (0 = open)')}<input name="max_participants" type="number" min={0} defaultValue={t!.max_participants} className={inputCls} /></label>
           <label className="text-xs text-[#a4a6aa]">{tr(locale, 'لاعبين في الغرفة', 'Players per room')}<input name="room_size" type="number" min={2} defaultValue={t!.room_size} className={inputCls} /></label>
-          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'موعد البداية (فارغ = لم يحدد)', 'Start (empty = TBD)')}<input name="starts_at" type="datetime-local" defaultValue={local(t!.starts_at)} className={inputCls} /></label>
-          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'فتح التشيك إن', 'Check-in opens')}<input name="checkin_opens_at" type="datetime-local" defaultValue={local(t!.checkin_opens_at)} className={inputCls} /></label>
-          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'قفل التشيك إن', 'Check-in closes')}<input name="checkin_closes_at" type="datetime-local" defaultValue={local(t!.checkin_closes_at)} className={inputCls} /></label>
+          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'موعد البداية (توقيت القاهرة، فارغ = لم يحدد)', 'Start (Cairo time, empty = TBD)')}<input name="starts_at" type="datetime-local" lang="en-GB" dir="ltr" defaultValue={local(t!.starts_at)} className={inputCls} /></label>
+          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'فتح التشيك إن', 'Check-in opens')}<input name="checkin_opens_at" type="datetime-local" lang="en-GB" dir="ltr" defaultValue={local(t!.checkin_opens_at)} className={inputCls} /></label>
+          <label className="text-xs text-[#a4a6aa]">{tr(locale, 'قفل التشيك إن', 'Check-in closes')}<input name="checkin_closes_at" type="datetime-local" lang="en-GB" dir="ltr" defaultValue={local(t!.checkin_closes_at)} className={inputCls} /></label>
           <label className="text-xs text-[#a4a6aa]">{tr(locale, 'رابط التواصل (ديسكورد)', 'Contact link (Discord)')}<input name="contact_url" defaultValue={t!.contact_url ?? ''} className={inputCls} /></label>
           <label className="text-xs text-[#a4a6aa]">{tr(locale, 'اسم زر التواصل', 'Contact label')}<input name="contact_label" defaultValue={t!.contact_label ?? ''} className={inputCls} /></label>
           <label className="flex items-center gap-2 text-sm text-[#f4f4ed]">

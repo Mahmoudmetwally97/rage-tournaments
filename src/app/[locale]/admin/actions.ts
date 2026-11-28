@@ -1,5 +1,6 @@
 'use server';
 
+import { cairoLocalToIso } from '@/lib/format';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
@@ -121,7 +122,7 @@ export async function saveSettings(f: FormData) {
     checkin_closes_at: s(f, 'checkin_closes_at')
   };
   for (const k of ['starts_at', 'checkin_opens_at', 'checkin_closes_at']) {
-    if (patch[k]) patch[k] = new Date(String(patch[k])).toISOString();
+    if (patch[k]) patch[k] = cairoLocalToIso(String(patch[k]));
   }
   const { error } = await sb.rpc('admin_update_tournament', { p_tournament_id: s(f, 'tid'), p_patch: patch });
   await done(back(f), error?.message ?? null);

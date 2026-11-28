@@ -1,3 +1,4 @@
+import { ctaFor } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
@@ -87,7 +88,7 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
           href={`/${locale}/tournaments/${tournament.slug}`}
           className="flex-1 rounded-none bg-[#e5ed43] px-4 py-2.5 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
         >
-          {dict.tournament.registerNow}
+          {ctaFor(tournament.status, locale === 'ar')}
         </Link>
         <Link
           href={`/${locale}/tournaments/${tournament.slug}`}

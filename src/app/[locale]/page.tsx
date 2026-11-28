@@ -36,9 +36,7 @@ export default async function HomePage({
           <div className="max-w-2xl">
             <p className="eyebrow mb-5">
               {dict.hero.eyebrow}
-              <span className="ml-3 border border-[#2b2d30] px-2 py-0.5 text-[10px] font-bold tracking-[0.16em] text-[#a4a6aa]">
-                {source === 'db' ? 'SUPABASE • LIVE' : 'DEMO DATA'}
-              </span>
+
             </p>
             <h1 className="mb-5 text-4xl font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] sm:text-6xl lg:text-7xl">
               {dict.hero.title}
