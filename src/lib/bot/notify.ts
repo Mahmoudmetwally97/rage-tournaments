@@ -26,13 +26,13 @@ export interface NoticeCard {
   titleAr: string; titleEn: string; bodyAr: string; bodyEn: string; buttonAr: string; buttonEn: string;
 }
 
-export function noticeCard(kind: NoticeKind, tournament: string, slug: string, teamName: string | null, closesAt: string | null): NoticeCard {
+export function noticeCard(kind: NoticeKind, tournament: string, slug: string, teamName: string | null, closesAt: string | null, baseUrl?: string): NoticeCard {
   const time = closesAt
     ? new Date(closesAt).toLocaleString('en-GB', { timeZone: 'Africa/Cairo', hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' }).replace(',', ' ·')
     : null;
   const open = kind === 'checkin_open';
   const team = !!teamName;
-  const base = siteUrl();
+  const base = (baseUrl ?? siteUrl()).replace(/\/$/, '');
   return {
     kind, tournament, teamName, time,
     url: open ? `${base}/ar/tournaments/${slug}/play` : `${base}/ar/tournaments/${slug}`,
@@ -81,7 +81,7 @@ async function discordIdOf(sb: SupabaseClient, userId: string): Promise<string |
 }
 
 /** Notices that are due now and not yet recorded. Only tournaments in `slugs` AND linked to a channel. */
-export async function dueNotices(sb: SupabaseClient, slugs: string[], now = new Date()): Promise<Notice[]> {
+export async function dueNotices(sb: SupabaseClient, slugs: string[], now = new Date(), baseUrl?: string): Promise<Notice[]> {
   if (!slugs.length) return [];
   const { data: chans } = await sb.from('bot_channels')
     .select('channel_id,tournament_id,tournaments!inner(id,slug,title_en,checkin_opens_at,checkin_closes_at,status)')
@@ -121,7 +121,7 @@ export async function dueNotices(sb: SupabaseClient, slugs: string[], now = new 
         userId: uid, username: prof?.username ?? '?', teamName: team?.name ?? null,
         discordUserId: await discordIdOf(sb, uid),
         text: noticeText(kind, t.title_en, team?.name ?? null, t.checkin_closes_at),
-        card: noticeCard(kind, t.title_en, t.slug, team?.name ?? null, t.checkin_closes_at)
+        card: noticeCard(kind, t.title_en, t.slug, team?.name ?? null, t.checkin_closes_at, baseUrl)
       });
     }
   }

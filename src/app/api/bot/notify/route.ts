@@ -40,5 +40,5 @@ export async function POST(req: Request) {
   }
   const sb = serviceClient();
   if (parsed.data.ack) { await recordNotices(sb, parsed.data.ack); await mirrorToBell(sb, parsed.data.ack); return NextResponse.json({ ok: true }); }
-  return NextResponse.json({ notices: await dueNotices(sb, parsed.data.slugs ?? []) });
+  return NextResponse.json({ notices: await dueNotices(sb, parsed.data.slugs ?? [], new Date(), new URL(req.url).origin) });
 }
