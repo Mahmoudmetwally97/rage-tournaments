@@ -18,6 +18,7 @@ const ERR: Record<string, string> = {
   NOT_ACCEPTED: 'لازم يتم قبولك أولاً / You must be accepted first',
   NO_CHECKED_IN_PLAYERS: 'لا يوجد لاعبين عملوا تشيك إن / No checked-in players',
   STAGE_DELETE_NEEDS_CONFIRM: 'المرحلة فيها نتائج، لازم تأكيد صريح / Stage has results, explicit confirmation needed',
+  BAD_ADVANCE_RULE: 'نوع الترقية غير صحيح / Invalid advance mode',
   STAGE_NOT_FOUND: 'المرحلة مش موجودة / Stage not found',
   BAD_QUALIFY: 'عدد المتأهلين لازم 1 أو أكثر / Qualify count must be 1 or more',
   NAME_REQUIRED: 'الاسم مطلوب بالعربي والإنجليزي / Name required in both languages',
@@ -395,7 +396,8 @@ export async function advanceStage(f: FormData) {
   const { error } = await sb.rpc('admin_advance_stage', {
     p_tournament_id: s(f, 'tid'),
     p_from_order: from,
-    p_top_n: Number(s(f, 'top_n') || 1)
+    p_top_n: Number(s(f, 'top_n') || 1),
+    p_rule: s(f, 'advance_rule') === 'top_n_per_group' ? 'top_n_per_group' : s(f, 'advance_rule') === 'top_n_overall' ? 'top_n_overall' : null
   });
   if (!error) {
     const { error: e2 } = await sb.rpc('admin_seed_stage', { p_tournament_id: s(f, 'tid'), p_stage_order: from + 1 });
@@ -694,7 +696,8 @@ export async function updateStage(f: FormData) {
     p_stage_id: s(f, 'stage_id'),
     p_name_ar: s(f, 'name_ar'),
     p_name_en: s(f, 'name_en'),
-    p_qualify_count: Number(s(f, 'qualify') || 1)
+    p_qualify_count: Number(s(f, 'qualify') || 1),
+    p_advance_rule: s(f, 'advance_rule') === 'top_n_per_group' ? 'top_n_per_group' : 'top_n_overall'
   });
   await done(back(f, `/matches?stage=${s(f, 'order') || 1}`), error?.message ?? null);
 }
