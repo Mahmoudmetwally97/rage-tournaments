@@ -64,6 +64,18 @@ export default async function MatchesPage({
           >
             <form action={saveMatch}>
               <Hidden values={{ locale, slug, match_id: m.id }} />
+              <div className="mb-4">
+                <div className="mb-2 flex items-center justify-between text-[11px] font-bold text-[#a4a6aa]">
+                  <span>{tr(locale, 'اللاعبين في الغرفة', 'Players in room')} <span className="ltr-isolate text-[#f4f4ed]">{mp.length}</span></span>
+                  <span>{tr(locale, 'تم التسجيل', 'Scored')} <span className="ltr-isolate text-[#e5ed43]">{res.size}/{mp.length}</span></span>
+                </div>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(26px,1fr))] gap-1">
+                  {mp.map((p, i) => {
+                    const done = res.has(p.registration_id);
+                    return <span key={p.registration_id} className={`clip-chip flex h-7 items-center justify-center text-[10px] font-extrabold ${done ? 'bg-[#e5ed43] text-[#121408]' : 'border border-[#2b2d30] bg-[#0d0e10] text-[#6f7276]'}`}>{i + 1}</span>;
+                  })}
+                </div>
+              </div>
               <div className="mb-2 grid grid-cols-[1fr_64px_64px_40px] sm:grid-cols-[1fr_90px_90px_70px] gap-2 text-[11px] font-bold text-[#6f7276]">
                 <span>{tr(locale, 'اللاعب', 'Player')}</span>
                 <span>{tr(locale, 'الترتيب', 'Rank')}</span>
