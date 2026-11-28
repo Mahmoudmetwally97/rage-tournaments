@@ -1,6 +1,5 @@
 import { CountUp } from '@/components/ui/CountUp';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
-import { StatusBadge } from '@/components/ui/StatusBadge';
 
 export interface LeaderboardRow {
   code: string;
@@ -24,11 +23,6 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
     return 'border-[#2b2d30] bg-[#1b1d20] text-[#a4a6aa]';
   };
 
-  const formatStatus = (status: string) => {
-    if (status === 'checked_in') return locale === 'ar' ? 'تم التحضير' : 'Checked In';
-    if (status === 'confirmed') return locale === 'ar' ? 'مؤكد' : 'Confirmed';
-    return status;
-  };
 
   return (
     <div>
@@ -50,9 +44,6 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
                 <div className="truncate font-extrabold text-[#f4f4ed] ltr-isolate">{row.ign}</div>
                 <div className="mt-0.5 flex items-center gap-2 text-xs">
                   <span className="font-mono font-bold text-[#a4a6aa] ltr-isolate">{row.code}</span>
-                  <StatusBadge variant={row.status === 'checked_in' ? 'open' : 'neutral'}>
-                    {formatStatus(row.status)}
-                  </StatusBadge>
                 </div>
               </div>
             </div>
@@ -79,7 +70,6 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
                 <th className="py-3 px-4 text-start">{dict.leaderboard.player}</th>
                 <th className="py-3 px-4 text-start">{dict.leaderboard.points}</th>
                 <th className="py-3 px-4 text-start">{dict.leaderboard.kills}</th>
-                <th className="py-3 px-4 text-start">{dict.leaderboard.status}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#2b2d30]">
@@ -103,11 +93,6 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="font-semibold text-[#a4a6aa] ltr-isolate">{row.kills}</span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <StatusBadge variant={row.status === 'checked_in' ? 'open' : 'neutral'}>
-                      {formatStatus(row.status)}
-                    </StatusBadge>
                   </td>
                 </tr>
               ))}

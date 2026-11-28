@@ -227,15 +227,6 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
                   <div className="font-extrabold text-[#f4f4ed] ltr-isolate">{p.ign}</div>
                   <div className="mt-0.5 font-mono text-xs font-bold text-[#a4a6aa] ltr-isolate">{p.code}</div>
                 </div>
-                <StatusBadge variant={p.status === 'checked_in' ? 'open' : 'neutral'}>
-                  {p.status === 'checked_in'
-                    ? locale === 'ar'
-                      ? 'تم التحضير'
-                      : 'Checked In'
-                    : locale === 'ar'
-                    ? 'مؤكد'
-                    : 'Confirmed'}
-                </StatusBadge>
               </div>
             ))}
           </div>
