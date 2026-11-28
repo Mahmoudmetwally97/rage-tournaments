@@ -1,14 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import {
-  DEMO_RECENT_RESULTS,
-  DEMO_TOURNAMENTS,
-  DEMO_UPCOMING_MATCHES
-} from '@/lib/data/demo-tournaments';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { MatchCard } from '@/components/tournaments/MatchCard';
+import { label } from '@/lib/labels';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 
 export default async function PlayerDashboardPage({
@@ -24,6 +19,7 @@ export default async function PlayerDashboardPage({
   const supabase = await getSupabaseServerClient();
   let profile: { username: string; display_name: string | null } | null = null;
   let isOrganizer = false;
+  let mine: { id: string; ign: string; status: string; title: string; slug: string }[] = [];
 
   if (user && supabase) {
     const { data } = await supabase
@@ -35,6 +31,16 @@ export default async function PlayerDashboardPage({
 
     const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
     isOrganizer = (roles ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator');
+    const { data: regs } = await supabase
+      .from('registrations')
+      .select('id,ign_snapshot,status,tournaments(title_ar,title_en,slug)')
+      .eq('user_id', user.id)
+      .neq('status', 'cancelled');
+    mine = (regs ?? []).map((r) => {
+      const t = r.tournaments as unknown as { title_ar: string; title_en: string; slug: string } | { title_ar: string; title_en: string; slug: string }[] | null;
+      const tt = Array.isArray(t) ? t[0] : t;
+      return { id: r.id, ign: r.ign_snapshot, status: r.status, title: (locale === 'ar' ? tt?.title_ar : tt?.title_en) ?? '', slug: tt?.slug ?? '' };
+    });
   }
 
   return (
@@ -75,72 +81,29 @@ export default async function PlayerDashboardPage({
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-2">
-          {/* Registered Tournaments */}
-          <section>
-            <SectionHeader title={dict.dashboard.myTournaments} />
-            <div className="space-y-3">
-              {DEMO_TOURNAMENTS.slice(0, 2).map((t, idx) => (
-                <div
-                  key={t.slug}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-none border border-[#2b2d30] bg-[#151619] p-4"
-                >
-                  <div>
-                    <div className="font-extrabold text-[#f4f4ed]">
-                      {locale === 'ar' ? t.titleAr : t.titleEn}
-                    </div>
-                    <div className="mt-1 text-xs text-[#6f7276] ltr-isolate">{t.formatLabel}</div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge variant={idx === 0 ? 'open' : 'warning'}>
-                      {idx === 0 ? dict.dashboard.checkInReady : dict.dashboard.checkInPending}
-                    </StatusBadge>
-                    <Link
-                      href={`/${locale}/tournaments/${t.slug}`}
-                      className="rounded-none border border-[#2b2d30] bg-[#1b1d20] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#3a3d40]"
-                    >
-                      {dict.tournament.viewDetails}
-                    </Link>
-                  </div>
+      <section>
+        <SectionHeader title={dict.dashboard.myTournaments} />
+        {mine.length === 0 ? (
+          <div className="clip-card card-surface border border-[#2b2d30] p-6 text-sm text-[#a4a6aa]">
+            {locale === 'ar' ? 'لسه مسجلتش في أي بطولة.' : 'You have not registered in any tournament yet.'}
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {mine.map((r) => (
+              <div key={r.id} className="clip-card card-surface card-hover border border-[#2b2d30] p-5">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h3 className="text-lg font-extrabold text-[#f4f4ed]">{r.title}</h3>
+                  <StatusBadge variant="open">{label(locale, r.status)}</StatusBadge>
                 </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Upcoming Matches */}
-          <section>
-            <SectionHeader title={dict.dashboard.myMatches} />
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              {DEMO_UPCOMING_MATCHES.map((m) => (
-                <MatchCard key={m.id} match={m} locale={locale} />
-              ))}
-            </div>
-          </section>
-        </div>
-
-        {/* Sidebar: Recent Results & RAGE Link Status */}
-        <aside className="space-y-6">
-          <section className="rounded-none border border-[#2b2d30] bg-[#151619] p-5">
-            <h2 className="mb-3 text-base font-extrabold text-[#f4f4ed]">{dict.dashboard.recentResults}</h2>
-            <div className="space-y-3">
-              {DEMO_RECENT_RESULTS.map((m) => (
-                <MatchCard key={m.id} match={m} locale={locale} />
-              ))}
-            </div>
-          </section>
-
-          <section className="rounded-none border border-[#2b2d30] bg-[#151619] p-5">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h2 className="text-base font-extrabold text-[#f4f4ed]">{dict.dashboard.rageLinkTitle}</h2>
-              <StatusBadge variant="warning">
-                {locale === 'ar' ? 'قيد التحقق' : 'Pending'}
-              </StatusBadge>
-            </div>
-            <p className="text-xs leading-relaxed text-[#a4a6aa]">{dict.dashboard.rageLinkDesc}</p>
-          </section>
-        </aside>
-      </div>
+                <p className="mb-4 text-xs text-[#a4a6aa]">{r.ign}</p>
+                <Link href={`/${locale}/tournaments/${r.slug}/play`} className="clip-btn btn-shine inline-block bg-[#e5ed43] px-5 py-2 text-sm font-extrabold text-[#121408]">
+                  {locale === 'ar' ? 'افتح لوحتي' : 'Open my panel'}
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }
