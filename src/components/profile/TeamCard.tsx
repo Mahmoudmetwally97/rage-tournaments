@@ -21,7 +21,7 @@ export function TeamCard({ t, locale }: { t: TeamCardData; locale: string }) {
         <div className="absolute inset-0 bg-gradient-to-t from-[#101113] to-transparent" />
         {t.is_captain && <span className="absolute end-2 top-2 bg-[#e5ed43] px-2 py-0.5 text-[10px] font-extrabold text-[#0d0e10]">{ar ? 'القائد' : 'LEADER'}</span>}
       </div>
-      <div className="-mt-8 flex items-end gap-3 px-4">
+      <div className="relative -mt-8 flex items-end gap-3 px-4">
         <div className="rounded-sm border-2 border-[#101113] bg-[#101113]"><TeamLogo src={t.logo_url} tag={t.tag} size={56} /></div>
         <div className="min-w-0 pb-1">
           <p className="truncate text-base font-extrabold text-[#f4f4ed]">{t.name}</p>

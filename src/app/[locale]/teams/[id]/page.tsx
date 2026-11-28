@@ -51,7 +51,7 @@ export default async function TeamProfilePage({ params, searchParams }: { params
           ) : <div className="h-full w-full bg-[linear-gradient(135deg,#16171a,#1d1f12)]" />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#101113] to-transparent" />
         </div>
-        <div className="-mt-12 flex flex-wrap items-end gap-4 px-5 pb-5">
+        <div className="relative -mt-12 flex flex-wrap items-end gap-4 px-5 pb-5">
           <div className="rounded-sm border-4 border-[#101113] bg-[#101113]"><TeamLogo src={team.logo_url} tag={team.tag} size={96} /></div>
           <div className="min-w-0 flex-1 pb-1">
             <h1 className="truncate text-2xl font-extrabold text-[#f4f4ed] sm:text-3xl">{team.name}</h1>

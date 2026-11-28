@@ -146,14 +146,14 @@ export function Navbar({ locale, dict }: NavbarProps) {
                   onClick={() => setMenuOpen((v) => !v)}
                   aria-expanded={menuOpen}
                   aria-haspopup="menu"
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-[#2b2d30] bg-[#151619] px-3 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate hover:border-[#3a3d40]"
+                  className="inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-none border border-[#2b2d30] bg-[#151619] px-3 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate hover:border-[#3a3d40]"
                 >
                   {(prof?.avatar_url || (demoUser.avatar && /^https:\/\//.test(demoUser.avatar))) && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={prof?.avatar_url || demoUser.avatar} alt="" width={22} height={22} referrerPolicy="no-referrer" className="h-[22px] w-[22px] rounded-full object-cover" />
                   )}
                   {prof?.username || demoUser.username}
-                  <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z" /></svg>
+                  <svg className="h-3 w-3 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z" /></svg>
                 </button>
                 {menuOpen && (
                   <>
