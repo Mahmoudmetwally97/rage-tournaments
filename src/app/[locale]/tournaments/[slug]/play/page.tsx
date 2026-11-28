@@ -36,7 +36,6 @@ export default async function PlayPage({
   let mine: { id: string; status: string; ign_snapshot: string; registration_code: string } | null = null;
   let myClaim: { status: string } | null = null;
   let myIssues: { id: string; subject: string; status: string; staff_reply: string | null }[] = [];
-  let ign = '';
   if (user) {
     const { data: reg } = await supabase
       .from('registrations')
@@ -46,8 +45,6 @@ export default async function PlayPage({
       .not('status', 'in', '(cancelled)')
       .maybeSingle();
     mine = reg;
-    const { data: prof } = await supabase.from('player_profiles').select('username').eq('id', user.id).maybeSingle();
-    ign = prof?.username ?? '';
     const { data: c } = await supabase.from('prize_claims').select('status').eq('tournament_id', tid).eq('user_id', user.id).maybeSingle();
     myClaim = c;
     const { data: iss } = await supabase.from('tournament_issues').select('id,subject,status,staff_reply').eq('tournament_id', tid).eq('user_id', user.id);
@@ -102,7 +99,8 @@ export default async function PlayPage({
         ) : t.status === 'registration_open' ? (
           <form action={playerRegister} className="flex flex-wrap gap-2">
             <Hidden values={hid} />
-            <input name="ign" defaultValue={ign} required minLength={2} placeholder={tr(locale, 'اسمك في اللعبة', 'In-game name')} className={`${inputCls} max-w-xs`} />
+            <input name="ign" required minLength={2} autoComplete="off" placeholder={tr(locale, 'اسمك في اللعبة (IGN)', 'In-game name (IGN)')} className={`${inputCls} w-full max-w-xs`} />
+            <input name="email" type="email" required autoComplete="email" dir="ltr" placeholder={tr(locale, 'Gmail بتاعك', 'Your Gmail')} className={`${inputCls} w-full max-w-xs`} />
             <Btn tone="primary">{tr(locale, 'سجل في البطولة', 'Join tournament')}</Btn>
           </form>
         ) : (

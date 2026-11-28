@@ -24,7 +24,7 @@ export default async function Participants({
   const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
   const { data: regs } = await supabase
     .from('registrations')
-    .select('id,ign_snapshot,status,registration_code,created_at,user_id')
+    .select('id,ign_snapshot,status,registration_code,contact_email,created_at,user_id')
     .eq('tournament_id', t!.id)
     .order('created_at');
   const filter = sp.f ?? 'all';
@@ -50,7 +50,7 @@ export default async function Participants({
               <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div>
                   <p className="font-bold text-[#f4f4ed]">{r.ign_snapshot}</p>
-                  <p className="text-xs text-[#6f7276] ltr-isolate">{r.registration_code}</p>
+                  <p className="text-xs text-[#6f7276] ltr-isolate">{r.registration_code}{r.contact_email ? ` · ${r.contact_email}` : ''}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Pill on={r.status === 'checked_in' || r.status === 'confirmed'}>{label(locale, r.status)}</Pill>

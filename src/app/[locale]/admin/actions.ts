@@ -304,14 +304,16 @@ export async function replyIssue(f: FormData) {
 const play = (f: FormData) => `/${s(f, 'locale') || 'ar'}/tournaments/${s(f, 'slug')}/play`;
 
 export async function playerRegister(f: FormData) {
-  const { sb } = await client();
-  const code = 'RC-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+  const { sb, user } = await client();
+  const { data: prof } = await sb.from('player_profiles').select('username').eq('id', user.id).maybeSingle();
+  const uname = (prof?.username ?? s(f, 'ign')).toLowerCase().replace(/\s+/g, '-');
   const { error } = await sb.rpc('register_solo_participant', {
     p_tournament_id: s(f, 'tid'),
     p_ign_snapshot: s(f, 'ign'),
-    p_registration_code: code
+    p_registration_code: 'rage-' + uname,
+    p_contact_email: s(f, 'email')
   });
-  await done(play(f), error?.message ?? null);
+  await done(play(f), error?.message === 'INVALID_EMAIL' ? 'Enter a valid Gmail address' : (error?.message ?? null));
 }
 
 export async function playerCancel(f: FormData) {
