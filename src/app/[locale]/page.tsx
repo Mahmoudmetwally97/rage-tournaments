@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
-import { getTournaments } from '@/lib/data/tournament-repo';
+import { getTournaments, pickFeatured } from '@/lib/data/tournament-repo';
 import { FeaturedTournament } from '@/components/tournaments/FeaturedTournament';
 import { TournamentCard } from '@/components/tournaments/TournamentCard';
 import { CountUp } from '@/components/ui/CountUp';
@@ -18,7 +18,7 @@ export default async function HomePage({
   const dict = dictionaries[locale];
 
   const { items: tournaments, source } = await getTournaments();
-  const featured = tournaments.find((t) => t.featured) ?? tournaments[0];
+  const featured = pickFeatured(tournaments);
 
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
@@ -68,7 +68,7 @@ export default async function HomePage({
         <div className="ticker-track display-type text-sm font-extrabold uppercase tracking-[0.3em] text-[#e5ed43]/70">
           {Array.from({ length: 2 }).map((_, k) => (
             <span key={k} className="ticker-group">
-              {(locale === 'ar' ? ['راج كاب', 'سجّل', 'العب', 'اكسب', 'كل كيل بيفرق'] : ['RAGE CUP', 'REGISTER', 'DROP IN', 'FRAG OUT', 'EVERY KILL COUNTS']).map((w) => (
+              {(locale === 'ar' ? [featured?.titleAr ?? 'راج', 'سجّل', 'العب', 'اكسب', 'كل كيل بيفرق'] : [(featured?.titleEn ?? 'RAGE TOURNAMENTS').toUpperCase(), 'REGISTER', 'DROP IN', 'FRAG OUT', 'EVERY KILL COUNTS']).map((w) => (
                 <span key={w + k} className="ticker-item">{w}<i className="ticker-sep" /></span>
               ))}
             </span>

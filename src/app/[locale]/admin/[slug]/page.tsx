@@ -133,6 +133,10 @@ export default async function AdminOverview({
             <input name="requires_approval" type="checkbox" defaultChecked={t!.requires_approval} />
             {tr(locale, 'التسجيل بموافقة المنظم', 'Registration needs approval')}
           </label>
+          <label className="flex items-center gap-2 text-sm text-[#f4f4ed]">
+            <input name="is_test" type="checkbox" defaultChecked={Boolean((t as { is_test?: boolean }).is_test)} />
+            {tr(locale, 'بطولة تجريبية (مخفية من القائمة العامة والرئيسية)', 'Test tournament (hidden from the public list and home)')}
+          </label>
           <div className="sm:col-span-2"><Btn tone="primary">{tr(locale, 'حفظ', 'Save')}</Btn></div>
         </form>
       </Card>

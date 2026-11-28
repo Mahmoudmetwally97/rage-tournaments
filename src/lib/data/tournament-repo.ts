@@ -16,6 +16,7 @@ interface TournamentRow {
   min_participants: number;
   max_participants: number;
   starts_at: string | null;
+  is_test?: boolean;
   prize_summary_ar: string | null;
   prize_summary_en: string | null;
   rules_text_ar: string | null;
@@ -70,6 +71,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number,
     coverUrl: row.cover_image_url,
     isDemo: true,
     featured: true,
+    isTest: Boolean(row.is_test),
     titleAr: row.title_ar,
     titleEn: row.title_en,
     gameAr: row.games?.name_ar ?? 'RAGE',
@@ -103,7 +105,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number,
  * Reads tournaments from Supabase. Falls back to the bundled demo data when the
  * project is not configured or the query fails, so the preview never goes blank.
  */
-export async function getTournaments(): Promise<{ items: DemoTournament[]; source: DataSource }> {
+export async function getTournaments(opts: { includeTest?: boolean } = {}): Promise<{ items: DemoTournament[]; source: DataSource }> {
   if (!isSupabaseConfigured()) {
     return { items: DEMO_TOURNAMENTS, source: 'demo' };
   }
@@ -111,7 +113,7 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
   try {
     const [rows, stages, registrations, standings] = await Promise.all([
       sbSelect<TournamentRow>('tournaments', {
-        select: 'id,slug,cover_image_url,title_ar,title_en,description_ar,description_en,competition_type,status,min_participants,max_participants,starts_at,prize_summary_ar,prize_summary_en,rules_text_ar,rules_text_en,games(name_ar,name_en)',
+        select: 'id,slug,cover_image_url,title_ar,title_en,description_ar,description_en,competition_type,status,min_participants,max_participants,starts_at,is_test,prize_summary_ar,prize_summary_en,rules_text_ar,rules_text_en,games(name_ar,name_en)',
         status: 'neq.archived',
         order: 'created_at.desc'
       }),
@@ -132,7 +134,7 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
     }, {});
 
     return {
-      items: rows.map((row) => mapRow(row, stages, counts[row.id] ?? 0, standings)),
+      items: rows.filter((row) => opts.includeTest || !row.is_test).map((row) => mapRow(row, stages, counts[row.id] ?? 0, standings)),
       source: 'db'
     };
   } catch {
@@ -141,6 +143,20 @@ export async function getTournaments(): Promise<{ items: DemoTournament[]; sourc
 }
 
 export async function getTournamentBySlug(slug: string): Promise<{ item: DemoTournament | null; source: DataSource }> {
-  const { items, source } = await getTournaments();
+  const { items, source } = await getTournaments({ includeTest: true });
   return { item: items.find((t) => t.slug === slug) ?? null, source };
+}
+
+/** Home Featured slot: the soonest open or running real tournament, then upcoming, then the latest finished one. */
+export function pickFeatured(items: DemoTournament[]): DemoTournament | undefined {
+  const real = items.filter((t) => !t.isTest);
+  const rank = (t: DemoTournament): number => {
+    if (t.status === 'live' || t.status === 'check_in') return 0;
+    if (t.status === 'registration_open') return 1;
+    if (t.status === 'ready' || t.status === 'registration_closed' || t.status === 'upcoming') return 2;
+    if (t.status === 'completed') return 4;
+    return 5;
+  };
+  const when = (t: DemoTournament) => (t.startsAtIso ? new Date(t.startsAtIso).getTime() : Number.MAX_SAFE_INTEGER);
+  return [...real].sort((a, b) => rank(a) - rank(b) || (rank(a) === 4 ? when(b) - when(a) : when(a) - when(b)))[0];
 }

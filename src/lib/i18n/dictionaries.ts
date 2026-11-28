@@ -132,7 +132,7 @@ export const dictionaries = {
     },
     hero: {
       eyebrow: 'CROSSFIRE • RAGE ESPORTS',
-      title: 'Compete at Standard. Earn Your Place on RAGE.',
+      title: 'Compete at a pro level. Make your name in RAGE tournaments.',
       subtitle: 'An independent esports tournament platform for CrossFire RAGE. Fast registration, structured multi-stage operations, and verified standings.',
       ctaPrimary: 'Browse Tournaments',
       ctaSecondary: 'Create Account'

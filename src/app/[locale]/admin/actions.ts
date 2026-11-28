@@ -203,6 +203,7 @@ export async function saveSettings(f: FormData) {
     max_participants: Number(s(f, 'max_participants') || 0),
     room_size: Number(s(f, 'room_size') || 25),
     requires_approval: f.get('requires_approval') === 'on',
+    is_test: f.get('is_test') === 'on',
     contact_url: s(f, 'contact_url'),
     contact_label: s(f, 'contact_label'),
     starts_at: s(f, 'starts_at'),

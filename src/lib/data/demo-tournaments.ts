@@ -3,6 +3,7 @@ export interface DemoTournament {
   coverUrl?: string | null;
   isDemo: true;
   featured?: boolean;
+  isTest?: boolean;
   titleAr: string;
   titleEn: string;
   gameAr: string;
