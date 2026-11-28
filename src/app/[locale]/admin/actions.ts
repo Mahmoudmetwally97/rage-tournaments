@@ -9,6 +9,7 @@ type Msg = string | null;
 const s = (f: FormData, k: string) => String(f.get(k) ?? '').trim();
 
 const ERR: Record<string, string> = {
+  USERNAME_TAKEN: 'الاسم ده مستخدم عند لاعب تاني / That name is already used by another player',
   FORBIDDEN: 'ليس لديك صلاحية / Not allowed',
   UNAUTHORIZED: 'سجل دخول أولاً / Sign in first',
   REGISTRATION_CLOSED: 'التسجيل مغلق / Registration closed',
@@ -655,4 +656,23 @@ export async function setPublicName(f: FormData) {
     p_hidden: s(f, 'hidden') === '1'
   });
   return done(back(f, '/participants'), error ? error.message : null);
+}
+
+export async function setUserPublicName(f: FormData) {
+  const { sb } = await client();
+  const loc = s(f, 'locale') || 'ar';
+  const q = s(f, 'q');
+  const target = `/${loc}/admin/team${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+  const mode = s(f, 'mode');
+  const name = mode === 'undo' ? null : mode === 'hide' ? null : s(f, 'name') || null;
+  const hidden = mode === 'hide';
+  const { error } = await sb.rpc('admin_set_user_public_name', { p_user: s(f, 'user'), p_name: name, p_hidden: hidden });
+  return done(target, error ? error.message : null);
+}
+
+export async function resolveNameFlag(f: FormData) {
+  const { sb } = await client();
+  const loc = s(f, 'locale') || 'ar';
+  const { error } = await sb.rpc('admin_resolve_name_flag', { p_flag: s(f, 'flag'), p_status: s(f, 'status') || 'dismissed' });
+  return done(`/${loc}/admin/team`, error ? error.message : null);
 }
