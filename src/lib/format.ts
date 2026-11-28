@@ -1,6 +1,6 @@
 export function formatStartDate(iso: string, locale: string): string {
   if (!iso) return locale === 'ar' ? 'يُعلن لاحقاً' : 'TBD';
-  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-GB', {
+  return new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG-u-nu-latn' : 'en-GB', {
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: 'Africa/Cairo'

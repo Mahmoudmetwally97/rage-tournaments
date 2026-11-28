@@ -1,3 +1,4 @@
+import { formatStartDate } from '@/lib/format';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { isValidLocale } from '@/lib/i18n/dictionaries';
@@ -72,7 +73,7 @@ export default async function PlayPage({
       <PageHero eyebrow={tr(locale, 'منطقة المشاركة', 'PLAYER ZONE')} title={locale === 'ar' ? t.title_ar : t.title_en}>
         <Pill on>{label(locale, t.status)}</Pill>
         <span className="ltr-isolate">{count ?? 0}/{t.max_participants || '∞'}</span>
-        <span>{t.starts_at ? new Date(t.starts_at).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB') : tr(locale, 'الموعد قيد التحديد', 'Date TBD')}</span>
+        <span>{t.starts_at ? formatStartDate(t.starts_at, locale) : tr(locale, 'الموعد قيد التحديد', 'Date TBD')}</span>
       </PageHero>
       <Flash ok={sp.ok} err={sp.err} />
 
