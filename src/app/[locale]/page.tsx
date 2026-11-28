@@ -1,3 +1,4 @@
+import { ParallaxLayer } from '@/components/motion/ParallaxLayer';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -24,14 +25,16 @@ export default async function HomePage({
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
       {/* Brand hero: RAGE character art + condensed display type (design source: ragegames.net) */}
       <section className="clip-card hero-slash relative min-h-[420px] overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
-        <Image
-          src="/brand/rage-characters.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="hero-art object-cover object-[62%_18%] opacity-95"
-        />
+        <ParallaxLayer className="absolute inset-x-0 -top-12 bottom-0">
+          <Image
+            src="/brand/rage-characters.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="hero-art object-cover object-[62%_18%] opacity-95"
+          />
+        </ParallaxLayer>
         <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
         <div className="relative p-6 sm:p-12 lg:p-16">
           <div className="stagger max-w-2xl">

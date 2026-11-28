@@ -253,3 +253,14 @@ input, select, textarea { min-width: 0; max-width: 100%; }
   @keyframes skel-shimmer { to { background-position: -200% 0; } }
   .skel { animation: skel-shimmer 1.4s linear infinite; }
 }
+
+/* bracket: hover a stage to light the whole path from it to the final */
+.bracket-flow .bstep .bracket-node { transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease; }
+.bracket-flow .bstep .bracket-line path { transition: opacity .25s ease, filter .25s ease; }
+@media (hover: hover) {
+  .bracket-flow .bstep:hover .bracket-node,
+  .bracket-flow .bstep:hover ~ .bstep .bracket-node { border-color: #e5ed43; box-shadow: 0 0 18px rgba(229,237,67,.28); }
+  .bracket-flow .bstep:hover .bracket-node { transform: translateY(-3px); }
+  .bracket-flow .bstep:hover .bracket-line path,
+  .bracket-flow .bstep:hover ~ .bstep .bracket-line path { opacity: 1; filter: drop-shadow(0 0 4px rgba(229,237,67,.8)); }
+}

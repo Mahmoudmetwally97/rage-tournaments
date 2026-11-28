@@ -6,11 +6,11 @@ export function BracketTree({ stages, locale }: { stages: S[]; locale: 'ar' | 'e
   if (!stages.length) return null;
   return (
     <div data-testid="bracket-tree" className="overflow-x-auto pb-2">
-      <div className="flex min-w-max items-center gap-0">
+      <div className="bracket-flow flex min-w-max items-center gap-0">
         {stages.map((st, i) => {
           const last = i === stages.length - 1;
           return (
-            <div key={st.order} style={{ ["--i" as string]: i } as React.CSSProperties} className="flex items-center">
+            <div key={st.order} style={{ ["--i" as string]: i } as React.CSSProperties} className="bstep flex items-center">
               <div className={`bracket-node clip-card relative w-[210px] border p-4 ${last ? 'border-[#e5ed43] bg-[#e5ed43]/10' : 'border-[#2b2d30] bg-[#101113]'}`}>
                 <div className="text-[10px] font-extrabold tracking-widest text-[#e5ed43]">{ar ? 'مرحلة' : 'STAGE'} <span className="ltr-isolate">{st.order}</span></div>
                 <div className="mt-1 text-base font-extrabold leading-snug text-[#f4f4ed]">{ar ? st.nameAr : st.nameEn}</div>
