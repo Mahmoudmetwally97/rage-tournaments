@@ -61,7 +61,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
         <div className="relative -mt-10 flex flex-wrap items-end gap-4 px-5 pb-5">
           <div className="rounded-sm border-4 border-[#101113] bg-[#101113]"><TeamLogo src={p.avatar_url} tag={p.username} size={88} /></div>
           <div className="min-w-0 flex-1 pb-1">
-            <h1 className="truncate text-2xl font-extrabold text-[#f4f4ed] sm:text-3xl">{p.username} {flag(p.country)}</h1>
+            <h1 className="truncate text-2xl font-extrabold normal-case text-[#f4f4ed] sm:text-3xl">{p.username} {flag(p.country)}</h1>
             <p className="mt-1 text-xs font-bold text-[#a4a6aa]">{p.country ? `${countryName(p.country, locale)} · ` : ''}{tr(locale, 'انضم', 'Joined')} {joined}</p>
           </div>
           {own && <Link href={`/${locale}/settings`} className="clip-btn bg-[#e5ed43] px-4 py-2 text-sm font-extrabold text-[#0d0e10] hover:bg-[#eef46b]">{tr(locale, 'إعدادات الحساب', 'Account settings')}</Link>}
@@ -78,7 +78,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
       {tab === 'teams' ? (
         <section className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold text-[#a4a6aa]"><span className="text-[#f4f4ed]">{teams.length}</span> {tr(locale, 'تيم', 'teams')}</p>
+            <p className="text-sm font-bold text-[#a4a6aa]"><span className="text-[#f4f4ed]">{teams.length}</span> {tr(locale, 'تيم', teams.length === 1 ? 'team' : 'teams')}</p>
             {own && <Link href={`/${locale}/teams/create`} className="clip-btn bg-[#e5ed43] px-4 py-2 text-sm font-extrabold text-[#0d0e10]">+ {tr(locale, 'إنشاء تيم', 'Create team')}</Link>}
           </div>
           {teams.length === 0 ? <p className="text-sm text-[#a4a6aa]">{tr(locale, 'مفيش تيمات لسه.', 'No teams yet.')}</p> : (
