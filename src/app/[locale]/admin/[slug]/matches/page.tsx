@@ -1,7 +1,8 @@
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { saveMatch, seedStage, createStage, advanceStage, seedBracket, saveTeamMatch, reopenMatch } from '../../actions';
+import { saveMatch, seedStage, createStage, advanceStage, seedBracket, saveTeamMatch, reopenMatch, updateStage, deleteStage } from '../../actions';
+import { DeleteStageForm } from '@/components/admin/DeleteStageForm';
 import { loadBracket } from '@/lib/bracket';
 import { TeamBracket } from '@/components/tournaments/TeamBracket';
 import { RoomBoard } from '@/components/admin/RoomBoard';
@@ -95,6 +96,7 @@ export default async function MatchesPage({
     roomMap.get(grp.id)!.players.push({ id: g.registration_id, ign });
   }
   const boardRooms = [...roomMap.values()].sort((x, y) => x.order - y.order);
+  const { count: stageResultCount } = await supabase.from('match_results').select('id', { count: 'exact', head: true }).in('match_id', (matches ?? []).length ? (matches ?? []).map((m) => m.id) : ['00000000-0000-0000-0000-000000000000']);
   const nextExists = stages.some((x) => x.stage_order === selOrder + 1);
   const allDone = (matches ?? []).length > 0 && (matches ?? []).every((m) => m.status === 'completed');
   const ids = (matches ?? []).map((m) => m.id);
@@ -128,6 +130,25 @@ export default async function MatchesPage({
           )}
         </div>
       </Card>
+
+      {sel && (
+        <Card title={tr(locale, `تعديل المرحلة ${selOrder}`, `Edit stage ${selOrder}`)}>
+          <div className="grid gap-4 md:grid-cols-2">
+            <form action={updateStage} className="space-y-2">
+              <Hidden values={{ locale, slug, stage_id: sel.id, order: String(selOrder) }} />
+              <input name="name_ar" required defaultValue={sel.name_ar} placeholder={tr(locale, 'الاسم بالعربي', 'Arabic name')} className={inputCls} />
+              <input name="name_en" required defaultValue={sel.name_en} placeholder={tr(locale, 'الاسم بالإنجليزي', 'English name')} className={inputCls} />
+              <label className="block text-[11px] font-bold text-[#a4a6aa]">{tr(locale, 'عدد المتأهلين للمرحلة التالية', 'Players who advance')}</label>
+              <input name="qualify" type="number" min={1} defaultValue={sel.qualify_count ?? 1} className={inputCls} />
+              <Btn tone="primary">{tr(locale, 'حفظ التعديل', 'Save changes')}</Btn>
+            </form>
+            <div className="space-y-2">
+              <p className="text-xs text-[#a4a6aa]">{tr(locale, 'الحذف بيمسح الغرف والماتشات بتاعة المرحلة، وبيرقّم المراحل اللي بعدها من جديد. لو فيها نتائج بيطلب تأكيد صريح، وكل حاجة بتتسجل في السجل.', 'Deleting removes this stage\'s rooms and matches and renumbers the later stages. If it has results you must confirm explicitly. Everything is audit-logged.')}</p>
+              <DeleteStageForm action={deleteStage} hidden={{ locale, slug, stage_id: sel.id, order: String(selOrder) }} ar={locale === 'ar'} name={locale === 'ar' ? sel.name_ar : sel.name_en} rooms={boardRooms.length || new Set((matches ?? []).map((m) => m.group_id)).size} matches={(matches ?? []).length} results={stageResultCount ?? 0} />
+            </div>
+          </div>
+        </Card>
+      )}
 
       {boardRooms.length > 0 && (
         <Card title={tr(locale, 'توزيع اللاعبين على الغرف', 'Player rooms')}>

@@ -17,6 +17,10 @@ const ERR: Record<string, string> = {
   CHECKIN_CLOSED: 'التشيك إن غير مفتوح / Check-in not open',
   NOT_ACCEPTED: 'لازم يتم قبولك أولاً / You must be accepted first',
   NO_CHECKED_IN_PLAYERS: 'لا يوجد لاعبين عملوا تشيك إن / No checked-in players',
+  STAGE_DELETE_NEEDS_CONFIRM: 'المرحلة فيها نتائج، لازم تأكيد صريح / Stage has results, explicit confirmation needed',
+  STAGE_NOT_FOUND: 'المرحلة مش موجودة / Stage not found',
+  BAD_QUALIFY: 'عدد المتأهلين لازم 1 أو أكثر / Qualify count must be 1 or more',
+  NAME_REQUIRED: 'الاسم مطلوب بالعربي والإنجليزي / Name required in both languages',
   STAGE_HAS_RESULTS: 'المرحلة فيها نتائج / Stage already has results',
   NOT_COMPLETED: 'البطولة لم تنته / Tournament not finished',
   NOT_PARTICIPANT: 'لست مشاركاً / Not a participant',
@@ -682,4 +686,22 @@ export async function reopenMatch(f: FormData) {
   const { sb } = await client();
   const { error } = await sb.rpc('admin_reopen_match', { p_match_id: s(f, 'match_id'), p_reason: s(f, 'reason') || null });
   await done(back(f, '/matches'), error?.message ?? null);
+}
+
+export async function updateStage(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_update_stage', {
+    p_stage_id: s(f, 'stage_id'),
+    p_name_ar: s(f, 'name_ar'),
+    p_name_en: s(f, 'name_en'),
+    p_qualify_count: Number(s(f, 'qualify') || 1)
+  });
+  await done(back(f, `/matches?stage=${s(f, 'order') || 1}`), error?.message ?? null);
+}
+
+export async function deleteStage(f: FormData) {
+  const { sb } = await client();
+  const order = Number(s(f, 'order') || 1);
+  const { error } = await sb.rpc('admin_delete_stage', { p_stage_id: s(f, 'stage_id'), p_confirm_results: s(f, 'confirm_results') === '1' });
+  await done(back(f, `/matches?stage=${error ? order : Math.max(1, order - 1)}`), error?.message ?? null);
 }
