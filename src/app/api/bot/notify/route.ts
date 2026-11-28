@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { authorized } from '@/lib/bot/auth';
 import { isApprover, serviceClient } from '@/lib/bot/service';
-import { dueNotices, noticeText, recordNotices } from '@/lib/bot/notify';
+import { dueNotices, mirrorToBell, noticeText, recordNotices } from '@/lib/bot/notify';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -14,7 +14,8 @@ const body = z.object({
   preview: z.object({ discordUserId: z.string().min(1) }).optional(),
   ack: z.array(z.object({
     tournamentId: z.string().uuid(), registrationId: z.string().uuid(),
-    kind: z.enum(['checkin_open', 'checkin_expired']), outcome: z.enum(['dm', 'failed', 'no_discord'])
+    kind: z.enum(['checkin_open', 'checkin_expired']), outcome: z.enum(['dm', 'failed', 'no_discord']),
+    userId: z.string().uuid().optional(), slug: z.string().optional(), tournament: z.string().optional(), teamName: z.string().nullable().optional()
   })).max(500).optional()
 });
 
@@ -38,6 +39,6 @@ export async function POST(req: Request) {
     });
   }
   const sb = serviceClient();
-  if (parsed.data.ack) { await recordNotices(sb, parsed.data.ack); return NextResponse.json({ ok: true }); }
+  if (parsed.data.ack) { await recordNotices(sb, parsed.data.ack); await mirrorToBell(sb, parsed.data.ack); return NextResponse.json({ ok: true }); }
   return NextResponse.json({ notices: await dueNotices(sb, parsed.data.slugs ?? []) });
 }

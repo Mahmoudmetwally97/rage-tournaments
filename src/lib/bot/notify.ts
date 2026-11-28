@@ -10,6 +10,7 @@ export interface Notice {
   tournament: string;
   slug: string;
   channelIds: string[];
+  userId: string;
   username: string;
   teamName: string | null;
   discordUserId: string | null;
@@ -76,7 +77,7 @@ export async function dueNotices(sb: SupabaseClient, slugs: string[], now = new 
       out.push({
         key: `${tid}|${kind}|${r.id}`, tournamentId: tid, registrationId: r.id, kind,
         tournament: t.title_en, slug: t.slug, channelIds: channels,
-        username: prof?.username ?? '?', teamName: team?.name ?? null,
+        userId: uid, username: prof?.username ?? '?', teamName: team?.name ?? null,
         discordUserId: await discordIdOf(sb, uid),
         text: noticeText(kind, t.title_en, team?.name ?? null, t.checkin_closes_at)
       });
@@ -91,4 +92,36 @@ export async function recordNotices(sb: SupabaseClient, rows: { tournamentId: st
     rows.map((r) => ({ tournament_id: r.tournamentId, kind: r.kind, registration_id: r.registrationId, outcome: r.outcome })),
     { onConflict: 'tournament_id,kind,registration_id', ignoreDuplicates: true }
   );
+}
+
+export interface AckRow {
+  tournamentId: string; registrationId: string; kind: NoticeKind; outcome: 'dm' | 'failed' | 'no_discord';
+  userId?: string; slug?: string; tournament?: string; teamName?: string | null;
+}
+
+/** Mirror the bot's DM result into the site notification bell (only "DM sent" / "could not DM"; the site makes the check-in notices itself). */
+export async function mirrorToBell(sb: SupabaseClient, rows: AckRow[]) {
+  for (const r of rows) {
+    if (!r.userId || !r.slug) continue;
+    const t = r.tournament ?? r.slug;
+    const who = r.teamName ? ` (${r.teamName})` : '';
+    const open = r.kind === 'checkin_open';
+    const sent = r.outcome === 'dm';
+    const p = {
+      p_user: r.userId,
+      p_kind: sent ? 'bot_checkin_dm_sent' : 'bot_checkin_dm_failed',
+      p_title_en: sent ? 'Discord reminder sent' : 'Could not DM you on Discord',
+      p_title_ar: sent ? 'تم إرسال تنبيه على ديسكورد' : 'مقدرناش نبعتلك دي إم على ديسكورد',
+      p_body_en: sent
+        ? `We sent you a Discord DM about ${open ? 'check-in opening' : 'missed check-in'} for ${t}${who}.`
+        : `${open ? 'Check-in is open' : 'Check-in closed'} for ${t}${who}. We could not DM you on Discord${r.outcome === 'no_discord' ? ' (no Discord account linked)' : ' (DMs may be blocked)'}, so check the site.`,
+      p_body_ar: sent
+        ? `بعتنالك دي إم على ديسكورد بخصوص ${open ? 'فتح التشيك إن' : 'فوات التشيك إن'} في ${t}${who}.`
+        : `${open ? 'التشيك إن مفتوح' : 'التشيك إن خلص'} في ${t}${who}. مقدرناش نبعتلك دي إم على ديسكورد${r.outcome === 'no_discord' ? ' (مفيش حساب ديسكورد مربوط)' : ' (ممكن الدي إم مقفولة)'}، فشوف الموقع.`,
+      p_link: `/tournaments/${r.slug}`,
+      p_source: 'discord_bot',
+      p_dedupe: `${open ? 'bot_dm_open' : 'bot_dm_expired'}:${r.registrationId}`
+    };
+    await sb.rpc('notify_user', p);
+  }
 }

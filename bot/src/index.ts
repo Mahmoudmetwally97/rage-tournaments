@@ -203,7 +203,7 @@ async function notifyTick() {
           outcome = 'dm';
         } catch { outcome = 'failed'; }
       }
-      acks.push({ tournamentId: n.tournamentId, kind: n.kind, registrationId: n.registrationId, outcome });
+      acks.push({ tournamentId: n.tournamentId, kind: n.kind, registrationId: n.registrationId, outcome, userId: n.userId, slug: n.slug, tournament: n.tournament, teamName: n.teamName });
       if (outcome !== 'dm') {
         const k = `${n.tournamentId}|${n.kind}`;
         const m = missed.get(k) ?? { channelIds: n.channelIds as string[], tournament: n.tournament as string, kind: n.kind as string, names: [] as string[] };
