@@ -5,7 +5,7 @@ export const inputCls =
 
 export function Card({ title, children, right }: { title?: string; children: ReactNode; right?: ReactNode }) {
   return (
-    <section className="border border-[#2b2d30] bg-[#151619] p-5">
+    <section className="border border-[#2b2d30] bg-[#151619] p-4 sm:p-5">
       {(title || right) && (
         <div className="mb-4 flex items-center justify-between gap-3">
           {title && <h2 className="text-base font-extrabold text-[#f4f4ed]">{title}</h2>}

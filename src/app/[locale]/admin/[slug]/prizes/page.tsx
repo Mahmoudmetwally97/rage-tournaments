@@ -1,3 +1,4 @@
+import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
 import { addBonus, addPool, addReward, deleteBonus, deletePool, deleteReward, setClaimStatus } from '../../actions';
@@ -21,7 +22,7 @@ export default async function PrizesPage({
     supabase.from('prize_claims').select('id,status,payout_contact,staff_note,pool_id,registrations(ign_snapshot)').eq('tournament_id', tid)
   ]);
   const KindSel = () => (
-    <select name="kind" className={inputCls}>{KINDS.map((k) => <option key={k}>{k}</option>)}</select>
+    <select name="kind" className={inputCls}>{KINDS.map((k) => <option key={k} value={k}>{label(locale, k)}</option>)}</select>
   );
   return (
     <div className="space-y-6">
@@ -41,7 +42,7 @@ export default async function PrizesPage({
                 {(p.prize_rewards as any[]).map((r) => (
                   <li key={r.id} className="flex items-center justify-between gap-2">
                     <span className="text-[#a4a6aa]">
-                      <Pill>{r.kind}</Pill> {r.amount ?? ''} {r.currency ?? ''} {locale === 'ar' ? r.text_ar : r.text_en}{' '}
+                      <Pill>{label(locale, r.kind)}</Pill> {r.amount ?? ''} {r.currency ?? ''} {locale === 'ar' ? r.text_ar : r.text_en}{' '}
                       {r.is_placeholder && <Pill>{tr(locale, 'مؤقت', 'placeholder')}</Pill>}
                     </span>
                     <form action={deleteReward}><Hidden values={{ locale, slug, id: r.id }} /><Btn tone="danger">×</Btn></form>
@@ -100,14 +101,14 @@ export default async function PrizesPage({
               return (
                 <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                   <div>
-                    <p className="font-bold text-[#f4f4ed]">{ign} <Pill on={c.status === 'paid'}>{c.status}</Pill></p>
+                    <p className="font-bold text-[#f4f4ed]">{ign} <Pill on={c.status === 'paid'}>{label(locale, c.status)}</Pill></p>
                     <p className="text-xs text-[#a4a6aa] ltr-isolate">{c.payout_contact}</p>
                   </div>
                   <div className="flex gap-2">
                     {['approved', 'paid', 'rejected'].map((st) => (
                       <form key={st} action={setClaimStatus}>
                         <Hidden values={{ locale, slug, id: c.id, status: st }} />
-                        <Btn tone={st === 'rejected' ? 'danger' : st === 'paid' ? 'primary' : 'default'}>{st}</Btn>
+                        <Btn tone={st === 'rejected' ? 'danger' : st === 'paid' ? 'primary' : 'default'}>{label(locale, st)}</Btn>
                       </form>
                     ))}
                   </div>

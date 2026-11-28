@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { label } from '@/lib/labels';
 import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -55,7 +56,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
                 {locale === 'ar' ? t.title_ar : t.title_en}
               </h2>
               <p className="mt-1 text-xs text-[#a4a6aa]">
-                {t.slug} • {t.status} • {counts[t.id] ?? 0}/{t.max_participants || '∞'}
+                {t.slug} • {label(locale, t.status)} • {counts[t.id] ?? 0}/{t.max_participants || '∞'}
               </p>
             </div>
             <div className="flex items-center gap-2">

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { isValidLocale } from '@/lib/i18n/dictionaries';
 import { tr } from '@/lib/admin';
+import { label } from '@/lib/labels';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
 import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister } from '../../../admin/actions';
@@ -71,7 +72,7 @@ export default async function PlayPage({
         <Link href={base} className="text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">← {tr(locale, 'صفحة البطولة', 'Tournament page')}</Link>
         <h1 className="mt-2 text-3xl font-extrabold text-[#f4f4ed]">{locale === 'ar' ? t.title_ar : t.title_en}</h1>
         <p className="mt-1 text-xs text-[#a4a6aa]">
-          <Pill on>{t.status}</Pill> <span className="ltr-isolate">{count ?? 0}/{t.max_participants || '∞'}</span>{' '}
+          <Pill on>{label(locale, t.status)}</Pill> <span className="ltr-isolate">{count ?? 0}/{t.max_participants || '∞'}</span>{' '}
           {t.starts_at ? new Date(t.starts_at).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB') : tr(locale, 'الموعد قيد التحديد', 'Date TBD')}
         </p>
       </div>
@@ -168,7 +169,7 @@ export default async function PlayPage({
       {user && mine && finished && (
         <Card title={tr(locale, 'استلام الجائزة', 'Claim prize')}>
           {myClaim ? (
-            <p className="text-sm text-[#e5ed43]">{tr(locale, 'حالة المطالبة', 'Claim status')}: {myClaim.status}</p>
+            <p className="text-sm text-[#e5ed43]">{tr(locale, 'حالة المطالبة', 'Claim status')}: {label(locale, myClaim.status)}</p>
           ) : (
             <form action={playerClaim} className="flex flex-wrap gap-2">
               <Hidden values={hid} />
@@ -191,7 +192,7 @@ export default async function PlayPage({
             <ul className="mt-4 space-y-2 text-sm">
               {myIssues.map((i) => (
                 <li key={i.id} className="border border-[#2b2d30] p-2 text-[#a4a6aa]">
-                  <strong className="text-[#f4f4ed]">{i.subject}</strong> <Pill on={i.status === 'resolved'}>{i.status}</Pill>
+                  <strong className="text-[#f4f4ed]">{i.subject}</strong> <Pill on={i.status === 'resolved'}>{label(locale, i.status)}</Pill>
                   {i.staff_reply && <span className="block text-[#e5ed43]">↳ {i.staff_reply}</span>}
                 </li>
               ))}

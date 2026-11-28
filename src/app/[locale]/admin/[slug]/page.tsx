@@ -1,3 +1,4 @@
+import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
 import { saveSettings, setTournamentStatus } from '../actions';
@@ -52,7 +53,7 @@ export default async function AdminOverview({
     <div className="space-y-6">
       <Flash ok={sp.ok} err={sp.err} />
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title={tr(locale, 'قايمة التقدم', 'Progress checklist')} right={<Pill on>{t!.status}</Pill>}>
+        <Card title={tr(locale, 'قايمة التقدم', 'Progress checklist')} right={<Pill on>{label(locale, t!.status)}</Pill>}>
           <ul className="space-y-2 text-sm">
             {checklist.map(([label, ok]) => (
               <li key={label} className="flex items-center gap-2">

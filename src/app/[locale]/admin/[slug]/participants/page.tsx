@@ -1,3 +1,4 @@
+import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill } from '@/components/admin/ui';
 import { setRegStatus } from '../../actions';
@@ -37,7 +38,7 @@ export default async function Participants({
         <div className="mb-4 flex flex-wrap gap-2">
           {filters.map((f) => (
             <a key={f} href={`?f=${f}`}>
-              <Pill on={filter === f}>{f} {f === 'all' ? '' : stat(f)}</Pill>
+              <Pill on={filter === f}>{label(locale, f)} {f === 'all' ? regs?.length ?? 0 : stat(f)}</Pill>
             </a>
           ))}
         </div>
@@ -52,7 +53,7 @@ export default async function Participants({
                   <p className="text-xs text-[#6f7276] ltr-isolate">{r.registration_code}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Pill on={r.status === 'checked_in' || r.status === 'confirmed'}>{r.status}</Pill>
+                  <Pill on={r.status === 'checked_in' || r.status === 'confirmed'}>{label(locale, r.status)}</Pill>
                   {(ACTIONS[r.status] ?? []).map(([st, ar, en, tone]) => (
                     <form key={st} action={setRegStatus}>
                       <Hidden values={{ locale, slug, reg_id: r.id, status: st }} />

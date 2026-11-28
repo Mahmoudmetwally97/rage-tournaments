@@ -1,3 +1,4 @@
+import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
 import { saveMatch, seedStage } from '../../actions';
@@ -59,11 +60,11 @@ export default async function MatchesPage({
           <Card
             key={m.id}
             title={`${gname ?? ''} • ${tr(locale, 'راوند', 'Round')} ${m.round_number}`}
-            right={<Pill on={m.status === 'completed'}>{m.status}</Pill>}
+            right={<Pill on={m.status === 'completed'}>{label(locale, m.status)}</Pill>}
           >
             <form action={saveMatch}>
               <Hidden values={{ locale, slug, match_id: m.id }} />
-              <div className="mb-2 grid grid-cols-[1fr_90px_90px_70px] gap-2 text-[11px] font-bold text-[#6f7276]">
+              <div className="mb-2 grid grid-cols-[1fr_64px_64px_40px] sm:grid-cols-[1fr_90px_90px_70px] gap-2 text-[11px] font-bold text-[#6f7276]">
                 <span>{tr(locale, 'اللاعب', 'Player')}</span>
                 <span>{tr(locale, 'الترتيب', 'Rank')}</span>
                 <span>{tr(locale, 'كيلز', 'Kills')}</span>
@@ -75,7 +76,7 @@ export default async function MatchesPage({
                   const reg = p.registrations as unknown as { ign_snapshot: string } | { ign_snapshot: string }[] | null;
                   const ign = Array.isArray(reg) ? reg[0]?.ign_snapshot : reg?.ign_snapshot;
                   return (
-                    <div key={p.registration_id} className="grid grid-cols-[1fr_90px_90px_70px] items-center gap-2">
+                    <div key={p.registration_id} className="grid grid-cols-[1fr_64px_64px_40px] sm:grid-cols-[1fr_90px_90px_70px] items-center gap-2">
                       <span className="truncate text-sm font-bold text-[#f4f4ed]">{ign}</span>
                       <input name={`rank_${p.registration_id}`} type="number" min={1} defaultValue={r?.placement ?? ''} className={inputCls} />
                       <input name={`kills_${p.registration_id}`} type="number" min={0} defaultValue={r?.kills ?? 0} className={inputCls} />
