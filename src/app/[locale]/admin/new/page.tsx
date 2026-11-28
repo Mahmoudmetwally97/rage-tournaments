@@ -48,6 +48,7 @@ export default async function NewTournamentPage({
             <label className="text-xs text-[#a4a6aa]">{tr(locale, 'النظام', 'Format')}
               <select name="format" className={inputCls} defaultValue="ffa">
                 <option value="ffa">{tr(locale, 'FFA فردي بالغرف (نقاط المركز + الكيلز)', 'Solo FFA in rooms (placement + kills)')}</option>
+                <option value="sd_single">{tr(locale, 'تيمات SD: خروج مباشر (5 أساسي + 2 بدلاء)', 'Teams SD: single elimination (5 players + 2 subs)')}</option>
               </select>
             </label>
             <label className="text-xs text-[#a4a6aa]">{tr(locale, 'أقصى عدد لاعبين (0 = مفتوح)', 'Capacity (0 = open)')}<input name="max_participants" type="number" min={0} defaultValue={64} className={inputCls} dir="ltr" /></label>

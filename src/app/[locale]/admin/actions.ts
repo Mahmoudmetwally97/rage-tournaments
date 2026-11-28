@@ -28,7 +28,28 @@ const ERR: Record<string, string> = {
   NO_NEXT_STAGE: 'اعمل مرحلة تانية الأول / Create the next stage first',
   NO_PLAYERS_FOR_STAGE: 'مفيش لاعبين للمرحلة دي (اعمل ترقية الأول) / No players for this stage (advance first)',
   NEXT_STAGE_HAS_RESULTS: 'المرحلة التالية فيها نتائج / Next stage already has results',
-  INVALID_IGN: 'اسم اللعبة قصير / In-game name too short'
+  INVALID_IGN: 'اسم اللعبة قصير / In-game name too short',
+  TEAM_NAME_TOO_SHORT: 'اسم التيم قصير / Team name too short',
+  TEAM_TAG_2_TO_5: 'التاج من 2 ل 5 حروف / Tag must be 2 to 5 characters',
+  TEAM_NAME_TAKEN: 'اسم التيم مستخدم / Team name already taken',
+  TOO_MANY_TEAMS: 'وصلت الحد الأقصى للتيمات / Team limit reached',
+  FORBIDDEN_NOT_TEAM_CAPTAIN: 'قائد التيم بس يقدر يعمل ده / Only the team leader can do this',
+  PLAYER_NOT_FOUND: 'مفيش لاعب بالاسم ده / No player with that username',
+  TEAM_FULL: 'التيم مكتمل / Team is full',
+  NO_INVITE: 'مفيش دعوة / No invite found',
+  CAPTAIN_CANNOT_LEAVE: 'القائد مينفعش يخرج / The leader cannot leave',
+  ROSTER_LOCKED: 'التشكيلة اتقفلت بعد التسجيل / Roster is locked after registration',
+  NOT_A_TEAM_TOURNAMENT: 'دي بطولة فردية / This is not a team tournament',
+  TEAM_GAME_MISMATCH: 'التيم للعبة تانية / Team is for another game',
+  TEAM_NOT_FULL: 'التيم ناقص لاعبين (لازم 5 قبلوا الدعوة) / Team needs 5 accepted players',
+  TOO_MANY_PLAYERS: 'عدد اللاعبين أكبر من المسموح / Too many players',
+  ALREADY_REGISTERED_OR_PLAYER_IN_ANOTHER_TEAM: 'التيم مسجل أو لاعب مسجل مع تيم تاني / Team already registered, or a player is in another team',
+  NEED_AT_LEAST_2_TEAMS: 'لازم تيمين على الأقل عملوا تشيك إن / At least 2 checked-in teams needed',
+  WAITING_FOR_TEAMS: 'لسه الماتش مستني التيمات / Match is waiting for its teams',
+  NO_DRAWS: 'مفيش تعادل، لازم فايز / No draws, there must be a winner',
+  BAD_SCORE: 'نتيجة غير صالحة / Invalid score',
+  RESULT_LOCKED: 'الماتش التالي اتلعب، مينفعش تعديل / Next match already played',
+  MATCH_NOT_FOUND: 'الماتش مش موجود / Match not found'
 };
 
 function pretty(m: string): string {
@@ -396,6 +417,7 @@ export async function createTournament(f: FormData) {
   if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug) || ['new', 'create'].includes(slug)) {
     return fail('الرابط لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات / Slug must be lowercase letters, numbers and dashes');
   }
+  const isTeam = s(f, 'format') === 'sd_single';
   const gameId = s(f, 'game_id');
   if (!gameId) return fail('اختار اللعبة / Choose a game');
   const roomSize = Math.max(2, Number(s(f, 'room_size') || 25));
@@ -417,8 +439,9 @@ export async function createTournament(f: FormData) {
     game_id: gameId,
     title_en: titleEn,
     title_ar: titleAr,
-    competition_type: 'solo',
-    team_size: 1,
+    competition_type: isTeam ? 'team' : 'solo',
+    team_size: isTeam ? 5 : 1,
+    substitute_slots: isTeam ? 2 : 0,
     language: 'both',
     status: f.get('publish') === 'on' ? 'published' : 'draft',
     min_participants: 2,
@@ -480,6 +503,9 @@ export async function createTournament(f: FormData) {
     for (const b of bonuses ?? []) {
       await sb.from('tournament_bonuses').insert({ tournament_id: tid, title_ar: b.title_ar, title_en: b.title_en, description_ar: b.description_ar, description_en: b.description_en, kind: b.kind, amount: b.amount, is_placeholder: b.is_placeholder });
     }
+  } else if (isTeam) {
+    const { error: e1 } = await sb.rpc('admin_make_team_stage', { p_tournament_id: tid });
+    if (e1) return rollback(e1.message);
   } else {
     const { error: e1 } = await sb.rpc('admin_create_stage', { p_tournament_id: tid, p_name_ar: 'المرحلة الأولى', p_name_en: 'Stage 1', p_qualify_count: 1 });
     if (e1) return rollback(e1.message);
@@ -497,4 +523,51 @@ export async function createTournament(f: FormData) {
   }
   revalidatePath(`/${locale}/admin`);
   redirect(`/${locale}/admin/${slug}?ok=1`);
+}
+
+/* ---------- teams (SD) ---------- */
+const teamsUrl = (f: FormData) => `/${s(f, 'locale') || 'ar'}/teams`;
+
+export async function createTeamAction(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('create_team', { p_game_id: s(f, 'game_id'), p_name: s(f, 'name'), p_tag: s(f, 'tag') });
+  await done(teamsUrl(f), error?.message ?? null);
+}
+
+export async function teamInviteAction(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('team_invite', { p_team_id: s(f, 'team_id'), p_username: s(f, 'username') });
+  await done(teamsUrl(f), error?.message ?? null);
+}
+
+export async function teamRespondAction(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('team_respond', { p_team_id: s(f, 'team_id'), p_accept: s(f, 'accept') === '1' });
+  await done(teamsUrl(f), error?.message ?? null);
+}
+
+export async function teamRemoveAction(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('team_remove_member', { p_team_id: s(f, 'team_id'), p_user_id: s(f, 'user_id') });
+  await done(teamsUrl(f), error?.message ?? null);
+}
+
+export async function playerRegisterTeam(f: FormData) {
+  const { sb } = await client();
+  const { data: team } = await sb.from('teams').select('name').eq('id', s(f, 'team_id')).maybeSingle();
+  const code = 'rage-' + String(team?.name ?? 'team').toLowerCase().replace(/[^a-z0-9\u0600-\u06ff]+/g, '-').replace(/^-+|-+$/g, '');
+  const { error } = await sb.rpc('register_team', { p_tournament_id: s(f, 'tid'), p_team_id: s(f, 'team_id'), p_registration_code: code || 'rage-team' });
+  await done(play(f), error?.message ?? null);
+}
+
+export async function seedBracket(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_seed_bracket', { p_tournament_id: s(f, 'tid'), p_stage_order: 1 });
+  await done(back(f, '/matches'), error?.message ?? null);
+}
+
+export async function saveTeamMatch(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_save_team_match', { p_match_id: s(f, 'match_id'), p_score_a: Number(s(f, 'score_a')), p_score_b: Number(s(f, 'score_b')) });
+  await done(back(f, '/matches'), error?.message ?? null);
 }

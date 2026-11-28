@@ -85,6 +85,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
     { href: `/${locale}`, label: dict.nav.home },
     { href: `/${locale}/tournaments`, label: dict.nav.tournaments },
     { href: `/${locale}/leaderboards`, label: dict.nav.leaderboards },
+    { href: `/${locale}/teams`, label: locale === 'ar' ? 'التيمات' : 'Teams' },
     { href: `/${locale}/dashboard`, label: dict.nav.dashboard },
     ...(isOrganizer
       ? [{ href: `/${locale}/admin`, label: locale === 'ar' ? 'لوحة الإدارة' : 'Admin' }]

@@ -1,7 +1,9 @@
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { saveMatch, seedStage, createStage, advanceStage } from '../../actions';
+import { saveMatch, seedStage, createStage, advanceStage, seedBracket, saveTeamMatch } from '../../actions';
+import { loadBracket } from '@/lib/bracket';
+import { TeamBracket } from '@/components/tournaments/TeamBracket';
 import { RoomBoard } from '@/components/admin/RoomBoard';
 import { StageBracket } from '@/components/admin/StageBracket';
 
@@ -16,6 +18,44 @@ export default async function MatchesPage({
   const sp = await searchParams;
   const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
   const tid = t!.id as string;
+
+  if (t!.competition_type === 'team') {
+    const { rounds } = await loadBracket(supabase, tid);
+    const ar = locale === 'ar';
+    return (
+      <div className="space-y-4">
+        <Flash ok={sp.ok} err={sp.err} />
+        <Card
+          title={tr(locale, 'براكت الخروج المباشر', 'Single-elimination bracket')}
+          right={
+            <form action={seedBracket}>
+              <Hidden values={{ locale, slug, tid }} />
+              <Btn tone="primary">{tr(locale, 'توليد البراكت من التيمات اللي عملت تشيك إن', 'Generate bracket from checked-in teams')}</Btn>
+            </form>
+          }
+        >
+          <p className="mb-3 text-xs text-[#a4a6aa]">
+            {tr(locale, 'التيم الأعلى ترتيباً بيعدي لو العدد فردي (bye). إعادة التوليد مسموحة طالما مفيش نتايج.', 'Top seeds get a bye when the count is not a power of 2. Regenerating is allowed until results exist.')}
+          </p>
+          <TeamBracket
+            rounds={rounds}
+            ar={ar}
+            renderAction={(m) =>
+              m.a && m.b ? (
+                <form action={saveTeamMatch} className="flex items-center gap-1 border-t border-[#2b2d30] p-2">
+                  <Hidden values={{ locale, slug, tid, match_id: m.id }} />
+                  <input name="score_a" type="number" min={0} required defaultValue={m.scoreA ?? ''} dir="ltr" className={`${inputCls} w-14 !py-1 text-center`} aria-label="A" />
+                  <span className="text-[#6f7276]">-</span>
+                  <input name="score_b" type="number" min={0} required defaultValue={m.scoreB ?? ''} dir="ltr" className={`${inputCls} w-14 !py-1 text-center`} aria-label="B" />
+                  <Btn tone="primary">{tr(locale, 'حفظ', 'Save')}</Btn>
+                </form>
+              ) : null
+            }
+          />
+        </Card>
+      </div>
+    );
+  }
 
   const { data: stageRows } = await supabase.from('stages').select('id,stage_order,name_ar,name_en,status,qualify_count').eq('tournament_id', tid).order('stage_order');
   const stages = stageRows ?? [];

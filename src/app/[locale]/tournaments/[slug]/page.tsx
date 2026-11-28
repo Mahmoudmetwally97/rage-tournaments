@@ -3,6 +3,9 @@ import { dictionaries, isValidLocale } from '@/lib/i18n/dictionaries';
 import { getTournamentBySlug } from '@/lib/data/tournament-repo';
 import type { Metadata } from 'next';
 import { buildMeta } from '@/lib/seo';
+import { getSupabaseServerClient } from '@/lib/supabase/server';
+import { loadBracket } from '@/lib/bracket';
+import { TeamBracket } from '@/components/tournaments/TeamBracket';
 import { TournamentDetailClient } from '@/components/tournaments/TournamentDetailClient';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
@@ -31,11 +34,19 @@ export default async function TournamentDetailPage({
   const { item: tournament } = await getTournamentBySlug(slug);
   if (!tournament) notFound();
 
+  const sb = await getSupabaseServerClient();
+  const { data: trow } = sb ? await sb.from('tournaments').select('id,competition_type').eq('slug', slug).maybeSingle() : { data: null };
+  const bracket = sb && trow?.competition_type === 'team' ? await loadBracket(sb, trow.id as string) : null;
+
   return (
-    <TournamentDetailClient
-      tournament={tournament}
-      locale={locale}
-      dict={dictionaries[locale]}
-    />
+    <>
+      <TournamentDetailClient tournament={tournament} locale={locale} dict={dictionaries[locale]} />
+      {bracket && bracket.rounds.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 pb-12 sm:px-6">
+          <h2 className="mb-3 text-lg font-extrabold text-[#f4f4ed]">{locale === 'ar' ? 'البراكت' : 'Bracket'}</h2>
+          <TeamBracket rounds={bracket.rounds} ar={locale === 'ar'} />
+        </section>
+      )}
+    </>
   );
 }
