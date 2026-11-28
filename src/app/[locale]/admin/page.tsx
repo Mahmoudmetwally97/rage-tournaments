@@ -50,6 +50,11 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
               + {locale === 'ar' ? 'بطولة جديدة' : 'Create tournament'}
             </Link>
           )}
+          {isSuper && (
+            <Link href={`/${locale}/admin/team`} className="border border-[#2b2d30] px-4 py-2 text-xs font-bold text-[#f4f4ed] hover:border-[#3a3d40]">
+              {locale === 'ar' ? 'الفريق والصلاحيات' : 'Team & roles'}
+            </Link>
+          )}
           <span className="border border-[#2b2d30] px-3 py-1.5 text-[11px] font-bold tracking-[0.16em] text-[#a4a6aa] ltr-isolate">
             {user.email}
           </span>

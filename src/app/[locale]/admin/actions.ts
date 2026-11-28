@@ -49,6 +49,9 @@ const ERR: Record<string, string> = {
   NO_DRAWS: 'مفيش تعادل، لازم فايز / No draws, there must be a winner',
   BAD_SCORE: 'نتيجة غير صالحة / Invalid score',
   RESULT_LOCKED: 'الماتش التالي اتلعب، مينفعش تعديل / Next match already played',
+  LAST_SUPER_ADMIN: 'ده آخر أدمن، مينفعش يتشال / This is the last admin and cannot be removed',
+  CANNOT_CHANGE_SELF: 'مينفعش تغير صلاحياتك بنفسك / You cannot change your own role',
+  BAD_ROLE: 'صلاحية غير صالحة / Invalid role',
   MATCH_NOT_FOUND: 'الماتش مش موجود / Match not found'
 };
 
@@ -615,4 +618,13 @@ export async function removeTeamLogo(f: FormData) {
   if (m) await sb.storage.from(LOGO_BUCKET).remove([decodeURIComponent(m[1] as string)]);
   for (const l of ['ar', 'en']) revalidatePath(`/${l}/tournaments`, 'layout');
   await done(teamsUrl(f), null);
+}
+
+export async function setUserRole(f: FormData) {
+  const { sb } = await client();
+  const loc = s(f, 'locale') || 'ar';
+  const q = s(f, 'q');
+  const target = `/${loc}/admin/team${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+  const { error } = await sb.rpc('admin_set_role', { p_user: s(f, 'user'), p_role: s(f, 'role') });
+  return done(target, error ? error.message : null);
 }
