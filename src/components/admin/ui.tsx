@@ -5,7 +5,7 @@ export const inputCls =
 
 export function Card({ title, children, right }: { title?: string; children: ReactNode; right?: ReactNode }) {
   return (
-    <section className="border border-[#2b2d30] bg-[#151619] p-4 sm:p-5">
+    <section className="border border-[#2b2d30] border-t-2 border-t-[#e5ed43]/70 bg-[#151619] p-4 sm:p-5">
       {(title || right) && (
         <div className="mb-4 flex items-center justify-between gap-3">
           {title && <h2 className="text-base font-extrabold text-[#f4f4ed]">{title}</h2>}
@@ -73,5 +73,36 @@ export function Pill({ children, on }: { children: ReactNode; on?: boolean }) {
     >
       {children}
     </span>
+  );
+}
+
+export function PageHero({
+  eyebrow,
+  title,
+  children,
+  compact
+}: {
+  eyebrow: string;
+  title: string;
+  children?: ReactNode;
+  compact?: boolean;
+}) {
+  return (
+    <section className="relative overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/rage-characters.png"
+        alt=""
+        className={`absolute inset-0 h-full w-full object-cover object-[62%_18%] ${compact ? 'opacity-40' : 'opacity-90'}`}
+      />
+      <div className="absolute inset-0 ltr:bg-gradient-to-r rtl:bg-gradient-to-l from-[#0d0e10] via-[#0d0e10]/85 to-[#0d0e10]/10" />
+      <div className={`relative ${compact ? 'p-5 sm:p-7' : 'p-6 sm:p-10'}`}>
+        <p className="eyebrow mb-3">{eyebrow}</p>
+        <h1 className={`font-extrabold leading-[0.95] tracking-tight text-[#f4f4ed] ${compact ? 'text-2xl sm:text-4xl' : 'text-4xl sm:text-6xl'}`}>
+          {title}
+        </h1>
+        {children && <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-[#a4a6aa]">{children}</div>}
+      </div>
+    </section>
   );
 }

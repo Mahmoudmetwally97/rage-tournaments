@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { requireOrganizer, tr } from '@/lib/admin';
+import { label } from '@/lib/labels';
+import { PageHero, Pill } from '@/components/admin/ui';
 
 export default async function AdminTournamentLayout({
   children,
@@ -22,14 +24,12 @@ export default async function AdminTournamentLayout({
   ];
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
-      <div>
-        <Link href={`/${locale}/admin`} className="text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">
-          ← {tr(locale, 'لوحة الإدارة', 'Admin')}
-        </Link>
-        <h1 className="mt-2 text-2xl font-extrabold sm:text-3xl text-[#f4f4ed]">
-          {locale === 'ar' ? tournament!.title_ar : tournament!.title_en}
-        </h1>
-      </div>
+      <Link href={`/${locale}/admin`} className="inline-block text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">
+        ← {tr(locale, 'لوحة الإدارة', 'Admin')}
+      </Link>
+      <PageHero compact eyebrow={tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')} title={locale === 'ar' ? tournament!.title_ar : tournament!.title_en}>
+        <Pill on>{label(locale, tournament!.status)}</Pill>
+      </PageHero>
       <nav className="-mx-4 flex gap-2 overflow-x-auto border-b border-[#2b2d30] px-4 pb-3 sm:mx-0 sm:px-0">
         {tabs.map(([href, label]) => (
           <Link

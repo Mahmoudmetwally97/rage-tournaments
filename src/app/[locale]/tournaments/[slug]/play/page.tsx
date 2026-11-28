@@ -4,7 +4,7 @@ import { isValidLocale } from '@/lib/i18n/dictionaries';
 import { tr } from '@/lib/admin';
 import { label } from '@/lib/labels';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
-import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
+import { Btn, Card, Flash, Hidden, PageHero, Pill, inputCls } from '@/components/admin/ui';
 import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister } from '../../../admin/actions';
 
 export default async function PlayPage({
@@ -68,14 +68,12 @@ export default async function PlayPage({
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6">
-      <div>
-        <Link href={base} className="text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">← {tr(locale, 'صفحة البطولة', 'Tournament page')}</Link>
-        <h1 className="mt-2 text-3xl font-extrabold text-[#f4f4ed]">{locale === 'ar' ? t.title_ar : t.title_en}</h1>
-        <p className="mt-1 text-xs text-[#a4a6aa]">
-          <Pill on>{label(locale, t.status)}</Pill> <span className="ltr-isolate">{count ?? 0}/{t.max_participants || '∞'}</span>{' '}
-          {t.starts_at ? new Date(t.starts_at).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB') : tr(locale, 'الموعد قيد التحديد', 'Date TBD')}
-        </p>
-      </div>
+      <Link href={base} className="inline-block text-xs font-bold text-[#a4a6aa] hover:text-[#e5ed43]">← {tr(locale, 'صفحة البطولة', 'Tournament page')}</Link>
+      <PageHero eyebrow={tr(locale, 'منطقة المشاركة', 'PLAYER ZONE')} title={locale === 'ar' ? t.title_ar : t.title_en}>
+        <Pill on>{label(locale, t.status)}</Pill>
+        <span className="ltr-isolate">{count ?? 0}/{t.max_participants || '∞'}</span>
+        <span>{t.starts_at ? new Date(t.starts_at).toLocaleString(locale === 'ar' ? 'ar-EG' : 'en-GB') : tr(locale, 'الموعد قيد التحديد', 'Date TBD')}</span>
+      </PageHero>
       <Flash ok={sp.ok} err={sp.err} />
 
       <Card title={tr(locale, 'مشاركتي', 'My entry')}>
