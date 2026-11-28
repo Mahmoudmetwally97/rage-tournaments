@@ -26,10 +26,10 @@ export default async function NewTournamentPage({
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8 sm:px-6">
       <div>
-        <Link href={`/${locale}/admin`} className="text-xs text-[#a4a6aa] hover:text-[#e5ed43]">
+        <Link href={`/${locale}/admin`} className="mb-4 block text-xs text-[#a4a6aa] hover:text-[#e5ed43]">
           {locale === 'ar' ? '→ رجوع للبطولات' : '← Back to tournaments'}
         </Link>
-        <p className="eyebrow mb-2 mt-3">{tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')}</p>
+        <p className="eyebrow mb-2">{tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')}</p>
         <h1 className="text-3xl font-extrabold text-[#f4f4ed]">{tr(locale, 'بطولة جديدة', 'Create tournament')}</h1>
       </div>
       <Flash ok={sp.ok} err={sp.err} />

@@ -33,6 +33,7 @@ const ERR: Record<string, string> = {
 
 function pretty(m: string): string {
   for (const k of Object.keys(ERR)) if (m.includes(k)) return ERR[k] as string;
+  if (m.includes('tournaments_slug_key')) return 'الرابط مستخدم في بطولة تانية / This slug is already used';
   if (m.includes('duplicate key')) return 'مسجل بالفعل أو الاسم مستخدم / Already registered or name taken';
   return m;
 }
