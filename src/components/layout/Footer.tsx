@@ -12,8 +12,12 @@ export function Footer({ locale }: { locale: Locale }) {
             ragegames.net
           </a>
           <span aria-hidden="true" className="text-[#2b2d30]">•</span>
-          <a href="https://discord.gg/B3dASq6Mfb" target="_blank" rel="noopener noreferrer" className="hover:text-[#f4f4ed] transition-colors">
+          <a href="https://discord.gg/kByUSDBPF" target="_blank" rel="noopener noreferrer" className="hover:text-[#f4f4ed] transition-colors">
             Discord
+          </a>
+          <span aria-hidden="true" className="text-[#2b2d30]">•</span>
+          <a href="https://facebook.com/rageegcf" target="_blank" rel="noopener noreferrer" className="hover:text-[#f4f4ed] transition-colors">
+            Facebook
           </a>
         </div>
       </div>

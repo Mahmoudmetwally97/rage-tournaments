@@ -108,11 +108,16 @@ export default async function PlayPage({
         ) : (
           <p className="text-sm text-[#a4a6aa]">{tr(locale, 'التسجيل غير مفتوح حالياً.', 'Registration is not open right now.')}</p>
         )}
-        {t.contact_url && (
-          <a href={t.contact_url} target="_blank" rel="noreferrer" className="mt-4 inline-block border border-[#2b2d30] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#e5ed43]">
-            {t.contact_label || tr(locale, 'تواصل مع المنظمين', 'Contact organizers')}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {t.contact_url && (
+            <a href={t.contact_url} target="_blank" rel="noreferrer" className="clip-chip inline-block border border-[#2b2d30] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#e5ed43]">
+              {t.contact_label || tr(locale, 'تواصل مع المنظمين', 'Contact organizers')}
+            </a>
+          )}
+          <a href="https://facebook.com/rageegcf" target="_blank" rel="noreferrer" className="clip-chip inline-block border border-[#2b2d30] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#e5ed43]">
+            Facebook
           </a>
-        )}
+        </div>
       </Card>
 
       <Card title={tr(locale, 'الترتيب', 'Standings')}>
