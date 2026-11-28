@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { resolveSubmission } from './matching';
+import { matchRowsToRoster, resolveSubmission } from './matching';
 import { readScreenshot } from './vision';
 import type { ExtractedScreenshot, RoomCandidate } from './types';
 
@@ -46,12 +46,18 @@ export interface IngestInput {
 }
 
 export interface IngestResult {
-  outcome: 'pending' | 'unreadable' | 'ignored' | 'duplicate' | 'not_live' | 'unlinked';
+  outcome: 'pending' | 'lobby' | 'unreadable' | 'ignored' | 'duplicate' | 'not_live' | 'unlinked';
   submission_id?: string;
   confidence?: number;
   issues?: string[];
   summary?: SubmissionSummary;
+  lobby?: LobbySummary;
   reason?: string;
+}
+
+export interface LobbySummary {
+  tournament: string; room_label: string | null; mode: string | null; map: string | null;
+  group_name: string | null; matched: number; total: number; unmatched: string[]; flags: string[]; proof_id?: string;
 }
 
 export interface SubmissionSummary {
@@ -62,15 +68,84 @@ export interface SubmissionSummary {
   rows: { rank: number | null; name: string; registered_as: string | null; kills: number | null; confidence: number }[];
 }
 
+async function handleLobby(
+  sb: SupabaseClient, input: IngestInput, tournament: { id: string; title_en: string }, stage: { id: string } | null,
+  rooms: RoomCandidate[], extracted: ExtractedScreenshot, sha: string
+): Promise<IngestResult> {
+  const flags: string[] = [];
+  const names = extracted.rows.map((r) => r.name).filter(Boolean);
+  if (names.length < 2) return { outcome: 'ignored', reason: 'lobby_without_players' };
+
+  // Roster to compare with: the room with the most name hits, else every registered player of the stage.
+  let roster = rooms.flatMap((r) => r.roster);
+  let room: RoomCandidate | null = null;
+  if (rooms.length) {
+    const scored = rooms.map((r) => ({ r, hits: matchRowsToRoster(extracted, r.roster).rows.filter((x) => x.registration_id).length })).sort((a, b) => b.hits - a.hits);
+    const top = scored[0]!;
+    if (top.hits >= Math.max(2, Math.ceil(names.length * 0.5))) {
+      room = top.r; roster = top.r.roster;
+      if (scored[1] && scored[1].hits === top.hits) flags.push('room_ambiguous');
+    } else flags.push('room_not_identified');
+  } else {
+    flags.push('no_active_stage_rooms');
+    const { data: regs } = await sb.from('registrations').select('id,ign_snapshot').eq('tournament_id', tournament.id).eq('status', 'confirmed');
+    roster = (regs ?? []).map((r: any) => ({ registration_id: r.id, ign: r.ign_snapshot ?? '' }));
+  }
+  const { rows } = matchRowsToRoster(extracted, roster);
+  const unmatched = rows.filter((r) => !r.registration_id).map((r) => r.read_name);
+  if (unmatched.length) flags.push(`unregistered_players:${unmatched.join('|')}`);
+  if (room && rows.length < room.roster.length) flags.push(`missing_players:${room.roster.length - rows.length}`);
+  if (room && rows.length > room.roster.length) flags.push('more_players_than_roster');
+  const ids = rows.map((r) => r.registration_id).filter(Boolean);
+  if (new Set(ids).size !== ids.length) flags.push('duplicate_player');
+  if (!extracted.room) flags.push('room_number_not_visible');
+  if (!extracted.mode) flags.push('mode_not_visible');
+  if (!extracted.map) flags.push('map_not_visible');
+
+  const { data: dup } = await sb.from('bot_lobby_proofs').select('id').eq('tournament_id', tournament.id).eq('image_sha256', sha).limit(1).maybeSingle();
+  if (dup) flags.push('same_image_already_submitted');
+  if (extracted.room && !dup) {
+    const { data: same } = await sb.from('bot_lobby_proofs').select('id,submitted_by_discord_id,image_sha256').eq('tournament_id', tournament.id).eq('room_label', extracted.room).limit(5);
+    if ((same ?? []).some((x: any) => x.image_sha256 !== sha)) flags.push('room_number_used_by_another_proof');
+  }
+
+  const { data: row, error } = await sb.from('bot_lobby_proofs').insert({
+    tournament_id: tournament.id, stage_id: stage?.id ?? null, group_id: room?.group_id ?? null, guild_id: input.guildId,
+    channel_id: input.channelId, message_id: input.messageId, submitted_by_discord_id: input.authorDiscordId,
+    image_url: input.imageUrl, image_sha256: sha, extracted, room_label: extracted.room, mode: extracted.mode, map: extracted.map ?? null,
+    players: rows.map((r) => ({ read_name: r.read_name, registration_id: r.registration_id, ign: r.ign, match_score: r.match_score })),
+    matched: rows.length - unmatched.length, total: rows.length, flags
+  }).select('id').single();
+  if (error) return { outcome: 'duplicate', reason: error.message };
+  return {
+    outcome: 'lobby', submission_id: row.id,
+    lobby: {
+      tournament: tournament.title_en, room_label: extracted.room, mode: extracted.mode, map: extracted.map ?? null,
+      group_name: room?.group_name ?? null, matched: rows.length - unmatched.length, total: rows.length, unmatched, flags, proof_id: row.id
+    }
+  };
+}
+
+async function lobbyNote(sb: SupabaseClient, tournamentId: string, groupId: string, rows: { registration_id: string | null }[]): Promise<string> {
+  try {
+    const { data } = await sb.from('bot_lobby_proofs').select('room_label,matched,total,players').eq('tournament_id', tournamentId).eq('group_id', groupId)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (!data) return 'lobby_proof:none for this room';
+    const inLobby = new Set(((data.players ?? []) as any[]).map((p) => p.registration_id).filter(Boolean));
+    const notInLobby = rows.filter((r) => r.registration_id && !inLobby.has(r.registration_id)).length;
+    const base = `lobby_proof:found (room ${data.room_label ?? '?'}, ${data.matched}/${data.total} names registered)`;
+    return notInLobby ? `${base}, ${notInLobby} result player(s) not seen in the lobby` : `${base}, players match`;
+  } catch { return 'lobby_proof:could not check'; }
+}
+
 export async function ingestScreenshot(input: IngestInput, extractor: typeof readScreenshot = readScreenshot): Promise<IngestResult> {
   const sb = serviceClient();
   const { data: link } = await sb.from('bot_channels').select('*').eq('channel_id', input.channelId).maybeSingle();
   if (!link) return { outcome: 'unlinked' };
 
   const { tournament, stage, rooms } = await loadRooms(sb, link.tournament_id);
-  if (!tournament || tournament.status !== 'live' || !stage) {
-    return { outcome: 'not_live', reason: !tournament ? 'tournament_missing' : tournament.status !== 'live' ? `status_${tournament.status}` : 'no_active_stage' };
-  }
+  if (!tournament) return { outcome: 'not_live', reason: 'tournament_missing' };
+  const isLive = tournament.status === 'live' && Boolean(stage);
 
   let extracted: ExtractedScreenshot; let sha: string;
   try {
@@ -78,20 +153,26 @@ export async function ingestScreenshot(input: IngestInput, extractor: typeof rea
   } catch (e) {
     const reason = e instanceof Error ? e.message : 'VISION_ERROR';
     const { data } = await sb.from('bot_submissions').insert({
-      tournament_id: tournament.id, stage_id: stage.id, guild_id: input.guildId, channel_id: input.channelId,
+      tournament_id: tournament.id, stage_id: stage?.id ?? null, guild_id: input.guildId, channel_id: input.channelId,
       message_id: input.messageId, submitted_by_discord_id: input.authorDiscordId, image_url: input.imageUrl,
       status: 'unreadable', issues: [reason]
     }).select('id').single();
     return { outcome: 'unreadable', submission_id: data?.id, reason };
   }
 
+  if (extracted.screen_type === 'lobby') {
+    try { return await handleLobby(sb, input, tournament, stage, rooms, extracted, sha); }
+    catch (e) { return { outcome: 'ignored', reason: `lobby_error:${e instanceof Error ? e.message : 'x'}` }; }
+  }
   if (!extracted.is_results_screen) return { outcome: 'ignored', reason: 'not_a_results_screen' };
+  if (!isLive || !stage) return { outcome: 'not_live', reason: tournament.status !== 'live' ? `status_${tournament.status}` : 'no_active_stage' };
 
   const { data: dup } = await sb.from('bot_submissions').select('id,status').eq('tournament_id', tournament.id)
     .eq('image_sha256', sha).in('status', ['pending', 'approved']).limit(1).maybeSingle();
   if (dup) return { outcome: 'duplicate', submission_id: dup.id, reason: `already_${dup.status}` };
 
   const res = resolveSubmission(extracted, rooms, { roomHint: link.room_hint });
+  if (res.room) res.issues.push(await lobbyNote(sb, tournament.id, res.room.group_id, res.rows));
   const status = res.rows.length === 0 ? 'unreadable' : 'pending';
   const { data: row, error } = await sb.from('bot_submissions').insert({
     tournament_id: tournament.id, stage_id: stage.id, match_id: res.match_id, guild_id: input.guildId,

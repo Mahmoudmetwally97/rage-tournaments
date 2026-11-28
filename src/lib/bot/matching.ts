@@ -61,7 +61,7 @@ export function matchName(read: string, roster: RosterEntry[], taken: Set<string
   return { entry: best.entry, score: best.score, ambiguous };
 }
 
-function matchRowsToRoster(extracted: ExtractedScreenshot, roster: RosterEntry[]): { rows: MatchedRow[]; ambiguous: number } {
+export function matchRowsToRoster(extracted: ExtractedScreenshot, roster: RosterEntry[]): { rows: MatchedRow[]; ambiguous: number } {
   const taken = new Set<string>();
   let ambiguous = 0;
   // Match the most certain names first so a weak read cannot steal a registration.

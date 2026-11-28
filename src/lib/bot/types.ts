@@ -9,6 +9,8 @@ export interface ExtractedRow {
 
 export interface ExtractedScreenshot {
   is_results_screen: boolean;
+  screen_type?: 'results' | 'lobby' | 'other';
+  map?: string | null;
   room: string | null;   // room / lobby label as printed, e.g. "Room 3"
   round: number | null;
   mode: string | null;

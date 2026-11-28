@@ -12,6 +12,8 @@ const rowSchema = z.object({
 
 export const extractedSchema = z.object({
   is_results_screen: z.boolean(),
+  screen_type: z.enum(['results', 'lobby', 'other']).optional(),
+  map: z.string().nullable().optional().default(null),
   room: z.string().nullable().optional().default(null),
   round: z.number().int().nullable().optional().default(null),
   mode: z.string().nullable().optional().default(null),
@@ -22,11 +24,13 @@ export const extractedSchema = z.object({
 
 export const VISION_PROMPT = `You read a screenshot of an online shooter (CrossFire) room/lobby result screen for a tournament.
 Return ONLY JSON with this shape:
-{"is_results_screen":bool,"room":string|null,"round":int|null,"mode":string|null,
+{"screen_type":"results"|"lobby"|"other","is_results_screen":bool,"map":string|null,"room":string|null,"round":int|null,"mode":string|null,
  "rows":[{"name":string,"rank":int|null,"kills":int|null,"deaths":int|null,"score":number|null,"confidence":0..1}],
  "overall_confidence":0..1,"notes":string}
 Rules:
-- is_results_screen=false if the image is not a final results / scoreboard (chat, lobby, loading, meme, etc.). Then rows=[].
+- screen_type: "results" for a final results / scoreboard. "lobby" for a pre-game room lobby (player list with Join / Ready / Start button, room info with mode and map, before the match starts). "other" for anything else (in-game, chat, loading, meme).
+- is_results_screen=true only when screen_type is "results". For "other", rows=[].
+- For a "lobby": rows = one row per player name in the player list (rank, kills, deaths, score = null). Copy names exactly, without the clan tag icons. room = the room number if printed anywhere (e.g. the chat line "You have joined room [22]" or the room title), mode = the game mode as shown (e.g. "Free For All"), map = the map name as shown.
 - One row per player, in on-screen order. rank is the final placement shown (1 = best). If no rank column, infer it from the order or score ONLY if the order is clearly a ranking, otherwise null.
 - name: copy the in-game nickname exactly as printed, including case. Do not guess letters you cannot read; lower that row's confidence instead.
 - Arabic digits must be converted to normal integers. Never invent rows or numbers.
@@ -103,7 +107,9 @@ export async function readScreenshot(imageUrl: string): Promise<{ extracted: Ext
     parsed = extractedSchema.safeParse(safe(text));
   }
   if (!parsed.success) throw new Error('VISION_BAD_JSON');
-  return { extracted: parsed.data as ExtractedScreenshot, sha256 };
+  const d = parsed.data;
+  if (d.screen_type === 'lobby') d.is_results_screen = false;
+  return { extracted: d as ExtractedScreenshot, sha256 };
 }
 
 function safe(t: string): unknown {

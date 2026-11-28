@@ -80,6 +80,22 @@ function buildEmbed(sub: any, state: 'pending' | 'approved' | 'rejected' = 'pend
   return e;
 }
 
+function lobbyEmbed(l: any) {
+  const flags = (l.flags ?? []).map((f: string) => f.replace(/_/g, ' ').replace(/:/g, ': ').replace(/\|/g, ', '));
+  const e = new EmbedBuilder()
+    .setColor(flags.length ? 0xffb36b : 0x3ddc84)
+    .setTitle(`📋 Room start proof · ${l.tournament}`)
+    .addFields(
+      { name: 'Room', value: l.room_label ? `${l.room_label}${l.group_name ? ` (${l.group_name})` : ''}` : 'not visible', inline: true },
+      { name: 'Mode', value: l.mode ?? 'not visible', inline: true },
+      { name: 'Map', value: l.map ?? 'not visible', inline: true },
+      { name: 'Players', value: `${l.matched}/${l.total} names match registered players${l.unmatched?.length ? `\nNot matched: ${l.unmatched.join(', ')}` : ''}`.slice(0, 1000) }
+    )
+    .setFooter({ text: 'Evidence only. It is checked against the results screenshot and never approves anything.' });
+  if (flags.length) e.addFields({ name: 'Check', value: flags.join('\n').slice(0, 1000) });
+  return e;
+}
+
 function buttons(id: string, enabled: boolean) {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder().setCustomId(`approve:${id}`).setLabel('Approve').setStyle(ButtonStyle.Success).setDisabled(!enabled),
@@ -106,6 +122,9 @@ client.on(Events.MessageCreate, async (msg: Message) => {
           allowedMentions: { repliedUser: false }
         });
         await api('attach', { submissionId: r.submission_id, botMessageId: sent.id });
+      } else if (r.outcome === 'lobby') {
+        await msg.react('📋').catch(() => {});
+        await msg.reply({ embeds: [lobbyEmbed(r.lobby)], allowedMentions: { repliedUser: false } });
       } else if (r.outcome === 'unreadable') {
         await msg.react('❌').catch(() => {});
         await msg.reply({ content: 'Could not read results from this screenshot. Send a clearer, full-screen one.', allowedMentions: { repliedUser: false } });
