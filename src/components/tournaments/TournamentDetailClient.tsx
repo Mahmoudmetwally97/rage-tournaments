@@ -79,7 +79,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
 
           <a
             href={`/${locale}/tournaments/${tournament.slug}/play`}
-            className="inline-flex w-full items-center justify-center bg-[#e5ed43] px-6 py-3 text-sm font-extrabold text-[#0d0e10] sm:w-auto"
+            className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
           >
             {dict.tournament.registerNow}
           </a>

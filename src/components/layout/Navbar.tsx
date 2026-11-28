@@ -109,9 +109,9 @@ export function Navbar({ locale, dict }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-none px-3.5 py-2 transition-colors ${
+                className={`clip-chip px-4 py-2 font-extrabold transition-colors ${
                   isActive
-                    ? 'bg-[#1b1d20] text-[#e5ed43]'
+                    ? 'bg-[#e5ed43] text-[#0d0e10]'
                     : 'text-[#a4a6aa] hover:bg-[#151619] hover:text-[#f4f4ed]'
                 }`}
               >
@@ -124,7 +124,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
         <div className="hidden md:flex items-center gap-2.5">
           <Link
             href={`/${otherLocale}`}
-            className="rounded-none border border-[#2b2d30] bg-[#151619] px-3 py-1.5 text-xs font-bold text-[#f4f4ed] hover:border-[#3a3d40]"
+            className="clip-btn rounded-none bg-[#23252a] px-3 py-2 text-xs font-extrabold text-[#f4f4ed] hover:bg-[#2d3036]"
           >
             {dict.nav.langSwitch}
           </Link>
@@ -139,7 +139,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="rounded-none border border-[#EF4444]/35 bg-[#EF4444]/15 px-3 py-1.5 text-xs font-bold text-[#FCA5A5] cursor-pointer"
+                className="clip-btn rounded-none bg-[#EF4444]/20 px-3 py-2 text-xs font-extrabold text-[#FCA5A5] cursor-pointer"
               >
                 {dict.nav.logout}
               </button>
@@ -148,7 +148,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
             <>
               <Link
                 href={`/${locale}/login`}
-                className="rounded-none border border-[#2b2d30] bg-[#151619] px-3.5 py-1.5 text-sm font-bold text-[#f4f4ed] hover:border-[#3a3d40]"
+                className="clip-btn rounded-none bg-[#23252a] px-4 py-2 text-sm font-extrabold text-[#f4f4ed] hover:bg-[#2d3036]"
               >
                 {dict.nav.login}
               </Link>

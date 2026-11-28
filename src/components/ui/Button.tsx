@@ -16,13 +16,13 @@ export function Button({
   ...props
 }: ButtonProps) {
   const base =
-    'inline-flex items-center justify-center gap-2 rounded-none font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5ed43] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
+    'clip-btn btn-shine inline-flex items-center justify-center gap-2 rounded-none font-extrabold tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e5ed43] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
 
   const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
     primary: 'bg-[#e5ed43] text-[#0d0e10] hover:bg-[#eef46b]',
-    secondary: 'bg-[#151619] text-[#f4f4ed] border border-[#2b2d30] hover:border-[#3a3d40] hover:bg-[#1F1F23]',
+    secondary: 'bg-[#23252a] text-[#f4f4ed] hover:bg-[#2d3036]',
     ghost: 'bg-transparent text-[#a4a6aa] hover:text-[#f4f4ed] hover:bg-[#151619]',
-    danger: 'bg-[#EF4444]/15 text-[#FCA5A5] border border-[#EF4444]/35 hover:bg-[#EF4444]/25'
+    danger: 'bg-[#EF4444]/20 text-[#FCA5A5] hover:bg-[#EF4444]/30'
   };
 
   const sizes: Record<NonNullable<ButtonProps['size']>, string> = {

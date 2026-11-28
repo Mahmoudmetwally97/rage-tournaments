@@ -40,7 +40,7 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
   const formattedDate = formatStartDate(tournament.startsAtIso, locale);
 
   return (
-    <article className="group flex flex-col justify-between rounded-none border border-[#2b2d30] bg-[#151619] p-5 transition-all hover:border-[#3a3d40] hover:bg-[#1C1C20]">
+    <article className="clip-card card-surface card-hover group flex flex-col justify-between rounded-none border-t-2 border-t-[#e5ed43]/70 p-5">
       <div>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-1.5">

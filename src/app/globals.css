@@ -103,3 +103,55 @@ h1, h2, h3, .display-type {
   color: var(--accent-primary);
 }
 [dir='rtl'] .brand-wordmark { font-style: normal; letter-spacing: 0; }
+
+/* ---- RAGE esports shape + motion system ---- */
+.clip-btn {
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+.clip-card {
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
+}
+.clip-chip {
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.btn-shine { position: relative; overflow: hidden; isolation: isolate; }
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+  z-index: -1;
+}
+.btn-shine:hover::after { transform: translateX(120%); }
+.btn-shine:active { transform: translateY(1px); }
+.card-hover { transition: transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease; }
+.card-hover:hover { transform: translateY(-3px); background-color: #1b1d20; }
+.card-surface {
+  background:
+    linear-gradient(135deg, rgba(229, 237, 67, 0.06) 0%, transparent 38%),
+    #151619;
+}
+.row-top1 { background: linear-gradient(90deg, rgba(229, 237, 67, 0.16), transparent); }
+.row-top2 { background: linear-gradient(90deg, rgba(200, 205, 215, 0.10), transparent); }
+.row-top3 { background: linear-gradient(90deg, rgba(205, 127, 50, 0.14), transparent); }
+[dir='rtl'] .row-top1 { background: linear-gradient(270deg, rgba(229, 237, 67, 0.16), transparent); }
+[dir='rtl'] .row-top2 { background: linear-gradient(270deg, rgba(200, 205, 215, 0.10), transparent); }
+[dir='rtl'] .row-top3 { background: linear-gradient(270deg, rgba(205, 127, 50, 0.14), transparent); }
+.hero-slash::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 38%;
+  width: 90px;
+  background: repeating-linear-gradient(115deg, rgba(229, 237, 67, 0.16) 0 6px, transparent 6px 16px);
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+main { animation: rise 0.45s ease both; }
+@keyframes pulse-ring { 0%,100% { box-shadow: 0 0 0 0 rgba(229,237,67,.5);} 50% { box-shadow: 0 0 0 6px rgba(229,237,67,0);} }
+.live-dot { animation: pulse-ring 1.6s infinite; }
+@media (prefers-reduced-motion: reduce) { main, .live-dot { animation: none; } .btn-shine::after { display: none; } }
+input:focus-visible, textarea:focus-visible, select:focus-visible { box-shadow: 0 0 0 2px rgba(229,237,67,.35); }

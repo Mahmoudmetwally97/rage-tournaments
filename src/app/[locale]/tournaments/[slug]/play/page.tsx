@@ -122,7 +122,7 @@ export default async function PlayPage({
             <thead><tr className="text-[11px] text-[#6f7276]"><th className="py-1 text-start">#</th><th className="text-start">{tr(locale, 'اللاعب', 'Player')}</th><th>{tr(locale, 'كيلز', 'Kills')}</th><th>{tr(locale, 'نقاط', 'Pts')}</th></tr></thead>
             <tbody>
               {(stand ?? []).map((r) => (
-                <tr key={r.registration_id} className="border-t border-[#2b2d30] text-center">
+                <tr key={r.registration_id} className={`border-t border-[#2b2d30] text-center ${r.rank <= 3 ? `row-top${r.rank}` : ""}`}>
                   <td className="py-2 text-start font-bold text-[#e5ed43]">{r.rank <= 3 ? ['🥇', '🥈', '🥉'][r.rank - 1] : r.rank}</td>
                   <td className="text-start text-[#f4f4ed]">{r.ign}</td>
                   <td className="text-[#a4a6aa]">{r.total_kills}</td>

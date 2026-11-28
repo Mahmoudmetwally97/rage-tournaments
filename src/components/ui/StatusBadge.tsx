@@ -35,9 +35,9 @@ export function StatusBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-bold ${styles[variant]} ${className}`}
+      className={`inline-flex items-center gap-1.5 clip-chip border px-3 py-0.5 text-xs font-extrabold ${styles[variant]} ${className}`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]} ${pulse ? 'animate-pulse' : ''}`} />
+      <span className={`h-1.5 w-1.5 rounded-full ${dotColors[variant]} ${pulse ? 'live-dot' : ''}`} />
       {children}
     </span>
   );
