@@ -11,6 +11,7 @@ interface MobileNavigationProps {
   pathname: string;
   dict: Dictionary;
   demoUser: { username: string } | null;
+  isOrganizer?: boolean;
   onLogout: () => void;
 }
 
@@ -22,6 +23,7 @@ export function MobileNavigation({
   pathname,
   dict,
   demoUser,
+  isOrganizer = false,
   onLogout
 }: MobileNavigationProps) {
   if (!open) return null;
@@ -30,7 +32,10 @@ export function MobileNavigation({
     { href: `/${locale}`, label: dict.nav.home },
     { href: `/${locale}/tournaments`, label: dict.nav.tournaments },
     { href: `/${locale}/leaderboards`, label: dict.nav.leaderboards },
-    { href: `/${locale}/dashboard`, label: dict.nav.dashboard }
+    { href: `/${locale}/dashboard`, label: dict.nav.dashboard },
+    ...(isOrganizer
+      ? [{ href: `/${locale}/admin`, label: locale === 'ar' ? 'لوحة الإدارة' : 'Admin console' }]
+      : [])
   ];
 
   return (

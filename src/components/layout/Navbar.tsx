@@ -17,6 +17,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
   const router = useRouter();
   const otherLocale: Locale = locale === 'ar' ? 'en' : 'ar';
   const [demoUser, setDemoUser] = useState<{ username: string } | null>(null);
+  const [isOrganizer, setIsOrganizer] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -43,10 +44,25 @@ export function Navbar({ locale, dict }: NavbarProps) {
       return { username: (typeof meta === 'string' && meta) || user.email?.split('@')[0] || 'Player' };
     };
 
-    supabase.auth.getSession().then(({ data }) => setDemoUser(nameOf(data.session?.user ?? null)));
+    const loadRoles = async (userId: string | null) => {
+      if (!userId) {
+        setIsOrganizer(false);
+        return;
+      }
+      const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId);
+      setIsOrganizer((data ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator'));
+    };
+
+    supabase.auth.getSession().then(({ data }) => {
+      const user = data.session?.user ?? null;
+      setDemoUser(nameOf(user));
+      void loadRoles(user?.id ?? null);
+    });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setDemoUser(nameOf(session?.user ?? null));
+      const user = session?.user ?? null;
+      setDemoUser(nameOf(user));
+      void loadRoles(user?.id ?? null);
     });
 
     return () => sub.subscription.unsubscribe();
@@ -65,7 +81,10 @@ export function Navbar({ locale, dict }: NavbarProps) {
     { href: `/${locale}`, label: dict.nav.home },
     { href: `/${locale}/tournaments`, label: dict.nav.tournaments },
     { href: `/${locale}/leaderboards`, label: dict.nav.leaderboards },
-    { href: `/${locale}/dashboard`, label: dict.nav.dashboard }
+    { href: `/${locale}/dashboard`, label: dict.nav.dashboard },
+    ...(isOrganizer
+      ? [{ href: `/${locale}/admin`, label: locale === 'ar' ? 'لوحة الإدارة' : 'Admin' }]
+      : [])
   ];
 
   return (
@@ -168,6 +187,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
         pathname={pathname}
         dict={dict}
         demoUser={demoUser}
+        isOrganizer={isOrganizer}
         onLogout={handleLogout}
       />
     </header>
