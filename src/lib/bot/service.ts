@@ -130,10 +130,36 @@ export async function isApprover(discordUserId: string): Promise<boolean> {
   return Boolean(await approverRow(serviceClient(), discordUserId));
 }
 
+/** Match by exact slug first, then by part of slug or title (English or Arabic). Any status. */
+export async function findTournaments(sb: ReturnType<typeof serviceClient>, q: string) {
+  const term = q.trim();
+  if (!term) return [] as { id: string; slug: string; title_en: string; status: string }[];
+  const exact = await sb.from('tournaments').select('id,slug,title_en,status').eq('slug', term).maybeSingle();
+  if (exact.data) return [exact.data as any];
+  const safe = term.replace(/[%,()_]/g, ' ').trim();
+  const slugish = safe.toLowerCase().replace(/\s+/g, '-');
+  const { data } = await sb.from('tournaments').select('id,slug,title_en,status')
+    .or(`slug.ilike.%${slugish}%,title_en.ilike.%${safe}%,title_ar.ilike.%${safe}%`).order('created_at', { ascending: false }).limit(10);
+  const rows = (data ?? []) as any[];
+  const eq = rows.filter((r) => r.title_en.toLowerCase() === safe.toLowerCase());
+  return eq.length === 1 ? eq : rows;
+}
+
+export async function searchTournaments(q: string) {
+  const sb = serviceClient();
+  if (!q.trim()) {
+    const { data } = await sb.from('tournaments').select('slug,title_en,status').order('created_at', { ascending: false }).limit(10);
+    return (data ?? []) as any[];
+  }
+  return (await findTournaments(sb, q)).slice(0, 10);
+}
+
 export async function linkChannel(i: { discordUserId: string; guildId: string; channelId: string; tournamentSlug: string; roomHint?: string }) {
   const sb = serviceClient();
-  const { data: t } = await sb.from('tournaments').select('id,title_en,status').eq('slug', i.tournamentSlug).maybeSingle();
-  if (!t) return { ok: false as const, error: 'TOURNAMENT_NOT_FOUND' };
+  const found = await findTournaments(sb, i.tournamentSlug);
+  if (found.length === 0) return { ok: false as const, error: 'TOURNAMENT_NOT_FOUND (type part of the name or slug, or pick from the suggestions)' };
+  if (found.length > 1) return { ok: false as const, error: `More than one match: ${found.slice(0, 5).map((x) => `${x.title_en} [${x.slug}]`).join(' | ')}. Type the exact slug.` };
+  const t = found[0];
   const { error } = await sb.from('bot_channels').upsert({
     guild_id: i.guildId, channel_id: i.channelId, tournament_id: t.id, room_hint: i.roomHint ?? null, linked_by_discord_id: i.discordUserId
   }, { onConflict: 'channel_id' });

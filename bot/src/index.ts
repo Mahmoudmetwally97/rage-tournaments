@@ -121,6 +121,13 @@ client.on(Events.MessageCreate, async (msg: Message) => {
 });
 
 client.on(Events.InteractionCreate, async (i) => {
+  if (i.isAutocomplete()) {
+    try {
+      const r = await api<{ items?: { slug: string; title_en: string; status: string }[] }>('link', { discordUserId: i.user.id, search: i.options.getFocused() });
+      await i.respond((r.items ?? []).slice(0, 25).map((t) => ({ name: `${t.title_en} (${t.status})`.slice(0, 100), value: t.slug.slice(0, 100) })));
+    } catch { await i.respond([]).catch(() => {}); }
+    return;
+  }
   try {
     if (i.isButton()) {
       const [decision, id] = i.customId.split(':') as ['approve' | 'reject', string];
@@ -192,7 +199,7 @@ client.on(Events.MessageReactionAdd, async (r: MessageReaction | PartialMessageR
 client.once(Events.ClientReady, async (c) => {
   const cmd = new SlashCommandBuilder().setName('rage').setDescription('RAGE results bot')
     .addSubcommand((s) => s.setName('link').setDescription('Link this channel to a tournament')
-      .addStringOption((o) => o.setName('tournament').setDescription('Tournament slug').setRequired(true))
+      .addStringOption((o) => o.setName('tournament').setDescription('Tournament name or slug (pick from the list)').setRequired(true).setAutocomplete(true))
       .addStringOption((o) => o.setName('room').setDescription('Optional fixed room, e.g. Room 2')))
     .addSubcommand((s) => s.setName('testnotify').setDescription('Send yourself sample check-in notices (owner only)'))
     .addSubcommand((s) => s.setName('help').setDescription('How the bot works'));
