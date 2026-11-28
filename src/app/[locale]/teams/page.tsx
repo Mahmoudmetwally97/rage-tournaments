@@ -4,7 +4,8 @@ import { isValidLocale } from '@/lib/i18n/dictionaries';
 import { tr } from '@/lib/admin';
 import { getCurrentUser, getSupabaseServerClient } from '@/lib/supabase/server';
 import { Btn, Card, Flash, Hidden, PageHero, Pill, inputCls } from '@/components/admin/ui';
-import { createTeamAction, teamInviteAction, teamRemoveAction, teamRespondAction } from '../admin/actions';
+import { TeamLogo } from '@/components/tournaments/TeamLogo';
+import { removeTeamLogo, saveTeamLogo, createTeamAction, teamInviteAction, teamRemoveAction, teamRespondAction } from '../admin/actions';
 
 type Member = { user_id: string; invite_status: string; player_profiles: { username: string } | { username: string }[] | null };
 const uname = (m: Member) => {
@@ -35,8 +36,8 @@ export default async function TeamsPage({
     );
   }
   const { data: game } = await supabase.from('games').select('id').order('created_at').limit(1).maybeSingle();
-  const { data: mine } = await supabase.from('team_members').select('team_id,invite_status,teams(id,name,tag,captain_id)').eq('user_id', user.id).neq('invite_status', 'declined');
-  type T = { id: string; name: string; tag: string; captain_id: string };
+  const { data: mine } = await supabase.from('team_members').select('team_id,invite_status,teams(id,name,tag,captain_id,logo_url)').eq('user_id', user.id).neq('invite_status', 'declined');
+  type T = { id: string; name: string; tag: string; captain_id: string; logo_url: string | null };
   const rows = (mine ?? []).map((r) => {
     const tm = r.teams as unknown as T | T[] | null;
     return { status: r.invite_status as string, team: Array.isArray(tm) ? tm[0]! : tm! };
@@ -78,6 +79,20 @@ export default async function TeamsPage({
         const accepted = ms.filter((m) => m.invite_status === 'accepted').length;
         return (
           <Card key={r.team.id} title={`[${r.team.tag}] ${r.team.name}`} right={<Pill on={accepted >= 5}>{accepted}/7 {tr(locale, 'لاعبين', 'players')}</Pill>}>
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <TeamLogo src={r.team.logo_url} tag={r.team.tag} size={56} />
+              {isCap ? (
+                <>
+                  <form action={saveTeamLogo} className="flex flex-wrap items-center gap-2">
+                    <Hidden values={{ locale, team_id: r.team.id }} />
+                    <input name="logo" type="file" required accept="image/png,image/jpeg,image/webp" className="max-w-[14rem] text-xs text-[#a8abb0] file:me-2 file:border-0 file:bg-[#2b2d30] file:px-3 file:py-1.5 file:text-[#f4f4ed]" />
+                    <Btn tone="primary">{r.team.logo_url ? tr(locale, 'غيّر اللوجو', 'Change logo') : tr(locale, 'ارفع لوجو', 'Upload logo')}</Btn>
+                  </form>
+                  {r.team.logo_url && <form action={removeTeamLogo}><Hidden values={{ locale, team_id: r.team.id }} /><Btn tone="danger">{tr(locale, 'شيل اللوجو', 'Remove logo')}</Btn></form>}
+                  <span className="text-[11px] text-[#6f7276]">{tr(locale, 'JPG / PNG / WebP، لحد 2 ميجا', 'JPG / PNG / WebP, up to 2 MB')}</span>
+                </>
+              ) : null}
+            </div>
             <ul className="divide-y divide-[#2b2d30]">
               {ms.map((m) => (
                 <li key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">

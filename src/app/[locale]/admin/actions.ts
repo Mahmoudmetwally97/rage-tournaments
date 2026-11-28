@@ -571,3 +571,44 @@ export async function saveTeamMatch(f: FormData) {
   const { error } = await sb.rpc('admin_save_team_match', { p_match_id: s(f, 'match_id'), p_score_a: Number(s(f, 'score_a')), p_score_b: Number(s(f, 'score_b')) });
   await done(back(f, '/matches'), error?.message ?? null);
 }
+
+
+const LOGO_BUCKET = 'team-logos';
+const LOGO_MAX = 2 * 1024 * 1024;
+
+export async function saveTeamLogo(f: FormData) {
+  const { sb } = await client();
+  const tid = s(f, 'team_id');
+  const file = f.get('logo');
+  if (!(file instanceof File) || file.size === 0) return done(teamsUrl(f), 'اختار صورة الأول / Choose an image first');
+  if (file.size > LOGO_MAX) return done(teamsUrl(f), 'الصورة أكبر من 2 ميجا / Image is larger than 2 MB');
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const kind = sniffImage(bytes);
+  if (!kind) return done(teamsUrl(f), 'الصيغة لازم تكون JPG أو PNG أو WebP / Image must be JPG, PNG or WebP');
+  const { data: cur } = await sb.from('teams').select('logo_url').eq('id', tid).maybeSingle();
+  const path = `${tid}/logo-${Date.now()}.${kind.ext}`;
+  const up = await sb.storage.from(LOGO_BUCKET).upload(path, bytes, { contentType: kind.mime, cacheControl: '31536000', upsert: false });
+  if (up.error) return done(teamsUrl(f), up.error.message.includes('row-level security') ? 'FORBIDDEN' : up.error.message);
+  const url = sb.storage.from(LOGO_BUCKET).getPublicUrl(path).data.publicUrl;
+  const { data: upd, error } = await sb.from('teams').update({ logo_url: url }).eq('id', tid).select('id');
+  if (error || !upd?.length) {
+    await sb.storage.from(LOGO_BUCKET).remove([path]);
+    return done(teamsUrl(f), error?.message ?? 'FORBIDDEN');
+  }
+  const m = String(cur?.logo_url ?? '').match(new RegExp(`/${LOGO_BUCKET}/([0-9a-f-]{36}/[^?#]+)`));
+  if (m && m[1] !== path) await sb.storage.from(LOGO_BUCKET).remove([decodeURIComponent(m[1] as string)]);
+  for (const l of ['ar', 'en']) revalidatePath(`/${l}/tournaments`, 'layout');
+  await done(teamsUrl(f), null);
+}
+
+export async function removeTeamLogo(f: FormData) {
+  const { sb } = await client();
+  const tid = s(f, 'team_id');
+  const { data: cur } = await sb.from('teams').select('logo_url').eq('id', tid).maybeSingle();
+  const { data: upd, error } = await sb.from('teams').update({ logo_url: null }).eq('id', tid).select('id');
+  if (error || !upd?.length) return done(teamsUrl(f), error?.message ?? 'FORBIDDEN');
+  const m = String(cur?.logo_url ?? '').match(new RegExp(`/${LOGO_BUCKET}/([0-9a-f-]{36}/[^?#]+)`));
+  if (m) await sb.storage.from(LOGO_BUCKET).remove([decodeURIComponent(m[1] as string)]);
+  for (const l of ['ar', 'en']) revalidatePath(`/${l}/tournaments`, 'layout');
+  await done(teamsUrl(f), null);
+}

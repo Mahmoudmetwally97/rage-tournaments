@@ -1,3 +1,4 @@
+import { TeamLogo } from './TeamLogo';
 import type { BMatch } from '@/lib/bracket';
 
 function roundName(i: number, total: number, ar: boolean): string {
@@ -26,7 +27,7 @@ export function TeamBracket({ rounds, ar, renderAction }: { rounds: BMatch[][]; 
                 <div key={m.id} className="clip-card border border-[#2b2d30] bg-[#101113] text-sm">
                   {([['a', m.a, m.scoreA], ['b', m.b, m.scoreB]] as const).map(([k, p, sc]) => (
                     <div key={k} className={`flex items-center justify-between gap-2 px-3 py-2 ${k === 'a' ? 'border-b border-[#2b2d30]' : ''} ${p && m.winnerId === p.id ? 'bg-[#e5ed43]/10 font-extrabold text-[#e5ed43]' : 'text-[#f4f4ed]'}`}>
-                      <span className="truncate">{p ? p.name : <span className="text-[#6f7276]">{m.winnerId && !p ? 'BYE' : ar ? 'بانتظار الفريق' : 'TBD'}</span>}</span>
+                      <span className="flex min-w-0 items-center gap-2 truncate">{p ? <><TeamLogo src={p.logo} tag={p.tag} size={22} /><span className="truncate">{p.name}</span></> : <span className="text-[#6f7276]">{m.winnerId && !p ? 'BYE' : ar ? 'بانتظار الفريق' : 'TBD'}</span>}</span>
                       <span className="ltr-isolate text-xs">{sc ?? ''}</span>
                     </div>
                   ))}
