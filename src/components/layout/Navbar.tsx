@@ -16,7 +16,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
   const pathname = usePathname() || `/${locale}`;
   const router = useRouter();
   const otherLocale: Locale = locale === 'ar' ? 'en' : 'ar';
-  const [demoUser, setDemoUser] = useState<{ username: string } | null>(null);
+  const [demoUser, setDemoUser] = useState<{ username: string; avatar?: string } | null>(null);
   const [isOrganizer, setIsOrganizer] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -40,8 +40,12 @@ export function Navbar({ locale, dict }: NavbarProps) {
 
     const nameOf = (user: { email?: string | null; user_metadata?: Record<string, unknown> } | null) => {
       if (!user) return null;
-      const meta = user.user_metadata?.username;
-      return { username: (typeof meta === 'string' && meta) || user.email?.split('@')[0] || 'Player' };
+      const m = (user.user_metadata ?? {}) as Record<string, unknown>;
+      const pick = (...ks: string[]) => ks.map((k) => m[k]).find((v) => typeof v === 'string' && v) as string | undefined;
+      return {
+        username: pick('username', 'user_name', 'preferred_username', 'full_name', 'name') || user.email?.split('@')[0] || 'Player',
+        avatar: pick('avatar_url', 'picture')
+      };
     };
 
     const loadRoles = async (userId: string | null) => {
@@ -134,7 +138,13 @@ export function Navbar({ locale, dict }: NavbarProps) {
                 href={`/${locale}/dashboard`}
                 className="rounded-none border border-[#2b2d30] bg-[#151619] px-3.5 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate"
               >
-                {demoUser.username}
+                <span className="inline-flex items-center gap-2">
+                  {demoUser.avatar && /^https:\/\//.test(demoUser.avatar) && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={demoUser.avatar} alt="" width={22} height={22} referrerPolicy="no-referrer" className="h-[22px] w-[22px] rounded-full object-cover" />
+                  )}
+                  {demoUser.username}
+                </span>
               </Link>
               <button
                 type="button"

@@ -73,7 +73,7 @@ export function RoomBoard({ rooms, roomSize, slug, locale }: { rooms: BoardRoom[
                     if (to && to !== d.from) move(p.id, to);
                   }}
                   onPointerCancel={() => { dragRef.current = null; setDrag(null); setOver(null); }}
-                  style={{ touchAction: r.locked ? 'auto' : 'none' }}
+                  style={{ touchAction: r.locked ? 'auto' : 'none', userSelect: 'none', WebkitUserSelect: 'none' }}
                   className={`clip-chip flex items-center gap-2 border border-[#2b2d30] bg-[#1b1d20] px-2 py-1.5 text-sm font-bold text-[#f4f4ed] ${r.locked ? '' : 'cursor-grab active:cursor-grabbing'} ${drag?.id === p.id ? 'opacity-40' : ''}`}
                 >
                   {!r.locked && <span aria-hidden className="text-[#6f7276]">⋮⋮</span>}

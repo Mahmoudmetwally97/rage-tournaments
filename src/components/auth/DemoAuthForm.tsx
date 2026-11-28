@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
+import { OAuthButtons } from './OAuthButtons';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 interface DemoAuthFormProps {
@@ -146,6 +147,8 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
             {error}
           </div>
         )}
+
+        {getSupabaseBrowserClient() && <OAuthButtons locale={locale} />}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
