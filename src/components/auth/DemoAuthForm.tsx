@@ -102,8 +102,8 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-12">
-      <div className="rounded-none border border-[#2b2d30] bg-[#151619] p-7">
+    <div className="relative mx-auto max-w-md px-4 py-12">
+      <div className="clip-card card-surface border-t-2 border-t-[#e5ed43] border-x border-b border-[#2b2d30] bg-[#151619] p-7 sm:p-9">
         <div className="mb-5 flex items-center justify-between">
           <Image
             src="/brand/logo-rage-fire.png"
@@ -157,7 +157,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="ProSniper"
-                className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
+                className="w-full clip-chip border border-[#2b2d30] bg-[#0d0e10] px-4 py-3 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
               />
             </div>
           )}
@@ -170,7 +170,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="player@ragegames.net"
-              className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
+              className="w-full clip-chip border border-[#2b2d30] bg-[#0d0e10] px-4 py-3 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
             />
           </div>
 
@@ -183,7 +183,7 @@ export function DemoAuthForm({ mode, locale, dict }: DemoAuthFormProps) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3.5 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
+              className="w-full clip-chip border border-[#2b2d30] bg-[#0d0e10] px-4 py-3 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none ltr-isolate"
             />
           </div>
 

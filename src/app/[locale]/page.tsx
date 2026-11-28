@@ -26,7 +26,7 @@ export default async function HomePage({
   return (
     <div className="mx-auto max-w-7xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
       {/* Brand hero: RAGE character art + condensed display type (design source: ragegames.net) */}
-      <section className="relative overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
+      <section className="clip-card hero-slash relative min-h-[420px] overflow-hidden border border-[#2b2d30] bg-[#0d0e10]">
         <Image
           src="/brand/rage-characters.png"
           alt=""
@@ -53,13 +53,13 @@ export default async function HomePage({
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href={`/${locale}/tournaments`}
-                className="rounded-none bg-[#e5ed43] px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.08em] text-[#121408] transition-colors hover:bg-[#eef46b]"
+                className="clip-btn btn-shine bg-[#e5ed43] px-8 py-4 text-[13px] font-bold uppercase tracking-[0.08em] text-[#121408] transition-colors hover:bg-[#eef46b]"
               >
                 {dict.hero.ctaPrimary}
               </Link>
               <Link
                 href={`/${locale}/register`}
-                className="rounded-none border border-[#8a8b7b] bg-[#141618]/60 px-7 py-3.5 text-[13px] font-bold uppercase tracking-[0.08em] text-[#f4f4ed] transition-colors hover:border-[#a4a6aa]"
+                className="clip-btn border border-[#8a8b7b] bg-[#141618]/60 px-8 py-4 text-[13px] font-bold uppercase tracking-[0.08em] text-[#f4f4ed] transition-colors hover:border-[#a4a6aa]"
               >
                 {dict.hero.ctaSecondary}
               </Link>

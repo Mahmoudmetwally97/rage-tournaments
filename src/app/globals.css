@@ -46,7 +46,7 @@ body {
 }
 
 [dir='rtl'] {
-  --font-display: var(--font-arabic), Tahoma, Arial, sans-serif;
+  --font-display: var(--font-arabic-display), var(--font-arabic), Tahoma, Arial, sans-serif;
   --font-body: var(--font-arabic), Tahoma, Arial, sans-serif;
 }
 
