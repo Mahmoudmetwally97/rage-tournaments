@@ -146,7 +146,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
       >
         {activeTab === 'overview' && (<div className="space-y-6">
           {tournament.status === 'completed' && tournament.sampleParticipants.length > 0 && (
-            <FinalResults rows={tournament.sampleParticipants} locale={locale} />
+            <FinalResults rows={tournament.sampleParticipants} locale={locale} slug={tournament.slug} />
           )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">

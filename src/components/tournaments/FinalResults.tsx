@@ -1,6 +1,7 @@
 import React from 'react';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Locale } from '@/lib/i18n/dictionaries';
+import { ResultsReveal } from '@/components/tournaments/ResultsReveal';
 
 type Row = DemoTournament['sampleParticipants'][number];
 
@@ -19,7 +20,7 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-export function FinalResults({ rows, locale }: { rows: Row[]; locale: Locale }) {
+export function FinalResults({ rows, locale, slug }: { rows: Row[]; locale: Locale; slug: string }) {
   const ar = locale === 'ar';
   const L = {
     title: ar ? 'النتائج النهائية' : 'FINAL RESULTS',
@@ -33,16 +34,18 @@ export function FinalResults({ rows, locale }: { rows: Row[]; locale: Locale }) 
   if (!winner) return null;
   const podium = rows.slice(0, 3);
   const rest = rows.slice(3);
+  const key = `rage-reveal:${slug}:${rows.slice(0, 10).map((r) => `${r.ign}-${r.points}-${r.kills}`).join('|')}`;
   return (
+    <ResultsReveal storageKey={key} ar={ar}>
     <section aria-label={L.title} className="space-y-4">
       <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{L.title}</div>
 
-      <div className="clip-card row-in relative overflow-hidden border border-[#e5ed43]/40 bg-gradient-to-br from-[#e5ed43]/10 to-[#0d0e10] p-5 sm:p-7" style={{ ['--i' as string]: 0 } as React.CSSProperties}>
+      <div data-ord="0" className="fr-item clip-card row-in relative overflow-hidden border border-[#e5ed43]/40 bg-gradient-to-br from-[#e5ed43]/10 to-[#0d0e10] p-5 sm:p-7" style={{ ['--i' as string]: 0 } as React.CSSProperties}>
         <div className="text-[11px] font-extrabold tracking-[0.25em] text-[#FFB938]">🏆 {L.champion}</div>
         <div className="mt-2 break-words text-3xl font-black text-[#f4f4ed] sm:text-5xl ltr-isolate">{winner.ign}</div>
         <div className="mt-4 grid max-w-sm grid-cols-3 gap-3">
-          <Stat label={L.pts} value={winner.points} />
-          <Stat label={L.kills} value={winner.kills} />
+          <Stat label={L.pts} value={<span className="fr-num" data-val={winner.points}>{winner.points}</span>} />
+          <Stat label={L.kills} value={<span className="fr-num" data-val={winner.kills}>{winner.kills}</span>} />
           <Stat label={L.place} value={winner.bestPlacement ?? '-'} />
         </div>
       </div>
@@ -51,13 +54,13 @@ export function FinalResults({ rows, locale }: { rows: Row[]; locale: Locale }) 
         {podium.map((r, i) => {
           const m = MEDAL[i] ?? MEDAL[2]!;
           return (
-          <div key={r.code + i} style={{ ['--i' as string]: i + 1 } as React.CSSProperties} className={`row-in flex items-center gap-3 border ${m.ring} ${m.bg} p-4 sm:flex-col sm:items-start`}>
+          <div key={r.code + i} data-ord={i + 1} style={{ ['--i' as string]: i + 1 } as React.CSSProperties} className={`fr-item row-in flex items-center gap-3 border ${m.ring} ${m.bg} p-4 sm:flex-col sm:items-start`}>
             <span className={`text-3xl font-black ltr-isolate ${m.text}`}>#{i + 1}</span>
             <div className="min-w-0 flex-1 sm:w-full">
               <div className="truncate font-extrabold text-[#f4f4ed] ltr-isolate">{r.ign}</div>
               <div className="mt-1 flex gap-3 text-xs font-semibold text-[#a4a6aa]">
-                <span className="ltr-isolate">{r.points} {L.pts}</span>
-                <span className="ltr-isolate">{r.kills} {L.kills}</span>
+                <span className="ltr-isolate"><span className="fr-num" data-val={r.points}>{r.points}</span> {L.pts}</span>
+                <span className="ltr-isolate"><span className="fr-num" data-val={r.kills}>{r.kills}</span> {L.kills}</span>
               </div>
             </div>
           </div>
@@ -71,10 +74,10 @@ export function FinalResults({ rows, locale }: { rows: Row[]; locale: Locale }) 
             <span>{L.rank}</span><span /><span className="text-center">{L.pts}</span><span className="text-center">{L.kills}</span><span className="text-center">{L.place}</span>
           </div>
           {rest.map((r, i) => (
-            <div key={r.code + i} style={{ ['--i' as string]: i + 4 } as React.CSSProperties} className="row-in grid grid-cols-[2.5rem_1fr_3rem_3rem_3rem] items-center gap-2 px-3 py-3 text-sm">
+            <div key={r.code + i} data-ord={i + 4} style={{ ['--i' as string]: i + 4 } as React.CSSProperties} className="fr-item row-in grid grid-cols-[2.5rem_1fr_3rem_3rem_3rem] items-center gap-2 px-3 py-3 text-sm">
               <span className="font-extrabold text-[#a4a6aa] ltr-isolate">#{i + 4}</span>
               <span className="truncate font-bold text-[#f4f4ed] ltr-isolate">{r.ign}</span>
-              <span className="text-center font-extrabold text-[#e5ed43] ltr-isolate">{r.points}</span>
+              <span className="text-center font-extrabold text-[#e5ed43] ltr-isolate"><span className="fr-num" data-val={r.points}>{r.points}</span></span>
               <span className="text-center font-semibold text-[#a4a6aa] ltr-isolate">{r.kills}</span>
               <span className="text-center font-semibold text-[#a4a6aa] ltr-isolate">{r.bestPlacement ?? '-'}</span>
             </div>
@@ -82,5 +85,6 @@ export function FinalResults({ rows, locale }: { rows: Row[]; locale: Locale }) 
         </div>
       )}
     </section>
+    </ResultsReveal>
   );
 }

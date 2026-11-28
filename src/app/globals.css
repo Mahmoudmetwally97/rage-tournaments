@@ -310,3 +310,16 @@ input, select, textarea { min-width: 0; max-width: 100%; }
   .hero-layer { transform: none !important; transition: none !important; }
   .hero-bigslash, .hero-word > span, .hero-fade, .live-dot { animation: none !important; }
 }
+
+/* Results reveal: hidden only while scripting is on; a CSS fallback shows everything after 4s if JS never runs. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  .fr-init .fr-item { opacity: 0; transform: translateX(-40px) skewX(-6deg); animation: fr-fallback 0s 4s forwards; }
+  .fr-init .fr-item.fr-on { opacity: 1; transform: none; transition: opacity .45s cubic-bezier(.2,.8,.2,1), transform .45s cubic-bezier(.2,.8,.2,1); animation: none; }
+  .fr-init .fr-item.fr-on[data-ord="0"] { box-shadow: 0 0 46px rgba(255,185,56,.28); }
+}
+@keyframes fr-fallback { to { opacity: 1; transform: none; } }
+.fr-flashlayer { position: absolute; inset: 0; background: #e5ed43; opacity: 0; pointer-events: none; z-index: 5; }
+.fr-flash .fr-flashlayer { animation: fr-flash .55s ease-out; }
+@keyframes fr-flash { 0% { opacity: 0; } 25% { opacity: .22; } 100% { opacity: 0; } }
+.fr-play .fr-item.row-in { animation: none; }
+.fr-done .fr-item.row-in { animation: none; }

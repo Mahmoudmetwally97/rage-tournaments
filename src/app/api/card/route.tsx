@@ -49,9 +49,9 @@ export async function GET(req: Request) {
 
   const img = new ImageResponse(
     (
-      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#0d0e10', color: '#f4f4ed', fontFamily: ff, padding: 80, paddingRight: 190, position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: -200, right: 70, width: 44, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.95, display: 'flex' }} />
-        <div style={{ position: 'absolute', top: -200, right: -10, width: 16, height: H + 400, background: accent, transform: 'skewX(-18deg)', opacity: 0.35, display: 'flex' }} />
+      <div style={{ width: W, height: H, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: '#0d0e10', color: '#f4f4ed', fontFamily: ff, padding: 80, paddingRight: 80, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -60, right: 70, width: 44, height: size === 'story' ? 820 : 520, background: accent, transform: 'skewX(-18deg)', opacity: 0.95, display: 'flex' }} />
+        <div style={{ position: 'absolute', top: -60, right: -10, width: 16, height: size === 'story' ? 820 : 520, background: accent, transform: 'skewX(-18deg)', opacity: 0.35, display: 'flex' }} />
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 40, letterSpacing: 10, color: '#e5ed43', display: 'flex' }}>RAGE TOURNAMENTS</div>
           <div style={{ fontSize: 44, color: '#a4a6aa', marginTop: 14, display: 'flex', maxWidth: 800 }}>{t.title_en.toUpperCase()}</div>

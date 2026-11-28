@@ -9,6 +9,7 @@ import { Btn, Card, Flash, Hidden, PageHero, Pill, inputCls } from '@/components
 import { playerCancel, playerCheckIn, playerClaim, playerIssue, playerRegister, playerRegisterTeam } from '../../../admin/actions';
 import { loadBracket } from '@/lib/bracket';
 import { TeamBracket } from '@/components/tournaments/TeamBracket';
+import { MyPath, type PathStep } from '@/components/tournaments/MyPath';
 
 export default async function PlayPage({
   params,
@@ -69,6 +70,47 @@ export default async function PlayPage({
   const isCaptain = isTeam && !!user && !!mine && myTeams.some((x) => mine!.ign_snapshot === `${x.tag} ${x.name}`);
   const myRank = mine ? (stand ?? []).find((r) => r.registration_id === mine!.id)?.rank : undefined;
   const finished = t.status === 'completed' || t.status === 'archived';
+  // My Path (solo): built from the player's own registration, room assignment and results
+  let pathSteps: PathStep[] | null = null;
+  let pathAction: { href: string; label: string } | null = null;
+  if (mine && !isTeam && ['pending', 'confirmed', 'checked_in'].includes(mine.status)) {
+    const [{ data: mps }, { data: myRes }, { data: allStages }] = await Promise.all([
+      supabase.from('match_participants').select('matches(status,round_number,scheduled_at,groups(name),stages(stage_order,name_en,name_ar,qualify_count))').eq('registration_id', mine.id),
+      supabase.from('match_results').select('placement,kills,points_awarded,matches(stages(stage_order))').eq('registration_id', mine.id).eq('is_current', true).eq('approval_status', 'approved'),
+      supabase.from('stages').select('stage_order,name_en,name_ar,qualify_count').eq('tournament_id', tid).order('stage_order')
+    ]);
+    type M = { status: string; round_number: number; scheduled_at: string | null; groups: { name: string } | { name: string }[] | null; stages: { stage_order: number; name_en: string; name_ar: string; qualify_count: number } | { stage_order: number; name_en: string; name_ar: string; qualify_count: number }[] | null };
+    const one = <T,>(v: T | T[] | null): T | null => (Array.isArray(v) ? v[0] ?? null : v);
+    const ms = ((mps ?? []) as unknown as { matches: M | M[] | null }[]).map((x) => one(x.matches)).filter((x): x is M => !!x)
+      .sort((a, b) => (one(a.stages)?.stage_order ?? 0) - (one(b.stages)?.stage_order ?? 0) || a.round_number - b.round_number);
+    const cur = ms[ms.length - 1] ?? null;
+    const curStage = cur ? one(cur.stages) : null;
+    const curRoom = cur ? one(cur.groups)?.name : null;
+    const stageCount = (allStages ?? []).length;
+    const sName = (s: { name_en: string; name_ar: string } | null) => (s ? (locale === 'ar' ? s.name_ar : s.name_en) : '');
+    const resRows = (myRes ?? []) as unknown as { placement: number | null; kills: number; points_awarded: number }[];
+    const last = resRows[resRows.length - 1];
+    const approved = ['confirmed', 'checked_in'].includes(mine.status);
+    const checked = mine.status === 'checked_in';
+    const inRoom = !!cur;
+    const matchDone = cur?.status === 'completed';
+    const qualified = (curStage?.stage_order ?? 1) > 1;
+    const startsTxt = (cur?.scheduled_at ?? t.starts_at) ? formatStartDate((cur?.scheduled_at ?? t.starts_at) as string, locale) : tr(locale, 'الموعد قيد التحديد', 'Date to be announced');
+    const defs: { key: string; title: string; desc: string; done: boolean }[] = [
+      { key: 'registered', title: tr(locale, 'اتسجلت', 'Registered'), desc: mine.ign_snapshot, done: true },
+      { key: 'approved', title: tr(locale, 'اتقبلت', 'Approved'), desc: approved ? tr(locale, 'المنظم قبل تسجيلك', 'The organizer accepted your entry') : tr(locale, 'بانتظار موافقة المنظم', 'Waiting for organizer approval'), done: approved },
+      { key: 'checkin', title: tr(locale, 'تشيك إن', 'Check in'), desc: checked ? tr(locale, 'جاهز للعب', 'You are ready to play') : tr(locale, 'أكّد حضورك قبل البداية', 'Confirm before kickoff'), done: checked },
+      { key: 'room', title: inRoom ? `${sName(curStage)} · ${curRoom ?? ''}` : tr(locale, 'الغرفة والراوند', 'Room and round'), desc: inRoom ? `${tr(locale, 'راوند', 'Round')} ${cur?.round_number} · ${startsTxt}` : tr(locale, 'بتتحدد لما المراحل تتوزع', 'Assigned when the stage is seeded'), done: inRoom && !!matchDone },
+      { key: 'result', title: tr(locale, 'نتيجتك', 'Your result'), desc: last ? tr(locale, `المركز ${last.placement ?? '-'} · ${last.kills} كيل · ${Number(last.points_awarded)} نقطة`, `Place ${last.placement ?? '-'} · ${last.kills} kills · ${Number(last.points_awarded)} pts`) : tr(locale, 'بتظهر بعد تسجيل الراوند', 'Appears once the round is scored'), done: !!last },
+      stageCount > 1
+        ? { key: 'advance', title: tr(locale, 'التأهل', 'Qualify'), desc: qualified ? tr(locale, `تأهلت إلى ${sName(curStage)}`, `You qualified for ${sName(curStage)}`) : tr(locale, 'اللي يتأهل بيكمل للمرحلة الجاية', 'Top players move on to the next stage'), done: qualified }
+        : { key: 'finish', title: tr(locale, 'الترتيب النهائي', 'Final standing'), desc: finished && myRank ? tr(locale, `خلصت في المركز ${myRank}`, `You finished #${myRank}`) : tr(locale, 'بيظهر لما البطولة تخلص', 'Shown when the tournament ends'), done: finished && !!myRank }
+    ];
+    let nowSet = false;
+    pathSteps = defs.map((d) => { if (d.done) return { key: d.key, title: d.title, desc: d.desc, state: 'done' as const }; if (!nowSet) { nowSet = true; return { key: d.key, title: d.title, desc: d.desc, state: 'now' as const }; } return { key: d.key, title: d.title, desc: d.desc, state: 'todo' as const }; });
+    const nowKey = pathSteps.find((s) => s.state === 'now')?.key;
+    if (nowKey === 'checkin' || nowKey === 'approved') pathAction = { href: '#my-entry', label: tr(locale, 'روح لمشاركتي', 'Go to my entry') };
+  }
   const sections = (t.rules_sections ?? []) as { title_ar: string; title_en: string; body_ar: string; body_en: string }[];
   const STATUS_TXT: Record<string, [string, string]> = {
     pending: ['بانتظار موافقة المنظم', 'Waiting for organizer approval'],
@@ -91,6 +133,8 @@ export default async function PlayPage({
       </PageHero>
       <Flash ok={sp.ok} err={sp.err} />
 
+      {pathSteps && <MyPath steps={pathSteps} startsAt={t.starts_at} ar={locale === 'ar'} action={pathAction} />}
+      <div id="my-entry" />
       <Card title={tr(locale, 'مشاركتي', 'My entry')}>
         {!user ? (
           <p className="text-sm text-[#a4a6aa]">
