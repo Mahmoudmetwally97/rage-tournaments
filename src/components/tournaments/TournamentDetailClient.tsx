@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { formatStartDate, ctaFor } from '@/lib/format';
+import { formatStartDate, ctaFor, ctaHref, formatLabel, qualifiesLabel } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -89,7 +89,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
           </div>
 
           <a
-            href={`/${locale}/tournaments/${tournament.slug}/play`}
+            href={ctaHref(tournament.status, locale, tournament.slug)}
             className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
           >
             {ctaFor(tournament.status, locale === 'ar')}
@@ -154,8 +154,8 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
               <div className="mt-2 h-2 w-full bg-[#23252a]"><div className="h-full bg-[#e5ed43]" style={{ width: `${tournament.maxParticipants ? Math.min(100, (100 * tournament.registeredCount) / tournament.maxParticipants) : 0}%` }} /></div>
             </div>
             <div className="clip-card border border-[#2b2d30] bg-[#0d0e10] p-4">
-              <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'الجوايز' : 'PRIZES'}</div>
-              <p className="mt-2 text-sm text-[#a4a6aa]">{(locale === 'ar' ? tournament.prizeConfirmedAr : tournament.prizeConfirmedEn) || (locale === 'ar' ? 'الجوايز تتعلن لاحقاً' : 'Prizes to be announced')}</p>
+              <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'الجوائز' : 'PRIZES'}</div>
+              <p className="mt-2 text-sm text-[#a4a6aa]">{(locale === 'ar' ? tournament.prizeConfirmedAr : tournament.prizeConfirmedEn) || (locale === 'ar' ? 'الجوائز تُعلن لاحقاً' : 'Prizes to be announced')}</p>
             </div>
             <div className="clip-card border border-[#2b2d30] bg-[#0d0e10] p-4">
               <div className="text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'القواعد والتواصل' : 'RULES AND CONTACT'}</div>
@@ -190,7 +190,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
                   <span className="font-bold text-[#f4f4ed]">{locale === 'ar' ? st.nameAr : st.nameEn}</span>
                 </div>
                 <div className="text-xs font-semibold text-[#a4a6aa] ltr-isolate">
-                  {st.format} → {st.qualifies}
+                  {formatLabel(st.format, locale === 'ar')} → {qualifiesLabel(st.qualifies, locale === 'ar')}
                 </div>
               </div>
             ))}

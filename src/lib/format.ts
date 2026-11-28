@@ -33,3 +33,24 @@ export function ctaFor(status: string, ar: boolean): string {
   if (status === 'live') return ar ? 'شاهد الترتيب' : 'View standings';
   return ar ? 'النتائج' : 'Results';
 }
+
+export function ctaHref(status: string, locale: string, slug: string): string {
+  if (status === 'completed' || status === 'archived') return `/${locale}/tournaments/${slug}`;
+  return `/${locale}/tournaments/${slug}/play`;
+}
+
+export function formatLabel(fmt: string, ar: boolean): string {
+  const f = fmt.toLowerCase();
+  if (f === 'ffa') return ar ? 'FFA: كل لاعب لنفسه' : 'FFA (free for all)';
+  if (f === 'points') return ar ? 'نظام نقاط' : 'Points';
+  if (f.includes('knockout')) return ar ? 'مجموعات ثم إقصاء' : 'Groups + knockout';
+  return fmt.toUpperCase();
+}
+
+export function qualifiesLabel(q: string, ar: boolean): string {
+  const m = q.match(/Top (\d+) (overall|per group)/i);
+  if (!m) return q;
+  const n = m[1];
+  const per = /group/i.test(m[2] ?? '');
+  return ar ? `أفضل ${n}${per ? ' من كل مجموعة' : ' بالإجمالي'}` : `Top ${n}${per ? ' per group' : ' overall'}`;
+}

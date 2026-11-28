@@ -47,6 +47,12 @@ function toLines(text: string | null | undefined): string[] {
     .filter(Boolean);
 }
 
+/** Hide bracketed placeholder wording; the UI shows its own 'announced later' text. */
+function cleanPrize(v?: string | null): string {
+  if (!v || /\[[^\]]*\]|placeholder|TBD/i.test(v)) return '';
+  return v;
+}
+
 function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number): DemoTournament {
   const stageRows = stages.filter((s) => s.tournament_id === row.id).sort((a, b) => a.stage_order - b.stage_order);
   const primaryFormat = stageRows[0]?.format ?? 'ffa';
@@ -66,8 +72,8 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number)
     registeredCount,
     maxParticipants: row.max_participants,
     startsAtIso: row.starts_at ?? '',
-    prizeConfirmedAr: row.prize_summary_ar,
-    prizeConfirmedEn: row.prize_summary_en,
+    prizeConfirmedAr: cleanPrize(row.prize_summary_ar),
+    prizeConfirmedEn: cleanPrize(row.prize_summary_en),
     rulesAr: toLines(row.rules_text_ar),
     rulesEn: toLines(row.rules_text_en),
     stages: stageRows.map((s) => ({

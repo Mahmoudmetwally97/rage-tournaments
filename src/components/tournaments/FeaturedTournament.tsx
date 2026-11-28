@@ -1,4 +1,4 @@
-import { ctaFor } from '@/lib/format';
+import { ctaFor, ctaHref } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import Image from 'next/image';
@@ -85,7 +85,7 @@ export function FeaturedTournament({ tournament, locale, dict }: FeaturedTournam
           </div>
 
           <Link
-            href={`/${locale}/tournaments/${tournament.slug}`}
+            href={ctaHref(tournament.status, locale, tournament.slug)}
             className="w-full rounded-none bg-[#e5ed43] px-5 py-3 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
           >
             {ctaFor(tournament.status, locale === 'ar')}

@@ -1,4 +1,4 @@
-import { ctaFor } from '@/lib/format';
+import { ctaFor, ctaHref } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
@@ -74,18 +74,16 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
             <div className="text-[#6f7276]">{dict.tournament.startsAt}</div>
             <div className="mt-0.5 font-bold text-[#f4f4ed]">{formattedDate}</div>
           </div>
-          {prize && (
-            <div className="col-span-2 border-t border-[#2b2d30] pt-2">
-              <span className="text-[#6f7276]">{dict.tournament.prize}: </span>
-              <span className="font-bold text-[#FFB938]">{prize}</span>
-            </div>
-          )}
+          <div className="col-span-2 border-t border-[#2b2d30] pt-2">
+            <span className="text-[#6f7276]">{dict.tournament.prize}: </span>
+            {prize ? <span className="font-bold text-[#FFB938]">{prize}</span> : <span className="font-bold text-[#a4a6aa]">{locale === 'ar' ? 'الجوائز تُعلن لاحقاً' : 'Prizes to be announced'}</span>}
+          </div>
         </div>
       </div>
 
       <div className="flex items-center gap-2.5">
         <Link
-          href={`/${locale}/tournaments/${tournament.slug}`}
+          href={ctaHref(tournament.status, locale, tournament.slug)}
           className="flex-1 rounded-none bg-[#e5ed43] px-4 py-2.5 text-center text-sm font-extrabold text-[#0d0e10] transition-colors hover:bg-[#eef46b]"
         >
           {ctaFor(tournament.status, locale === 'ar')}
