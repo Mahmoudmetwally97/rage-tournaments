@@ -62,11 +62,13 @@ function parseJson(text: string): unknown {
 async function callGemini(img: { data: string; mime: string }): Promise<string> {
   // The main model is sometimes overloaded (503/429): retry it, then fall back to a second model.
   const primary = process.env.VISION_MODEL || 'gemini-3.5-flash';
-  const models = [primary, primary, 'gemini-3-flash-preview'];
+  const models = [primary, 'gemini-3-flash-preview', primary, 'gemini-3-flash-preview'];
   let last = 'VISION_ERROR';
   for (let i = 0; i < models.length; i++) {
-    try { return await callGeminiModel(img, models[i]!); }
-    catch (e) {
+    try {
+      try { return await callGeminiModel(img, models[i]!, true); }
+      catch (e0) { if (e0 instanceof Error && e0.message === 'VISION_400') return await callGeminiModel(img, models[i]!, false); throw e0; }
+    } catch (e) {
       last = e instanceof Error ? e.message : 'VISION_ERROR';
       if (!/VISION_(429|500|502|503|504)|aborted|timeout/i.test(last)) throw e;
       await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
@@ -75,7 +77,7 @@ async function callGemini(img: { data: string; mime: string }): Promise<string> 
   throw new Error(last);
 }
 
-async function callGeminiModel(img: { data: string; mime: string }, model: string): Promise<string> {
+async function callGeminiModel(img: { data: string; mime: string }, model: string, minimalThinking: boolean): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('NO_VISION_KEY');
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -84,7 +86,7 @@ async function callGeminiModel(img: { data: string; mime: string }, model: strin
     headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
     body: JSON.stringify({
       contents: [{ parts: [{ text: VISION_PROMPT }, { inline_data: { mime_type: img.mime, data: img.data } }] }],
-      generationConfig: { temperature: 0, responseMimeType: 'application/json' }
+      generationConfig: { temperature: 0, responseMimeType: 'application/json', ...(minimalThinking ? { thinkingConfig: { thinkingLevel: 'minimal' } } : {}) }
     })
   });
   if (!res.ok) throw new Error(`VISION_${res.status}`);
