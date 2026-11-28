@@ -120,9 +120,10 @@ export async function ingestScreenshot(input: IngestInput, extractor: typeof rea
 
 export async function approverRow(sb: SupabaseClient, discordUserId: string): Promise<{ user_id: string | null } | null> {
   const owner = process.env.BOT_OWNER_DISCORD_ID;
+  // Owner only: every command, button and reaction is accepted from this one Discord account. Nobody else.
+  void sb;
   if (owner && owner === discordUserId) return { user_id: null };
-  const { data } = await sb.from('bot_approvers').select('user_id').eq('discord_user_id', discordUserId).maybeSingle();
-  return data ?? null;
+  return null;
 }
 
 export async function isApprover(discordUserId: string): Promise<boolean> {
