@@ -58,7 +58,7 @@ export default async function MatchesPage({
     );
   }
 
-  const { data: stageRows } = await supabase.from('stages').select('id,stage_order,name_ar,name_en,status,qualify_count').eq('tournament_id', tid).order('stage_order');
+  const { data: stageRows } = await supabase.from('stages').select('id,stage_order,name_ar,name_en,status,qualify_count,advance_rule').eq('tournament_id', tid).order('stage_order');
   const stages = stageRows ?? [];
   const selOrder = Number(sp.stage) || stages.find((x) => x.status === 'active')?.stage_order || stages[0]?.stage_order || 1;
   const sel = stages.find((x) => x.stage_order === selOrder);
@@ -72,7 +72,7 @@ export default async function MatchesPage({
       const gg = g.groups as unknown as { stage_id: string } | { stage_id: string }[] | null;
       return (Array.isArray(gg) ? gg[0]?.stage_id : gg?.stage_id) === x.id;
     }).length;
-    return { order: x.stage_order, name: locale === 'ar' ? x.name_ar : x.name_en, status: x.status, rooms, players, qualify: x.qualify_count, scored: ms.filter((m) => m.status === 'completed').length, total: ms.length };
+    return { order: x.stage_order, name: locale === 'ar' ? x.name_ar : x.name_en, status: x.status, rooms, players, qualify: x.qualify_count, rule: x.advance_rule, scored: ms.filter((m) => m.status === 'completed').length, total: ms.length };
   });
   const { data: matches } = await supabase
     .from('matches')
@@ -124,6 +124,10 @@ export default async function MatchesPage({
               <Hidden values={{ locale, slug, tid, from: String(selOrder) }} />
               <p className="text-xs font-bold text-[#a4a6aa]">{tr(locale, `ترقية أفضل اللاعبين من مرحلة ${selOrder} للمرحلة التالية`, `Advance the top players from stage ${selOrder}`)}</p>
               <input name="top_n" type="number" min={1} defaultValue={sel?.qualify_count ?? 1} className={inputCls} aria-label="Top N" />
+              <select name="advance_rule" defaultValue={sel?.advance_rule ?? 'top_n_overall'} className={inputCls} aria-label="Advance mode">
+                <option value="top_n_overall">{tr(locale, 'أفضل N في المرحلة كلها', 'Top N overall (all rooms together)')}</option>
+                <option value="top_n_per_group">{tr(locale, 'أفضل N من كل روم', 'Top N per room')}</option>
+              </select>
               <Btn tone="primary">{tr(locale, 'ترقية وتوليد الغرف', 'Advance and seed rooms')}</Btn>
               {!allDone && <p className="text-[11px] text-[#6f7276]">{tr(locale, 'لازم كل ماتشات المرحلة تكون مكتملة.', 'All matches of the stage must be scored first.')}</p>}
             </form>
@@ -140,6 +144,11 @@ export default async function MatchesPage({
               <input name="name_en" required defaultValue={sel.name_en} placeholder={tr(locale, 'الاسم بالإنجليزي', 'English name')} className={inputCls} />
               <label className="block text-[11px] font-bold text-[#a4a6aa]">{tr(locale, 'عدد المتأهلين للمرحلة التالية', 'Players who advance')}</label>
               <input name="qualify" type="number" min={1} defaultValue={sel.qualify_count ?? 1} className={inputCls} />
+              <label className="block text-[11px] font-bold text-[#a4a6aa]">{tr(locale, 'طريقة الترقية', 'Advance mode')}</label>
+              <select name="advance_rule" defaultValue={sel.advance_rule ?? 'top_n_overall'} className={inputCls} aria-label="Advance mode">
+                <option value="top_n_overall">{tr(locale, 'أفضل N في المرحلة كلها', 'Top N overall (all rooms together)')}</option>
+                <option value="top_n_per_group">{tr(locale, 'أفضل N من كل روم', 'Top N per room')}</option>
+              </select>
               <Btn tone="primary">{tr(locale, 'حفظ التعديل', 'Save changes')}</Btn>
             </form>
             <div className="space-y-2">
