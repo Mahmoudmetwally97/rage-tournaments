@@ -13,7 +13,7 @@ export async function loadBracket(sb: SupabaseClient, tournamentId: string): Pro
   const { data: ms } = await sb.from('matches').select('id,round_number,match_number,status,score_a,score_b,winner_registration_id,next_match_id').eq('stage_id', stageId).order('round_number').order('match_number');
   const ids = (ms ?? []).map((m) => m.id);
   const { data: ps } = ids.length
-    ? await sb.from('match_participants').select('match_id,slot_number,registration_id,registrations(ign_snapshot,team_id)').in('match_id', ids)
+    ? await sb.from('match_participants').select('match_id,slot_number,registration_id,registrations(ign_snapshot,team_id,display_override,hidden_public)').in('match_id', ids)
     : { data: [] as never[] };
   const teamIds = Array.from(new Set((ps ?? []).map((p) => { const x = p.registrations as unknown as { team_id: string | null } | { team_id: string | null }[] | null; return (Array.isArray(x) ? x[0]?.team_id : x?.team_id) ?? null; }).filter(Boolean))) as string[];
   const { data: tms } = teamIds.length ? await sb.from('teams').select('id,tag,logo_url').in('id', teamIds) : { data: [] as { id: string; tag: string; logo_url: string | null }[] };
@@ -24,8 +24,11 @@ export async function loadBracket(sb: SupabaseClient, tournamentId: string): Pro
     return { logo: tm?.logo_url ?? null, tag: tm?.tag };
   };
   const name = (r: unknown): string => {
-    const x = r as { ign_snapshot: string } | { ign_snapshot: string }[] | null;
-    return (Array.isArray(x) ? x[0]?.ign_snapshot : x?.ign_snapshot) ?? '';
+    type R = { ign_snapshot: string; display_override?: string | null; hidden_public?: boolean };
+    const x = r as R | R[] | null;
+    const y = Array.isArray(x) ? x[0] : x;
+    if (y?.hidden_public) return '—';
+    return (y?.display_override?.trim() || y?.ign_snapshot) ?? '';
   };
   const rounds: BMatch[][] = [];
   for (const m of ms ?? []) {

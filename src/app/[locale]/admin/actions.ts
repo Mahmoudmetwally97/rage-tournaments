@@ -646,3 +646,13 @@ export async function setTournamentRole(f: FormData) {
   const { error } = await sb.rpc('admin_set_tournament_role', { p_tournament: s(f, 'tid'), p_user: uid, p_level: s(f, 'level') });
   return done(target, error ? error.message : null);
 }
+
+export async function setPublicName(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_set_public_name', {
+    p_registration: s(f, 'reg_id'),
+    p_name: s(f, 'name'),
+    p_hidden: s(f, 'hidden') === '1'
+  });
+  return done(back(f, '/participants'), error ? error.message : null);
+}

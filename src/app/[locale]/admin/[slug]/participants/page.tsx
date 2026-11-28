@@ -2,7 +2,7 @@ import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill } from '@/components/admin/ui';
 import { TeamLogo } from '@/components/tournaments/TeamLogo';
-import { setRegStatus } from '../../actions';
+import { setRegStatus, setPublicName } from '../../actions';
 
 const ACTIONS: Record<string, [string, string, string, 'default' | 'primary' | 'danger'][]> = {
   pending: [['confirmed', 'قبول', 'Accept', 'primary'], ['rejected', 'رفض', 'Reject', 'danger']],
@@ -22,10 +22,10 @@ export default async function Participants({
 }) {
   const { locale: l, slug } = await params;
   const sp = await searchParams;
-  const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
+  const { locale, supabase, tournament: t, level } = await requireOrganizer(l, slug);
   const { data: regs } = await supabase
     .from('registrations')
-    .select('id,ign_snapshot,status,registration_code,contact_email,created_at,user_id,team_id')
+    .select('id,ign_snapshot,status,registration_code,contact_email,created_at,user_id,team_id,display_override,hidden_public')
     .eq('tournament_id', t!.id)
     .order('created_at');
   const tids = Array.from(new Set((regs ?? []).map((r) => r.team_id as string | null).filter(Boolean))) as string[];
@@ -54,7 +54,10 @@ export default async function Participants({
                 <div className="flex items-center gap-3">
                   {r.team_id && (() => { const tm = (tms ?? []).find((x) => x.id === r.team_id); return <TeamLogo src={tm?.logo_url} tag={tm?.tag} size={36} />; })()}
                   <div>
-                  <p className="font-bold text-[#f4f4ed]">{r.ign_snapshot}</p>
+                  <p className="font-bold text-[#f4f4ed]">{r.ign_snapshot}
+                    {r.hidden_public && <span className="ms-2 border border-[#FF8C4D]/50 bg-[#FF8C4D]/10 px-2 py-0.5 text-[10px] font-extrabold text-[#FF8C4D]">{tr(locale, 'مخفي عن الجمهور', 'HIDDEN PUBLICLY')}</span>}
+                    {!r.hidden_public && r.display_override && <span className="ms-2 border border-[#e5ed43]/40 px-2 py-0.5 text-[10px] font-extrabold text-[#e5ed43]">{tr(locale, 'يظهر للجمهور باسم', 'SHOWN PUBLICLY AS')}: {r.display_override}</span>}
+                  </p>
                   <p className="text-xs text-[#6f7276] ltr-isolate">{r.registration_code}{r.contact_email ? ` · ${r.contact_email}` : ''}</p>
                   </div>
                 </div>
@@ -67,6 +70,24 @@ export default async function Participants({
                     </form>
                   ))}
                 </div>
+                {level === 'manager' && (
+                  <details className="basis-full text-xs text-[#a4a6aa]">
+                    <summary className="cursor-pointer select-none font-bold hover:text-[#f4f4ed]">{tr(locale, 'الاسم العام', 'Public name')}</summary>
+                    <form action={setPublicName} className="mt-2 flex flex-wrap items-end gap-2">
+                      <Hidden values={{ locale, slug, reg_id: r.id }} />
+                      <label>{tr(locale, 'اسم بديل (فاضي = الاسم الأصلي)', 'Replacement name (empty = real IGN)')}<input name="name" defaultValue={r.display_override ?? ''} maxLength={32} className="mt-1 block w-56 border border-[#2b2d30] bg-[#0d0e10] px-3 py-2 text-sm text-[#f4f4ed]" /></label>
+                      <label className="flex items-center gap-2 pb-2 text-[#f4f4ed]"><input type="checkbox" name="hidden" value="1" defaultChecked={r.hidden_public} />{tr(locale, 'إخفاء من الليدربورد والبراكت', 'Hide from public leaderboards and brackets')}</label>
+                      <Btn tone="primary">{tr(locale, 'حفظ', 'Save')}</Btn>
+                    </form>
+                    {(r.display_override || r.hidden_public) && (
+                      <form action={setPublicName} className="mt-2">
+                        <Hidden values={{ locale, slug, reg_id: r.id, name: '' }} />
+                        <Btn>{tr(locale, 'تراجع (الاسم الأصلي ويظهر)', 'Undo (real name, visible)')}</Btn>
+                      </form>
+                    )}
+                    <p className="mt-2 text-[#6f7276]">{tr(locale, 'الاسم الحقيقي والحساب مش بيتغيروا. كل تغيير بيتسجل في سجل التدقيق.', 'The real IGN and the account are not changed. Every change is saved in the audit log.')}</p>
+                  </details>
+                )}
               </li>
             ))}
           </ul>
