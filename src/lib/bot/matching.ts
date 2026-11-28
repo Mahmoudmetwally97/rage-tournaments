@@ -1,6 +1,6 @@
 import type { ExtractedScreenshot, MatchedRow, Resolution, RoomCandidate, RosterEntry } from './types';
 
-const CONFUSABLE: Record<string, string> = { '0': 'o', '1': 'l', 'i': 'l', '5': 's', '$': 's', '@': 'a', '3': 'e', '8': 'b' };
+const CONFUSABLE: Record<string, string> = { '0': 'o', '1': 'l', 'i': 'l', '5': 's', '$': 's', '@': 'a', '3': 'e', '8': 'b', '!': 'l', '|': 'l' };
 
 /** Lowercase, drop [CLAN] tags, spaces and punctuation, fold look-alike characters. */
 export function normalizeName(raw: string): string {
@@ -9,7 +9,7 @@ export function normalizeName(raw: string): string {
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^\p{L}\p{N}$@]/gu, '');
+    .replace(/[^\p{L}\p{N}$@!|]/gu, '');
   return [...s].map((c) => CONFUSABLE[c] ?? c).join('');
 }
 
