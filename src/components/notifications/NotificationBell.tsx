@@ -68,7 +68,7 @@ export function NotificationBell({ locale, userId }: { locale: 'ar' | 'en'; user
       {open && (
         <>
           <button type="button" aria-label="close" className="fixed inset-0 z-40 cursor-default" onClick={() => setOpen(false)} />
-          <div className="fixed inset-x-3 top-[5.5rem] z-50 sm:absolute sm:inset-x-auto sm:end-0 sm:top-full sm:mt-2 sm:w-[22rem] border border-[#2b2d30] bg-[#101113] shadow-xl">
+          <div className="fixed inset-x-3 top-full z-50 sm:absolute sm:inset-x-auto sm:end-0 sm:top-full sm:mt-2 sm:w-[22rem] border border-[#2b2d30] bg-[#101113] shadow-xl">
             <div className="flex items-center justify-between border-b border-[#2b2d30] px-4 py-3">
               <span className="text-sm font-extrabold text-[#f4f4ed]">{t('الإشعارات', 'Notifications')}</span>
               {unread > 0 && (
