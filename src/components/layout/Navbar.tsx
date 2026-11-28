@@ -62,7 +62,8 @@ export function Navbar({ locale, dict }: NavbarProps) {
       const { data: pr } = await supabase.from('player_profiles').select('username,avatar_url').eq('id', userId).maybeSingle();
       setProf(pr ?? null);
       const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId);
-      setIsOrganizer((data ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator'));
+      const { data: ta } = await supabase.from('tournament_admins').select('tournament_id').eq('user_id', userId).limit(1);
+      setIsOrganizer((data ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator') || (ta ?? []).length > 0);
     };
 
     supabase.auth.getSession().then(({ data }) => {

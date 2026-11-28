@@ -30,7 +30,8 @@ export default async function PlayerDashboardPage({
     profile = data ?? null;
 
     const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
-    isOrganizer = (roles ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator');
+    const { data: ta } = await supabase.from('tournament_admins').select('tournament_id').eq('user_id', user.id).limit(1);
+    isOrganizer = (roles ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator') || (ta ?? []).length > 0;
     const { data: regs } = await supabase
       .from('registrations')
       .select('id,ign_snapshot,status,tournaments(title_ar,title_en,slug)')

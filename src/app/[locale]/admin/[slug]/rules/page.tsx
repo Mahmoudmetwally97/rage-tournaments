@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, inputCls } from '@/components/admin/ui';
 import { saveRules, saveScoring } from '../../actions';
@@ -11,7 +12,8 @@ export default async function RulesPage({
 }) {
   const { locale: l, slug } = await params;
   const sp = await searchParams;
-  const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
+  const { locale, supabase, tournament: t, level, isSuper } = await requireOrganizer(l, slug);
+  if (level === 'staff') redirect(`/${locale}/admin/${slug}/participants`);
   const tid = t!.id as string;
   const { data: rule } = await supabase
     .from('tournament_scoring_rules')

@@ -630,3 +630,19 @@ export async function setUserRole(f: FormData) {
   const { error } = await sb.rpc('admin_set_role', { p_user: s(f, 'user'), p_role: s(f, 'role') });
   return done(target, error ? error.message : null);
 }
+
+export async function setTournamentRole(f: FormData) {
+  const { sb } = await client();
+  const slug = s(f, 'slug');
+  const target = `/${s(f, 'locale') || 'ar'}/admin/${slug}`;
+  const username = s(f, 'username');
+  let uid = s(f, 'user');
+  if (!uid) {
+    const { data } = await sb.rpc('admin_list_users', { p_q: username });
+    const hit = (data ?? []).find((u: { username: string; id: string }) => u.username.toLowerCase() === username.toLowerCase());
+    if (!hit) return done(target, 'PLAYER_NOT_FOUND');
+    uid = hit.id;
+  }
+  const { error } = await sb.rpc('admin_set_tournament_role', { p_tournament: s(f, 'tid'), p_user: uid, p_level: s(f, 'level') });
+  return done(target, error ? error.message : null);
+}

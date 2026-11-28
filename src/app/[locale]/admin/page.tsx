@@ -16,13 +16,17 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
 
   const { data: roles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
   const isSuper = (roles ?? []).some((r) => r.role === 'super_admin');
-  const isOrganizer = (roles ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator');
-  if (!isOrganizer) redirect(`/${locale}/dashboard`);
+  const isGlobal = isSuper || (roles ?? []).some((r) => r.role === 'moderator');
+  const { data: ta } = await supabase.from('tournament_admins').select('tournament_id').eq('user_id', user.id);
+  const assigned = (ta ?? []).map((x) => x.tournament_id as string);
+  if (!isGlobal && assigned.length === 0) redirect(`/${locale}/dashboard`);
 
-  const { data: tournaments } = await supabase
+  let tq = supabase
     .from('tournaments')
     .select('id,slug,title_ar,title_en,status,max_participants,is_test')
     .order('created_at', { ascending: false });
+  if (!isGlobal) tq = tq.in('id', assigned);
+  const { data: tournaments } = await tq;
 
   const { data: registrations } = await supabase.from('registrations').select('tournament_id');
   const counts = (registrations ?? []).reduce<Record<string, number>>((acc, r) => {

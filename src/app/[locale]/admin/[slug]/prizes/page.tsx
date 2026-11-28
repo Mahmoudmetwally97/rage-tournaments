@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { label, rewardText } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
@@ -14,7 +15,8 @@ export default async function PrizesPage({
 }) {
   const { locale: l, slug } = await params;
   const sp = await searchParams;
-  const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
+  const { locale, supabase, tournament: t, level, isSuper } = await requireOrganizer(l, slug);
+  if (level === 'staff') redirect(`/${locale}/admin/${slug}/participants`);
   const tid = t!.id as string;
   const [{ data: pools }, { data: bonuses }, { data: claims }] = await Promise.all([
     supabase.from('prize_pools').select('id,rank_from,rank_to,label_ar,label_en,prize_rewards(id,kind,amount,currency,text_ar,text_en,note,is_placeholder)').eq('tournament_id', tid).order('rank_from'),

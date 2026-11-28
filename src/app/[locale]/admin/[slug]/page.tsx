@@ -1,8 +1,9 @@
+import { redirect } from 'next/navigation';
 import { isoToCairoLocal } from '@/lib/format';
 import { label } from '@/lib/labels';
 import { requireOrganizer, tr } from '@/lib/admin';
 import { Btn, Card, Flash, Hidden, Pill, inputCls } from '@/components/admin/ui';
-import { removeCover, saveCover, saveSettings, setTournamentStatus } from '../actions';
+import { removeCover, saveCover, saveSettings, setTournamentStatus, setTournamentRole } from '../actions';
 
 const FLOW: [string, string, string][] = [
   ['registration_open', 'فتح التسجيل', 'Open registration'],
@@ -23,8 +24,10 @@ export default async function AdminOverview({
 }) {
   const { locale: l, slug } = await params;
   const sp = await searchParams;
-  const { locale, supabase, tournament: t } = await requireOrganizer(l, slug);
+  const { locale, supabase, tournament: t, level, isSuper } = await requireOrganizer(l, slug);
+  if (level === 'staff') redirect(`/${locale}/admin/${slug}/participants`);
   const tid = t!.id as string;
+  const { data: team } = isSuper ? await supabase.rpc('admin_tournament_team', { p_tournament: tid }) : { data: [] as { user_id: string; username: string; level: string }[] };
 
   const [{ data: regs }, { data: pools }, { data: rule }, { data: matches }, { data: stages }] = await Promise.all([
     supabase.from('registrations').select('status').eq('tournament_id', tid),
@@ -140,6 +143,37 @@ export default async function AdminOverview({
           <div className="sm:col-span-2"><Btn tone="primary">{tr(locale, 'حفظ', 'Save')}</Btn></div>
         </form>
       </Card>
+
+      {isSuper && (
+        <Card title={tr(locale, 'فريق البطولة', 'Tournament team')}>
+          <p className="mb-3 text-xs text-[#a4a6aa]">
+            {tr(locale, 'أدمن البطولة: تحكم كامل في البطولة دي بس. مشرف البطولة: يدخل النتائج ويعمل تشيك إن ويقبل أو يرفض اللاعبين. الاتنين مايشوفوش باقي البطولات أو إعدادات الموقع أو الصلاحيات.', 'Tournament admin: full control of this tournament only. Tournament moderator: enters results, checks players in, approves or rejects players. Neither can see other tournaments, site settings or roles.')}
+          </p>
+          <div className="space-y-2">
+            {(team ?? []).map((m: { user_id: string; username: string; level: string }) => (
+              <div key={m.user_id} className="flex flex-wrap items-center justify-between gap-2 border border-[#2b2d30] bg-[#0d0e10] px-3 py-2">
+                <span className="text-sm text-[#f4f4ed] ltr-isolate">{m.username} <span className="ms-2 text-xs text-[#a4a6aa]">{m.level === 'admin' ? tr(locale, 'أدمن البطولة', 'Tournament admin') : tr(locale, 'مشرف البطولة', 'Tournament moderator')}</span></span>
+                <form action={setTournamentRole}>
+                  <Hidden values={{ locale, slug, tid, user: m.user_id, level: 'none' }} />
+                  <Btn tone="danger">{tr(locale, 'شيل', 'Remove')}</Btn>
+                </form>
+              </div>
+            ))}
+            {(team ?? []).length === 0 && <p className="text-xs text-[#6f7276]">{tr(locale, 'مفيش حد لسه', 'Nobody yet')}</p>}
+          </div>
+          <form action={setTournamentRole} className="mt-4 flex flex-wrap items-end gap-2">
+            <Hidden values={{ locale, slug, tid }} />
+            <label className="text-xs text-[#a4a6aa]">{tr(locale, 'اسم المستخدم (لازم يكون مسجل)', 'Username (must have signed up)')}<input name="username" required className={inputCls} /></label>
+            <label className="text-xs text-[#a4a6aa]">{tr(locale, 'الدور', 'Role')}
+              <select name="level" className={inputCls}>
+                <option value="moderator">{tr(locale, 'مشرف البطولة', 'Tournament moderator')}</option>
+                <option value="admin">{tr(locale, 'أدمن البطولة', 'Tournament admin')}</option>
+              </select>
+            </label>
+            <Btn tone="primary">{tr(locale, 'إضافة', 'Add')}</Btn>
+          </form>
+        </Card>
+      )}
     </div>
   );
 }
