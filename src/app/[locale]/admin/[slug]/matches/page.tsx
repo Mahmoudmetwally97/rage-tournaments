@@ -44,9 +44,9 @@ export default async function MatchesPage({
               m.a && m.b ? (
                 <form action={saveTeamMatch} className="flex items-center gap-1 border-t border-[#2b2d30] p-2">
                   <Hidden values={{ locale, slug, tid, match_id: m.id }} />
-                  <input name="score_a" type="number" min={0} required defaultValue={m.scoreA ?? ''} dir="ltr" className={`${inputCls} w-14 !py-1 text-center`} aria-label="A" />
+                  <input name="score_a" type="number" min={0} required defaultValue={m.scoreA ?? ''} dir="ltr" className={`${inputCls} w-12 !py-1 text-center`} aria-label="A" />
                   <span className="text-[#6f7276]">-</span>
-                  <input name="score_b" type="number" min={0} required defaultValue={m.scoreB ?? ''} dir="ltr" className={`${inputCls} w-14 !py-1 text-center`} aria-label="B" />
+                  <input name="score_b" type="number" min={0} required defaultValue={m.scoreB ?? ''} dir="ltr" className={`${inputCls} w-12 !py-1 text-center`} aria-label="B" />
                   <Btn tone="primary">{tr(locale, 'حفظ', 'Save')}</Btn>
                 </form>
               ) : null

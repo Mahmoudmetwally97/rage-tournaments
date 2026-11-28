@@ -20,13 +20,13 @@ export function TeamBracket({ rounds, ar, renderAction }: { rounds: BMatch[][]; 
       <div className="overflow-x-auto pb-2" data-testid="team-bracket">
         <div className="flex min-w-max gap-6">
           {rounds.map((ms, i) => (
-            <div key={i} className="flex w-[230px] shrink-0 flex-col justify-around gap-3">
+            <div key={i} className="flex w-[270px] shrink-0 flex-col justify-around gap-3">
               <p className="text-[11px] font-extrabold tracking-widest text-[#e5ed43]">{roundName(i, rounds.length, ar)}</p>
               {ms.map((m) => (
                 <div key={m.id} className="clip-card border border-[#2b2d30] bg-[#101113] text-sm">
                   {([['a', m.a, m.scoreA], ['b', m.b, m.scoreB]] as const).map(([k, p, sc]) => (
                     <div key={k} className={`flex items-center justify-between gap-2 px-3 py-2 ${k === 'a' ? 'border-b border-[#2b2d30]' : ''} ${p && m.winnerId === p.id ? 'bg-[#e5ed43]/10 font-extrabold text-[#e5ed43]' : 'text-[#f4f4ed]'}`}>
-                      <span className="truncate">{p ? p.name : <span className="text-[#6f7276]">{ar ? 'بانتظار الفريق' : 'TBD'}</span>}</span>
+                      <span className="truncate">{p ? p.name : <span className="text-[#6f7276]">{m.winnerId && !p ? 'BYE' : ar ? 'بانتظار الفريق' : 'TBD'}</span>}</span>
                       <span className="ltr-isolate text-xs">{sc ?? ''}</span>
                     </div>
                   ))}
