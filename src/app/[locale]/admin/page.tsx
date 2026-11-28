@@ -21,7 +21,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
 
   const { data: tournaments } = await supabase
     .from('tournaments')
-    .select('id,slug,title_ar,title_en,status,max_participants')
+    .select('id,slug,title_ar,title_en,status,max_participants,is_test')
     .order('created_at', { ascending: false });
 
   const { data: registrations } = await supabase.from('registrations').select('tournament_id');
@@ -65,6 +65,7 @@ export default async function AdminHomePage({ params }: { params: Promise<{ loca
             <div>
               <h2 className="text-lg font-extrabold text-[#f4f4ed]">
                 {locale === 'ar' ? t.title_ar : t.title_en}
+                {t.is_test && <span className="ms-3 inline-block border border-[#FF8C4D]/50 bg-[#FF8C4D]/10 px-2 py-0.5 align-middle text-[10px] font-extrabold text-[#FF8C4D]">{locale === 'ar' ? 'مخفية عن الجمهور' : 'HIDDEN FROM PUBLIC'}</span>}
               </h2>
               <p className="mt-1 text-xs text-[#a4a6aa]">
                 {t.slug} • {label(locale, t.status)} • {counts[t.id] ?? 0}/{t.max_participants || '∞'}

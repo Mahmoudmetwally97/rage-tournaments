@@ -30,7 +30,7 @@ export const dictionaries = {
     home: {
       featuredLabel: 'البطولة المميزة',
       openTournaments: 'البطولات القادمة والمفتوحة',
-      openTournamentsSub: 'بطولات مجانية بنظام Solo و Team جاهزة للتسجيل.',
+      openTournamentsSub: 'بطولات فردية وتيمات مجانية جاهزة للتسجيل.',
       viewAll: 'عرض جميع البطولات',
       upcomingMatches: 'المباريات القادمة',
       recentResults: 'أحدث النتائج المعتمدة',
@@ -40,15 +40,15 @@ export const dictionaries = {
     filters: {
       searchPlaceholder: 'ابحث باسم البطولة أو النظام...',
       allStatuses: 'كل الحالات',
-      allTypes: 'الكل (Solo & Team)',
+      allTypes: 'كل الأنواع (فردي وتيمات)',
       allFormats: 'كل الأنظمة',
       reset: 'إعادة تعيين',
       emptyTitle: 'لا توجد بطولات مطابقة',
       emptyDesc: 'جرب تغيير كلمات البحث أو إعادة تعيين الفلاتر لعرض جميع البطولات المتاحة.'
     },
     tournament: {
-      solo: 'Solo',
-      team: 'Team',
+      solo: 'فردي',
+      team: 'تيمات',
       free: 'تسجيل مجاني',
       open: 'التسجيل مفتوح',
       checkIn: 'مرحلة Check-in',

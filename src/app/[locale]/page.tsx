@@ -91,11 +91,18 @@ export default async function HomePage({
           actionLabel={dict.home.viewAll}
           actionHref={`/${locale}/tournaments`}
         />
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {tournaments.map((t) => (
-            <TournamentCard key={t.slug} tournament={t} locale={locale} dict={dict} />
-          ))}
-        </div>
+        {tournaments.length === 0 ? (
+          <div className="clip-card border border-[#2b2d30] bg-[#151619] p-8 text-center">
+            <p className="text-base font-extrabold text-[#f4f4ed]">{locale === 'ar' ? 'مفيش بطولات معروضة حاليا' : 'No tournaments are listed right now'}</p>
+            <p className="mt-1 text-sm text-[#a4a6aa]">{locale === 'ar' ? 'البطولات الجاية هتظهر هنا أول ما تتفتح. اعمل حساب عشان تكون جاهز.' : 'New tournaments will appear here as soon as they open. Create an account to be ready.'}</p>
+          </div>
+        ) : (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {tournaments.map((t) => (
+              <TournamentCard key={t.slug} tournament={t} locale={locale} dict={dict} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* How it works (replaces demo match/leaderboard data until real results exist) */}

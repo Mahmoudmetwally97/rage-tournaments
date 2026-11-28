@@ -1,6 +1,7 @@
 'use client';
 
 import type { Dictionary } from '@/lib/i18n/dictionaries';
+import { formatLabel } from '@/lib/format';
 import { Button } from '@/components/ui/Button';
 
 interface FilterBarProps {
@@ -28,6 +29,7 @@ export function FilterBar({
   onReset,
   dict
 }: FilterBarProps) {
+  const ar = /[\u0600-\u06FF]/.test(dict.filters.allStatuses);
   const hasActiveFilter = search || statusFilter !== 'all' || typeFilter !== 'all' || formatFilter !== 'all';
 
   return (
@@ -45,6 +47,7 @@ export function FilterBar({
 
       <div className="lg:col-span-3">
         <select
+          aria-label={dict.filters.allStatuses}
           value={statusFilter}
           onChange={(e) => onStatusChange(e.target.value)}
           className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
@@ -59,6 +62,7 @@ export function FilterBar({
 
       <div className="lg:col-span-2">
         <select
+          aria-label={dict.filters.allTypes}
           value={typeFilter}
           onChange={(e) => onTypeChange(e.target.value)}
           className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
@@ -71,14 +75,15 @@ export function FilterBar({
 
       <div className="lg:col-span-2">
         <select
+          aria-label={dict.filters.allFormats}
           value={formatFilter}
           onChange={(e) => onFormatChange(e.target.value)}
           className="w-full rounded-none border border-[#2b2d30] bg-[#0d0e10] px-3 py-2.5 text-sm text-[#f4f4ed] focus:border-[#e5ed43] focus:outline-none"
         >
           <option value="all">{dict.filters.allFormats}</option>
-          <option value="ffa">FFA</option>
-          <option value="groups_knockout">Groups + Knockout</option>
-          <option value="points">Points</option>
+          <option value="ffa">{formatLabel('ffa', ar)}</option>
+          <option value="groups_knockout">{formatLabel('groups_knockout', ar)}</option>
+          <option value="points">{formatLabel('points', ar)}</option>
         </select>
       </div>
 

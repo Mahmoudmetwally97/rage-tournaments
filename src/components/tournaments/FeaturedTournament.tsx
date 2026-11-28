@@ -1,4 +1,5 @@
 import { ctaFor, ctaHref, statusBadge } from '@/lib/format';
+import { qualifiesLabel } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import Image from 'next/image';
@@ -79,7 +80,7 @@ export function FeaturedTournament({ tournament, locale, dict }: FeaturedTournam
                 <span className="font-semibold text-[#f4f4ed]">
                   {locale === 'ar' ? st.nameAr : st.nameEn}
                 </span>
-                <span className="text-[#e5ed43] font-bold ltr-isolate">{st.qualifies}</span>
+                <span className="text-[#e5ed43] font-bold ltr-isolate">{qualifiesLabel(st.qualifies, locale === 'ar')}</span>
               </div>
             ))}
           </div>

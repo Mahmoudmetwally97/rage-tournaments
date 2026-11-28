@@ -29,6 +29,7 @@ export default async function AdminTournamentLayout({
       </Link>
       <PageHero compact coverUrl={tournament!.cover_image_url} eyebrow={tr(locale, 'لوحة الإدارة', 'ADMIN CONSOLE')} title={locale === 'ar' ? tournament!.title_ar : tournament!.title_en}>
         <Pill on>{label(locale, tournament!.status)}</Pill>
+        {(tournament as { is_test?: boolean }).is_test && <span className="ms-2 inline-block border border-[#FF8C4D]/50 bg-[#FF8C4D]/10 px-3 py-0.5 text-[11px] font-extrabold text-[#FF8C4D]">{tr(locale, 'مخفية عن الجمهور (تجريبية)', 'HIDDEN FROM PUBLIC (test)')}</span>}
       </PageHero>
       <nav className="-mx-4 flex gap-2 overflow-x-auto border-b border-[#2b2d30] px-4 pb-3 [mask-image:linear-gradient(to_right,black_88%,transparent)] rtl:[mask-image:linear-gradient(to_left,black_88%,transparent)] sm:mx-0 sm:px-0 sm:[mask-image:none]">
         {tabs.map(([href, label]) => (
