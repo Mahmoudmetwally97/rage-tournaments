@@ -28,6 +28,9 @@ const ERR: Record<string, string> = {
   NO_NEXT_STAGE: 'اعمل مرحلة تانية الأول / Create the next stage first',
   NO_PLAYERS_FOR_STAGE: 'مفيش لاعبين للمرحلة دي (اعمل ترقية الأول) / No players for this stage (advance first)',
   NEXT_STAGE_HAS_RESULTS: 'المرحلة التالية فيها نتائج / Next stage already has results',
+  SUBMISSION_NOT_PENDING: 'النتيجة اتراجعت قبل كده / Submission already decided',
+  SUBMISSION_NO_MATCH: 'البوت ماعرفش الغرفة، لازم تدخل النتيجة يدوي / Bot could not find the room, enter manually',
+  NOT_IN_MATCH: 'لاعب مش في الماتش ده / Player not in this match',
   INVALID_IGN: 'اسم اللعبة قصير / In-game name too short'
 };
 
@@ -310,4 +313,16 @@ export async function movePlayer(registrationId: string, toGroupId: string, slug
   revalidatePath(`/ar/admin/${slug}/matches`);
   revalidatePath(`/en/admin/${slug}/matches`);
   return null;
+}
+
+export async function approveBotSubmission(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_approve_bot_submission', { p_submission_id: s(f, 'sid') });
+  await done(back(f, '/bot'), error?.message ?? null);
+}
+
+export async function rejectBotSubmission(f: FormData) {
+  const { sb } = await client();
+  const { error } = await sb.rpc('admin_reject_bot_submission', { p_submission_id: s(f, 'sid') });
+  await done(back(f, '/bot'), error?.message ?? null);
 }

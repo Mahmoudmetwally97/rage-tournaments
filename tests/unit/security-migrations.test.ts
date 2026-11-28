@@ -19,7 +19,7 @@ describe('SQL Migrations — Security & Integrity Audit', () => {
     expect(tableNames.length).toBeGreaterThanOrEqual(24);
 
     for (const table of tableNames) {
-      expect(rlsSql).toContain(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
+      expect(allSql).toContain(`ALTER TABLE ${table} ENABLE ROW LEVEL SECURITY;`);
     }
   });
 

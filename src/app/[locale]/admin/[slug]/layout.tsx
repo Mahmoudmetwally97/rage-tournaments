@@ -18,6 +18,7 @@ export default async function AdminTournamentLayout({
     [base, tr(locale, 'نظرة عامة', 'Overview')],
     [`${base}/participants`, tr(locale, 'اللاعبين', 'Participants')],
     [`${base}/matches`, tr(locale, 'الماتشات والنتائج', 'Matches & scores')],
+    [`${base}/bot`, tr(locale, 'بوت ديسكورد', 'Discord bot')],
     [`${base}/prizes`, tr(locale, 'الجوائز والمطالبات', 'Prizes & claims')],
     [`${base}/rules`, tr(locale, 'القواعد والنقاط', 'Rules & scoring')],
     [`${base}/support`, tr(locale, 'المشاكل', 'Issues')]
