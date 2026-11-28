@@ -28,15 +28,35 @@ export function isoToCairoLocal(iso?: string | null): string {
 }
 
 export function ctaFor(status: string, ar: boolean): string {
-  if (status === 'upcoming') return ar ? 'التفاصيل' : 'View details';
+  if (status === 'upcoming' || status === 'cancelled' || status === 'suspended') return ar ? 'التفاصيل' : 'View details';
   if (status === 'registration_open') return ar ? 'سجّل الآن' : 'Register now';
+  if (status === 'registration_closed' || status === 'ready') return ar ? 'حالتي' : 'My entry';
   if (status === 'check_in') return ar ? 'سجّل حضورك' : 'Check in';
   if (status === 'live') return ar ? 'شاهد الترتيب' : 'View standings';
   return ar ? 'النتائج' : 'Results';
 }
 
+export type BadgeInfo = { text: string; variant: 'open' | 'warning' | 'live' | 'neutral' | 'danger'; pulse: boolean };
+
+/** Clear tournament state badge: coming soon, registration open/closed, check-in, live, finished... */
+export function statusBadge(status: string, ar: boolean): BadgeInfo {
+  const T: Record<string, [string, string, BadgeInfo['variant']]> = {
+    upcoming: ['قريباً', 'Coming soon', 'neutral'],
+    registration_open: ['التسجيل مفتوح', 'Registration open', 'open'],
+    registration_closed: ['التسجيل مقفول', 'Registration closed', 'danger'],
+    check_in: ['التشيك إن مفتوح', 'Check-in open', 'warning'],
+    ready: ['على وشك البدء', 'Starting soon', 'warning'],
+    live: ['مباشر الآن', 'Live now', 'live'],
+    completed: ['انتهت', 'Finished', 'neutral'],
+    cancelled: ['ملغية', 'Cancelled', 'danger'],
+    suspended: ['موقوفة', 'Suspended', 'danger']
+  };
+  const r = T[status] ?? T.upcoming!;
+  return { text: ar ? r[0] : r[1], variant: r[2], pulse: status === 'live' };
+}
+
 export function ctaHref(status: string, locale: string, slug: string): string {
-  if (status === 'upcoming' || status === 'completed' || status === 'archived') return `/${locale}/tournaments/${slug}`;
+  if (status === 'upcoming' || status === 'completed' || status === 'archived' || status === 'cancelled' || status === 'suspended') return `/${locale}/tournaments/${slug}`;
   return `/${locale}/tournaments/${slug}/play`;
 }
 
@@ -57,3 +77,33 @@ export function qualifiesLabel(q: string, ar: boolean): string {
 }
 
 export const upcomingText = (ar: boolean) => (ar ? 'قريباً' : 'Coming soon');
+
+export type PrimaryAction = { label: string; href: string | null; secondary?: { label: string; href: string } };
+
+/** The main button per tournament state. href null = shown disabled (nothing to do right now). */
+export function primaryAction(status: string, locale: string, slug: string): PrimaryAction {
+  const ar = locale === 'ar';
+  const play = `/${locale}/tournaments/${slug}/play`;
+  switch (status) {
+    case 'registration_open':
+      return { label: ar ? 'سجّل الآن' : 'Register now', href: play };
+    case 'upcoming':
+      return { label: ar ? 'التسجيل لسه ماتفتحش' : 'Registration opens soon', href: null };
+    case 'registration_closed':
+      return { label: ar ? 'التسجيل مقفول' : 'Registration closed', href: null, secondary: { label: ar ? 'حالتي' : 'My entry', href: play } };
+    case 'ready':
+      return { label: ar ? 'حالتي' : 'My entry', href: play };
+    case 'check_in':
+      return { label: ar ? 'سجّل حضورك' : 'Check in', href: play };
+    case 'live':
+      return { label: ar ? 'شاهد الترتيب' : 'View standings', href: play };
+    case 'completed':
+      return { label: ar ? 'النتائج' : 'Results', href: `/${locale}/tournaments/${slug}` };
+    case 'cancelled':
+      return { label: ar ? 'البطولة ملغية' : 'Tournament cancelled', href: null };
+    case 'suspended':
+      return { label: ar ? 'البطولة موقوفة' : 'Tournament suspended', href: null };
+    default:
+      return { label: ar ? 'التفاصيل' : 'View details', href: `/${locale}/tournaments/${slug}` };
+  }
+}

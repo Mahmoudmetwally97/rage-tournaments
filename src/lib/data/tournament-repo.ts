@@ -35,9 +35,14 @@ interface StageRow {
 
 const STATUS_MAP: Record<string, DemoTournament['status']> = {
   registration_open: 'registration_open',
+  registration_closed: 'registration_closed',
   check_in: 'check_in',
+  ready: 'ready',
   live: 'live',
-  completed: 'completed'
+  completed: 'completed',
+  archived: 'completed',
+  cancelled: 'cancelled',
+  suspended: 'suspended'
 };
 
 function toLines(text: string | null | undefined): string[] {

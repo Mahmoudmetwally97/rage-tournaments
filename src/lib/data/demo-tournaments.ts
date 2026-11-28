@@ -10,7 +10,7 @@ export interface DemoTournament {
   competitionType: 'solo' | 'team';
   formatKey: 'ffa' | 'groups_knockout' | 'points';
   formatLabel: string;
-  status: 'upcoming' | 'registration_open' | 'check_in' | 'live' | 'completed';
+  status: 'upcoming' | 'registration_open' | 'registration_closed' | 'check_in' | 'ready' | 'live' | 'completed' | 'cancelled' | 'suspended';
   registeredCount: number;
   maxParticipants: number; // 0 = unlimited
   startsAtIso: string;

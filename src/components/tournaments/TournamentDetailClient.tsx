@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { formatStartDate, ctaFor, ctaHref, upcomingText, formatLabel, qualifiesLabel } from '@/lib/format';
+import { formatStartDate, ctaFor, ctaHref, statusBadge, primaryAction, formatLabel, qualifiesLabel } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -46,6 +46,9 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
     setRegCode(randomCode);
   }
 
+  const heroBadge = statusBadge(tournament.status, locale === 'ar');
+  const action = primaryAction(tournament.status, locale, tournament.slug);
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       {/* Tournament Cover / Hero */}
@@ -57,11 +60,8 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         <div className="absolute inset-x-0 top-0 h-1 bg-[#e5ed43]" />
         <div className="relative">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <StatusBadge
-            variant={tournament.status === 'live' ? 'live' : tournament.status === 'check_in' ? 'warning' : tournament.status === 'registration_open' ? 'open' : 'neutral'}
-            pulse={tournament.status === 'live'}
-          >
-            {tournament.status === 'live' ? dict.tournament.live : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'registration_open' ? dict.tournament.open : tournament.status === 'upcoming' ? upcomingText(locale === 'ar') : dict.tournament.completed}
+          <StatusBadge variant={heroBadge.variant} pulse={heroBadge.pulse} className="!px-3.5 !py-1.5 !text-sm !font-extrabold">
+            {heroBadge.text}
           </StatusBadge>
           <StatusBadge>
             {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
@@ -88,12 +88,31 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             </div>
           </div>
 
-          <a
-            href={ctaHref(tournament.status, locale, tournament.slug)}
-            className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
-          >
-            {ctaFor(tournament.status, locale === 'ar')}
-          </a>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            {action.href ? (
+              <a
+                href={action.href}
+                className="clip-btn btn-shine inline-flex w-full items-center justify-center bg-[#e5ed43] px-8 py-3.5 text-base font-extrabold text-[#0d0e10] sm:w-auto"
+              >
+                {action.label}
+              </a>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="clip-btn inline-flex w-full cursor-not-allowed items-center justify-center border border-[#2b2d30] bg-[#1b1d20]/90 px-8 py-3.5 text-base font-extrabold text-[#a4a6aa] sm:w-auto"
+              >
+                {action.label}
+              </span>
+            )}
+            {action.secondary && (
+              <a
+                href={action.secondary.href}
+                className="clip-btn inline-flex w-full items-center justify-center bg-[#23252a] px-6 py-3.5 text-base font-extrabold text-[#f4f4ed] hover:bg-[#2d3036] sm:w-auto"
+              >
+                {action.secondary.label}
+              </a>
+            )}
+          </div>
         </div>
       </div>
       </section>
