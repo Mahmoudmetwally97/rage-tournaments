@@ -5,6 +5,7 @@ import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { FilterBar } from './FilterBar';
 import { TournamentCard } from './TournamentCard';
+import { AnimatedGrid } from '@/components/motion/AnimatedGrid';
 import { EmptyState } from '@/components/ui/EmptyState';
 
 interface TournamentsExplorerProps {
@@ -64,11 +65,10 @@ export function TournamentsExplorer({ tournaments, locale, dict }: TournamentsEx
           onAction={resetFilters}
         />
       ) : (
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((t) => (
-            <TournamentCard key={t.slug} tournament={t} locale={locale} dict={dict} />
-          ))}
-        </div>
+        <AnimatedGrid
+          className="grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+          items={filtered.map((t) => ({ key: t.slug, node: <TournamentCard tournament={t} locale={locale} dict={dict} /> }))}
+        />
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+import { CountUp } from '@/components/ui/CountUp';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 
@@ -57,7 +58,7 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
             </div>
             <div className="shrink-0 text-end">
               <div className="text-sm font-extrabold text-[#e5ed43] ltr-isolate">
-                {row.points} {locale === 'ar' ? 'نقطة' : 'pts'}
+                <CountUp value={row.points} /> {locale === 'ar' ? 'نقطة' : 'pts'}
               </div>
               <div className="text-xs text-[#a4a6aa] ltr-isolate">
                 {row.kills} {locale === 'ar' ? 'قتلة' : 'kills'}
@@ -98,7 +99,7 @@ export function LeaderboardTable({ rows, dict, locale }: LeaderboardTableProps) 
                     <span className="font-extrabold text-[#f4f4ed] ltr-isolate">{row.ign}</span>
                   </td>
                   <td className="py-3.5 px-4">
-                    <span className="font-extrabold text-[#e5ed43] ltr-isolate">{row.points}</span>
+                    <span className="font-extrabold text-[#e5ed43] ltr-isolate"><CountUp value={row.points} /></span>
                   </td>
                   <td className="py-3.5 px-4">
                     <span className="font-semibold text-[#a4a6aa] ltr-isolate">{row.kills}</span>
