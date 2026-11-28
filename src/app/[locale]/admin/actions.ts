@@ -51,6 +51,8 @@ const ERR: Record<string, string> = {
   RESULT_LOCKED: 'الماتش التالي اتلعب، مينفعش تعديل / Next match already played',
   LAST_SUPER_ADMIN: 'ده آخر أدمن، مينفعش يتشال / This is the last admin and cannot be removed',
   CANNOT_CHANGE_SELF: 'مينفعش تغير صلاحياتك بنفسك / You cannot change your own role',
+  OWNER_ONLY: 'المالك بس يقدر يدّي أو يشيل صلاحية أدمن / Only the owner can grant or remove admin',
+  OWNER_PROTECTED: 'المالك محمي، مينفعش يتغير / The owner is protected',
   BAD_ROLE: 'صلاحية غير صالحة / Invalid role',
   MATCH_NOT_FOUND: 'الماتش مش موجود / Match not found'
 };

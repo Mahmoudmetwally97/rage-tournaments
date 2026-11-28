@@ -3,8 +3,8 @@ import { redirect } from 'next/navigation';
 import { requireOrganizer } from '@/lib/admin';
 import { setUserRole } from '../actions';
 
-const ROLE_AR: Record<string, string> = { super_admin: 'أدمن', moderator: 'مشرف', player: 'لاعب' };
-const ROLE_EN: Record<string, string> = { super_admin: 'Admin', moderator: 'Moderator', player: 'Player' };
+const ROLE_AR: Record<string, string> = { owner: 'المالك', super_admin: 'أدمن', moderator: 'مشرف', player: 'لاعب' };
+const ROLE_EN: Record<string, string> = { owner: 'Owner', super_admin: 'Admin', moderator: 'Moderator', player: 'Player' };
 
 export default async function TeamPage({
   params,
@@ -20,6 +20,7 @@ export default async function TeamPage({
   const { data: mine } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
   if (!(mine ?? []).some((r) => r.role === 'super_admin')) redirect(`/${locale}/admin`);
 
+  const isOwner = (mine ?? []).some((r) => r.role === 'owner');
   const q = (sp.q ?? '').trim();
   const { data: users } = await supabase.rpc('admin_list_users', { p_q: q });
   const { data: changes } = await supabase.rpc('admin_role_changes');
@@ -34,8 +35,8 @@ export default async function TeamPage({
         <h1 className="text-3xl font-extrabold text-[#f4f4ed]">{ar ? 'مين يقدر يدير الموقع' : 'Who can run the site'}</h1>
         <p className="mt-2 text-sm text-[#a4a6aa]">
           {ar
-            ? 'الأدمن يقدر يعمل كل حاجة ويدّي صلاحيات. المشرف يدخل لوحة الإدارة بس. اللاعب لازم يكون سجّل في الموقع الأول.'
-            : 'An admin can do everything and grant roles. A moderator can open the admin console only. The person must have signed up on the site first.'}
+            ? 'المالك بس يقدر يدّي أو يشيل الأدمن. الأدمن يدير الموقع ويدير المشرفين. المشرف يدخل لوحة الإدارة بس. اللاعب لازم يكون سجّل في الموقع الأول.'
+            : 'The owner can do everything and is the only one who can grant or remove admin. An admin can run the site and manage moderators. A moderator can open the admin console only. The person must have signed up on the site first.'}
         </p>
       </div>
 
@@ -51,15 +52,16 @@ export default async function TeamPage({
       <div className="space-y-3">
         {(users ?? []).map((u: { id: string; username: string; display_name: string; role: string }) => {
           const self = u.id === user.id;
+          const locked = u.role === 'owner' || (u.role === 'super_admin' && !isOwner);
           return (
             <article key={u.id} className="flex flex-wrap items-center justify-between gap-3 border border-[#2b2d30] bg-[#151619] p-4">
               <div>
                 <p className="font-extrabold text-[#f4f4ed] ltr-isolate">{u.username}{self && <span className="ms-2 text-[10px] text-[#a4a6aa]">({ar ? 'انت' : 'you'})</span>}</p>
                 <p className="text-xs text-[#a4a6aa]">{rn(u.role)}</p>
               </div>
-              {!self && (
+              {!self && !locked && (
                 <div className="flex flex-wrap gap-2">
-                  {(['moderator', 'super_admin', 'player'] as const).filter((r) => r !== u.role).map((r) => (
+                  {(['moderator', 'super_admin', 'player'] as const).filter((r) => r !== u.role && (isOwner || r !== 'super_admin')).map((r) => (
                     <form key={r} action={setUserRole}>
                       <input type="hidden" name="locale" value={locale} />
                       <input type="hidden" name="q" value={q} />
