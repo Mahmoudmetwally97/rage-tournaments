@@ -14,6 +14,7 @@ interface Props {
   dict: Dictionary;
 }
 
+import { BracketTree } from './BracketTree';
 type TabKey = 'overview' | 'rules' | 'schedule' | 'participants' | 'leaderboard';
 
 export function TournamentDetailClient({ tournament, locale, dict }: Props) {
@@ -122,7 +123,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
         aria-labelledby={`tab-${activeTab}`}
         className="rounded-none border border-[#2b2d30] bg-[#151619] p-6"
       >
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' && (<div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
             <div className="rounded-none border border-[#2b2d30] bg-[#0d0e10] p-4">
               <div className="text-xs text-[#6f7276]">{dict.tournament.game}</div>
@@ -145,6 +146,10 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
               <div className="mt-1 font-bold text-[#f4f4ed]">{formattedDate}</div>
             </div>
           </div>
+          <div>
+            <div className="mb-3 text-xs font-extrabold tracking-widest text-[#e5ed43]">{locale === 'ar' ? 'مسار البطولة' : 'TOURNAMENT PATH'}</div>
+            <BracketTree stages={tournament.stages} locale={locale} />
+          </div></div>
         )}
 
         {activeTab === 'rules' && (
@@ -157,6 +162,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
 
         {activeTab === 'schedule' && (
           <div className="space-y-3">
+            <BracketTree stages={tournament.stages} locale={locale} />
             {tournament.stages.map((st) => (
               <div
                 key={st.order}
