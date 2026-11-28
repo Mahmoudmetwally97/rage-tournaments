@@ -28,6 +28,7 @@ export function isoToCairoLocal(iso?: string | null): string {
 }
 
 export function ctaFor(status: string, ar: boolean): string {
+  if (status === 'upcoming') return ar ? 'التفاصيل' : 'View details';
   if (status === 'registration_open') return ar ? 'سجّل الآن' : 'Register now';
   if (status === 'check_in') return ar ? 'سجّل حضورك' : 'Check in';
   if (status === 'live') return ar ? 'شاهد الترتيب' : 'View standings';
@@ -35,7 +36,7 @@ export function ctaFor(status: string, ar: boolean): string {
 }
 
 export function ctaHref(status: string, locale: string, slug: string): string {
-  if (status === 'completed' || status === 'archived') return `/${locale}/tournaments/${slug}`;
+  if (status === 'upcoming' || status === 'completed' || status === 'archived') return `/${locale}/tournaments/${slug}`;
   return `/${locale}/tournaments/${slug}/play`;
 }
 
@@ -54,3 +55,5 @@ export function qualifiesLabel(q: string, ar: boolean): string {
   const per = /group/i.test(m[2] ?? '');
   return ar ? `أفضل ${n}${per ? ' من كل مجموعة' : ' بالإجمالي'}` : `Top ${n}${per ? ' per group' : ' overall'}`;
 }
+
+export const upcomingText = (ar: boolean) => (ar ? 'قريباً' : 'Coming soon');

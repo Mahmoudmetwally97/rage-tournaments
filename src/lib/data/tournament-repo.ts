@@ -68,7 +68,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number)
     competitionType: row.competition_type,
     formatKey: primaryFormat === 'ffa' ? 'ffa' : primaryFormat === 'points' ? 'points' : 'groups_knockout',
     formatLabel: primaryFormat.toUpperCase(),
-    status: STATUS_MAP[row.status] ?? 'registration_open',
+    status: STATUS_MAP[row.status] ?? 'upcoming',
     registeredCount,
     maxParticipants: row.max_participants,
     startsAtIso: row.starts_at ?? '',

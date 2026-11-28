@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { formatStartDate, ctaFor, ctaHref, formatLabel, qualifiesLabel } from '@/lib/format';
+import { formatStartDate, ctaFor, ctaHref, upcomingText, formatLabel, qualifiesLabel } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -61,7 +61,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
             variant={tournament.status === 'live' ? 'live' : tournament.status === 'check_in' ? 'warning' : tournament.status === 'registration_open' ? 'open' : 'neutral'}
             pulse={tournament.status === 'live'}
           >
-            {tournament.status === 'live' ? dict.tournament.live : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'registration_open' ? dict.tournament.open : dict.tournament.completed}
+            {tournament.status === 'live' ? dict.tournament.live : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'registration_open' ? dict.tournament.open : tournament.status === 'upcoming' ? upcomingText(locale === 'ar') : dict.tournament.completed}
           </StatusBadge>
           <StatusBadge>
             {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}

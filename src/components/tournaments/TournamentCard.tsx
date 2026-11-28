@@ -1,4 +1,4 @@
-import { ctaFor, ctaHref } from '@/lib/format';
+import { ctaFor, ctaHref, upcomingText } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
@@ -36,6 +36,8 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
       ? dict.tournament.checkIn
       : tournament.status === 'live'
       ? dict.tournament.live
+      : tournament.status === 'upcoming'
+      ? upcomingText(locale === 'ar')
       : dict.tournament.completed;
 
   const formattedDate = formatStartDate(tournament.startsAtIso, locale);

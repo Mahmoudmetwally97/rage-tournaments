@@ -1,4 +1,4 @@
-import { ctaFor, ctaHref } from '@/lib/format';
+import { ctaFor, ctaHref, upcomingText } from '@/lib/format';
 import Link from 'next/link';
 import { formatStartDate } from '@/lib/format';
 import Image from 'next/image';
@@ -31,7 +31,7 @@ export function FeaturedTournament({ tournament, locale, dict }: FeaturedTournam
             <StatusBadge variant="live" pulse>
               {dict.home.featuredLabel}
             </StatusBadge>
-            <StatusBadge variant={tournament.status === 'live' ? 'live' : tournament.status === 'registration_open' ? 'open' : tournament.status === 'check_in' ? 'warning' : 'neutral'}>{tournament.status === 'live' ? dict.tournament.live : tournament.status === 'registration_open' ? dict.tournament.open : tournament.status === 'check_in' ? dict.tournament.checkIn : dict.tournament.completed}</StatusBadge>
+            <StatusBadge variant={tournament.status === 'live' ? 'live' : tournament.status === 'registration_open' ? 'open' : tournament.status === 'check_in' ? 'warning' : 'neutral'}>{tournament.status === 'live' ? dict.tournament.live : tournament.status === 'registration_open' ? dict.tournament.open : tournament.status === 'check_in' ? dict.tournament.checkIn : tournament.status === 'upcoming' ? upcomingText(locale === 'ar') : dict.tournament.completed}</StatusBadge>
             <StatusBadge>
               {tournament.competitionType === 'solo' ? dict.tournament.solo : dict.tournament.team}
             </StatusBadge>
