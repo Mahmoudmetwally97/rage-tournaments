@@ -526,7 +526,10 @@ export async function createTournament(f: FormData) {
 }
 
 /* ---------- teams (SD) ---------- */
-const teamsUrl = (f: FormData) => `/${s(f, 'locale') || 'ar'}/teams`;
+const teamsUrl = (f: FormData) => {
+  const b = s(f, 'back');
+  return /^\/(ar|en)\/teams(\/[0-9a-f-]{36})?$/.test(b) ? b : `/${s(f, 'locale') || 'ar'}/teams`;
+};
 
 export async function createTeamAction(f: FormData) {
   const { sb } = await client();

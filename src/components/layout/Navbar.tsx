@@ -19,6 +19,8 @@ export function Navbar({ locale, dict }: NavbarProps) {
   const [demoUser, setDemoUser] = useState<{ username: string; avatar?: string } | null>(null);
   const [isOrganizer, setIsOrganizer] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [prof, setProf] = useState<{ username: string; avatar_url: string | null } | null>(null);
 
   useEffect(() => {
     const supabase = getSupabaseBrowserClient();
@@ -50,9 +52,12 @@ export function Navbar({ locale, dict }: NavbarProps) {
 
     const loadRoles = async (userId: string | null) => {
       if (!userId) {
+        setProf(null);
         setIsOrganizer(false);
         return;
       }
+      const { data: pr } = await supabase.from('player_profiles').select('username,avatar_url').eq('id', userId).maybeSingle();
+      setProf(pr ?? null);
       const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId);
       setIsOrganizer((data ?? []).some((r) => r.role === 'super_admin' || r.role === 'moderator'));
     };
@@ -135,25 +140,40 @@ export function Navbar({ locale, dict }: NavbarProps) {
           </Link>
           {demoUser ? (
             <>
-              <Link
-                href={`/${locale}/dashboard`}
-                className="rounded-none border border-[#2b2d30] bg-[#151619] px-3.5 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate"
-              >
-                <span className="inline-flex items-center gap-2">
-                  {demoUser.avatar && /^https:\/\//.test(demoUser.avatar) && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen((v) => !v)}
+                  aria-expanded={menuOpen}
+                  aria-haspopup="menu"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-[#2b2d30] bg-[#151619] px-3 py-1.5 text-sm font-bold text-[#e5ed43] ltr-isolate hover:border-[#3a3d40]"
+                >
+                  {(prof?.avatar_url || (demoUser.avatar && /^https:\/\//.test(demoUser.avatar))) && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={demoUser.avatar} alt="" width={22} height={22} referrerPolicy="no-referrer" className="h-[22px] w-[22px] rounded-full object-cover" />
+                    <img src={prof?.avatar_url || demoUser.avatar} alt="" width={22} height={22} referrerPolicy="no-referrer" className="h-[22px] w-[22px] rounded-full object-cover" />
                   )}
-                  {demoUser.username}
-                </span>
-              </Link>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="clip-btn rounded-none bg-[#EF4444]/20 px-3 py-2 text-xs font-extrabold text-[#FCA5A5] cursor-pointer"
-              >
-                {dict.nav.logout}
-              </button>
+                  {prof?.username || demoUser.username}
+                  <svg className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z" /></svg>
+                </button>
+                {menuOpen && (
+                  <>
+                    <button type="button" aria-label="close" className="fixed inset-0 z-40 cursor-default" onClick={() => setMenuOpen(false)} />
+                    <div role="menu" className="absolute end-0 top-full z-50 mt-2 w-60 border border-[#2b2d30] bg-[#101113] p-2 shadow-xl">
+                      <div className="border-b border-[#2b2d30] px-3 pb-2 pt-1 text-xs font-extrabold text-[#a4a6aa] ltr-isolate">{prof?.username || demoUser.username}</div>
+                      {[
+                        { href: `/${locale}/u/${prof?.username || demoUser.username}`, label: locale === 'ar' ? 'البروفايل' : 'Profile' },
+                        { href: `/${locale}/settings`, label: locale === 'ar' ? 'إعدادات الحساب' : 'Account settings' },
+                        { href: `/${locale}/teams`, label: locale === 'ar' ? 'تيماتي' : 'My teams' },
+                        { href: `/${locale}/dashboard`, label: locale === 'ar' ? 'بطولاتي' : 'My tournaments' },
+                        ...(isOrganizer ? [{ href: `/${locale}/admin`, label: locale === 'ar' ? 'لوحة الإدارة' : 'Admin console' }] : [])
+                      ].map((i) => (
+                        <Link key={i.href} href={i.href} role="menuitem" onClick={() => setMenuOpen(false)} className="block px-3 py-2 text-sm font-bold text-[#d6d7d2] hover:bg-[#1b1d20] hover:text-[#e5ed43]">{i.label}</Link>
+                      ))}
+                      <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void handleLogout(); }} className="mt-1 block w-full cursor-pointer border-t border-[#2b2d30] px-3 py-2 text-start text-sm font-bold text-[#FCA5A5] hover:bg-[#EF4444]/10">{dict.nav.logout}</button>
+                    </div>
+                  </>
+                )}
+              </div>
             </>
           ) : (
             <>
@@ -197,7 +217,7 @@ export function Navbar({ locale, dict }: NavbarProps) {
         otherLocale={otherLocale}
         pathname={pathname}
         dict={dict}
-        demoUser={demoUser}
+        demoUser={prof ? { username: prof.username } : demoUser}
         isOrganizer={isOrganizer}
         onLogout={handleLogout}
       />
