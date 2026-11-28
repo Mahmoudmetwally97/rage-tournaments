@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -36,10 +37,7 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
       ? dict.tournament.live
       : dict.tournament.completed;
 
-  const formattedDate = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(tournament.startsAtIso));
+  const formattedDate = formatStartDate(tournament.startsAtIso, locale);
 
   return (
     <article className="group flex flex-col justify-between rounded-none border border-[#2b2d30] bg-[#151619] p-5 transition-all hover:border-[#3a3d40] hover:bg-[#1C1C20]">

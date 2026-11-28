@@ -65,7 +65,7 @@ function mapRow(row: TournamentRow, stages: StageRow[], registeredCount: number)
     status: STATUS_MAP[row.status] ?? 'registration_open',
     registeredCount,
     maxParticipants: row.max_participants,
-    startsAtIso: row.starts_at ?? new Date().toISOString(),
+    startsAtIso: row.starts_at ?? '',
     prizeConfirmedAr: row.prize_summary_ar,
     prizeConfirmedEn: row.prize_summary_en,
     rulesAr: toLines(row.rules_text_ar),

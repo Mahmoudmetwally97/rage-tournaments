@@ -7,7 +7,7 @@ export function isValidLocale(val: string): val is Locale {
 export const dictionaries = {
   ar: {
     brand: 'RAGE TOURNAMENTS',
-    demoBanner: 'بيانات تجريبية للمعاينة (DEMO DATA) — سيتم ربطها بقاعدة بيانات Supabase الحية عند التفعيل',
+    demoBanner: 'نسخة معاينة قيد التجهيز (PREVIEW) — المواعيد والجوائز والنقاط تُعلن لاحقاً',
     nav: {
       home: 'الرئيسية',
       tournaments: 'البطولات',
@@ -117,7 +117,7 @@ export const dictionaries = {
   },
   en: {
     brand: 'RAGE TOURNAMENTS',
-    demoBanner: 'DEMO PREVIEW DATA — Will connect to live Supabase PostgreSQL once provisioned',
+    demoBanner: 'PREVIEW BUILD — dates, prizes and points to be announced',
     nav: {
       home: 'Home',
       tournaments: 'Tournaments',

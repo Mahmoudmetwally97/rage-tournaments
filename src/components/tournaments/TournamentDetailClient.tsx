@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { formatStartDate } from '@/lib/format';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
 import { Button } from '@/components/ui/Button';
@@ -27,10 +28,7 @@ export function TournamentDetailClient({ tournament, locale, dict }: Props) {
   const game = locale === 'ar' ? tournament.gameAr : tournament.gameEn;
   const rules = locale === 'ar' ? tournament.rulesAr : tournament.rulesEn;
 
-  const formattedDate = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(tournament.startsAtIso));
+  const formattedDate = formatStartDate(tournament.startsAtIso, locale);
 
   function handleRegister(e: React.FormEvent) {
     e.preventDefault();

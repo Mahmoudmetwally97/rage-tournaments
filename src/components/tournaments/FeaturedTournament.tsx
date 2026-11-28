@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { formatStartDate } from '@/lib/format';
 import Image from 'next/image';
 import type { DemoTournament } from '@/lib/data/demo-tournaments';
 import type { Dictionary, Locale } from '@/lib/i18n/dictionaries';
@@ -18,10 +19,7 @@ export function FeaturedTournament({ tournament, locale, dict }: FeaturedTournam
       ? `${tournament.registeredCount} / ${tournament.maxParticipants}`
       : `${tournament.registeredCount} / ${dict.tournament.unlimited}`;
 
-  const formattedDate = new Intl.DateTimeFormat(locale === 'ar' ? 'ar-EG' : 'en-US', {
-    dateStyle: 'medium',
-    timeStyle: 'short'
-  }).format(new Date(tournament.startsAtIso));
+  const formattedDate = formatStartDate(tournament.startsAtIso, locale);
 
   return (
     <section className="relative overflow-hidden rounded-none border border-[#2b2d30] bg-[#151619] tactical-grid-bg">
