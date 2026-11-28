@@ -68,6 +68,10 @@ export default async function NewTournamentPage({
             <label className="text-xs text-[#a4a6aa]">{tr(locale, 'اسم زر التواصل', 'Contact label')}<input name="contact_label" className={inputCls} /></label>
           </div>
         </Card>
+        <Card title={tr(locale, 'صورة الغلاف (اختياري)', 'Cover image (optional)')}>
+          <input name="cover" type="file" accept="image/jpeg,image/png,image/webp" className="block w-full text-xs text-[#a4a6aa] file:me-3 file:border-0 file:bg-[#23252a] file:px-3 file:py-2 file:text-xs file:font-bold file:text-[#f4f4ed]" />
+          <p className="mt-2 text-xs text-[#6f7276]">{tr(locale, 'JPG أو PNG أو WebP، حتى 3 ميجا. يفضل عريضة (مثلاً 1600×600). فارغ = الصورة الافتراضية.', 'JPG, PNG or WebP, up to 3 MB. Wide images work best (e.g. 1600x600). Empty = default art.')}</p>
+        </Card>
         <Card title={tr(locale, 'نسخ القواعد', 'Copy rules')}>
           <label className="text-xs text-[#a4a6aa]">{tr(locale, 'انسخ القوانين والنقاط والجوائز والمراحل من بطولة موجودة', 'Copy rules, points, prizes and stages from an existing tournament')}
             <select name="copy_from" defaultValue="" className={inputCls}>

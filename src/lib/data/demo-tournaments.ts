@@ -1,5 +1,6 @@
 export interface DemoTournament {
   slug: string;
+  coverUrl?: string | null;
   isDemo: true;
   featured?: boolean;
   titleAr: string;

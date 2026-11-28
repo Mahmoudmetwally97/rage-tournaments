@@ -46,7 +46,7 @@ export function TournamentCard({ tournament, locale, dict }: TournamentCardProps
     <article className="reveal clip-card card-surface card-hover group flex flex-col justify-between rounded-none border-t-2 border-t-[#e5ed43]/70 p-5">
       <div className="-mx-5 -mt-5 mb-4 h-24 overflow-hidden relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/rage-characters.png" alt="" className="h-full w-full object-cover object-[62%_20%] opacity-80 transition-transform duration-500 group-hover:scale-105" />
+        <img src={tournament.coverUrl || "/brand/rage-characters.png"} alt="" className={`h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105 ${tournament.coverUrl ? "object-center" : "object-[62%_20%]"}`} />
         <div className="absolute inset-0 bg-gradient-to-t from-[#151619] to-transparent" />
       </div>
       <div>

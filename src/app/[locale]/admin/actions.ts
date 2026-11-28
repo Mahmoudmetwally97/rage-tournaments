@@ -55,6 +55,61 @@ function back(f: FormData, sub = ''): string {
   return `/${s(f, 'locale') || 'ar'}/admin/${s(f, 'slug')}${sub}`;
 }
 
+
+const COVER_BUCKET = 'tournament-covers';
+const COVER_MAX = 3 * 1024 * 1024;
+
+function sniffImage(b: Uint8Array): { ext: string; mime: string } | null {
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { ext: 'jpg', mime: 'image/jpeg' };
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return { ext: 'png', mime: 'image/png' };
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return { ext: 'webp', mime: 'image/webp' };
+  return null;
+}
+
+function coverPathFromUrl(url: string | null | undefined): string | null {
+  const m = String(url ?? '').match(new RegExp(`/${COVER_BUCKET}/([0-9a-f-]{36}/[^?#]+)`));
+  return m ? decodeURIComponent(m[1] as string) : null;
+}
+
+/** Validate + upload a cover with the caller's own session (storage RLS decides), then point the tournament at it. Returns an error string or null. */
+async function applyCover(sb: Awaited<ReturnType<typeof client>>['sb'], tid: string, file: File): Promise<Msg> {
+  if (file.size > COVER_MAX) return 'الصورة أكبر من 3 ميجا / Image is larger than 3 MB';
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const kind = sniffImage(bytes);
+  if (!kind) return 'الصيغة لازم تكون JPG أو PNG أو WebP / Image must be JPG, PNG or WebP';
+  const { data: cur } = await sb.from('tournaments').select('cover_image_url').eq('id', tid).maybeSingle();
+  const path = `${tid}/cover-${Date.now()}.${kind.ext}`;
+  const up = await sb.storage.from(COVER_BUCKET).upload(path, bytes, { contentType: kind.mime, cacheControl: '31536000', upsert: false });
+  if (up.error) return up.error.message.includes('row-level security') ? 'FORBIDDEN' : up.error.message;
+  const url = sb.storage.from(COVER_BUCKET).getPublicUrl(path).data.publicUrl;
+  const { data: upd, error } = await sb.from('tournaments').update({ cover_image_url: url }).eq('id', tid).select('id');
+  if (error || !upd?.length) {
+    await sb.storage.from(COVER_BUCKET).remove([path]);
+    return error?.message ?? 'FORBIDDEN';
+  }
+  const old = coverPathFromUrl(cur?.cover_image_url);
+  if (old && old !== path) await sb.storage.from(COVER_BUCKET).remove([old]);
+  return null;
+}
+
+export async function saveCover(f: FormData) {
+  const { sb } = await client();
+  const file = f.get('cover');
+  if (!(file instanceof File) || file.size === 0) return done(back(f), 'اختار صورة الأول / Choose an image first');
+  await done(back(f), await applyCover(sb, s(f, 'tid'), file));
+}
+
+export async function removeCover(f: FormData) {
+  const { sb } = await client();
+  const tid = s(f, 'tid');
+  const { data: cur } = await sb.from('tournaments').select('cover_image_url').eq('id', tid).maybeSingle();
+  const { data: upd, error } = await sb.from('tournaments').update({ cover_image_url: null }).eq('id', tid).select('id');
+  if (error || !upd?.length) return done(back(f), error?.message ?? 'FORBIDDEN');
+  const old = coverPathFromUrl(cur?.cover_image_url);
+  if (old) await sb.storage.from(COVER_BUCKET).remove([old]);
+  await done(back(f), null);
+}
+
 export async function setRegStatus(f: FormData) {
   const { sb } = await client();
   const { error } = await sb.rpc('admin_set_registration_status', {
@@ -419,6 +474,14 @@ export async function createTournament(f: FormData) {
     if (e2) return rollback(e2.message);
   }
 
+  const cover = f.get('cover');
+  if (cover instanceof File && cover.size > 0) {
+    const ce = await applyCover(sb, tid, cover);
+    if (ce) {
+      revalidatePath(`/${locale}/admin`);
+      redirect(`/${locale}/admin/${slug}?err=${encodeURIComponent(ce)}`);
+    }
+  }
   revalidatePath(`/${locale}/admin`);
   redirect(`/${locale}/admin/${slug}?ok=1`);
 }
